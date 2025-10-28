@@ -336,6 +336,26 @@
   <div id="footer-placeholder"></div>
 
   <!-- Import du script unique (il gère à la fois le chargement HTML + les modifications) -->
-  <script src="modifications.js"></script>
+<script>
+  function loadHTML(id, url) {
+    fetch(url)
+      .then(response => {
+        if (!response.ok) throw new Error('Erreur de chargement');
+        return response.text();
+      })
+      .then(data => {
+        // !! Utilise outerHTML pour remplacer le div placeholder !!
+        // C'est la méthode la plus propre.
+        document.getElementById(id).outerHTML = data;
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+      });
+  }
+
+  loadHTML('header-placeholder', 'header.html');
+  loadHTML('footer-placeholder', 'footer.html');
+</script>
+  
 </body>
 </html>
