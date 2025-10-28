@@ -3,13 +3,6 @@
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  /* Tu peux aussi en profiter pour définir la police 
-     par défaut ici, au lieu de le faire dans 
-     chaque page ou composant. */
-  font-family: 'Alata', sans-serif; 
-}
 /* Base (Cible HTML et BODY) */
 html, body {
   font-family: 'Alata', sans-serif;
