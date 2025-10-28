@@ -1,9 +1,16 @@
+/* CHANGEMENT 1: Règle globale pour éviter les débordements (marge blanche horizontale) */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 /* Base */
-body {
+/* CHANGEMENT 2: Cible 'html' ET 'body' pour supprimer toutes les marges */
+html, body {
   font-family: 'Alata', sans-serif;
   background: #fefaf5;
   margin: 0;
   padding: 0;
+  width: 100%; /* S'assure que html et body prennent toute la largeur */
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -64,7 +71,7 @@ nav a.no-animation:active {
   max-width: 960px;
   margin: 2rem auto;
   padding: 1rem;
-  flex: 1;
+  flex: 1; /* C'est cette ligne qui pousse le footer en bas */
   border-bottom: 1px solid #ddd;
 }
 
@@ -126,7 +133,7 @@ footer {
   color: white;
   padding: 1.5rem 1rem;
   text-align: center;
-  margin-top: auto;
+  margin-top: auto; /* C'est cette ligne qui colle le footer en bas */
   border-top: 1px solid #ddd;
 }
 
