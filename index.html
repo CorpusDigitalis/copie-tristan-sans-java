@@ -25,30 +25,32 @@
     </div>
   </div>
 
-    <div id="footer-placeholder"></div>
+<div id="footer-placeholder"></div>
 
- <script>
-    function loadHTML(id, url) {
-      fetch(url)
-        .then(response => {
-          if (!response.ok) throw new Error('Erreur de chargement');
-          return response.text();
-        })
-        .then(data => {
-          // Cette ligne va maintenant fonctionner !
-          document.getElementById(id).innerHTML = data;
-        })
-        .catch(error => {
-          console.error('Erreur:', error);
-        });
-    }
+<script>
+  function loadHTML(id, url) {
+    fetch(url)
+      .then(response => {
+        if (!response.ok) throw new Error('Erreur de chargement');
+        return response.text();
+      })
+      .then(data => {
+        // !! CHANGEMENT CLÉ ICI !!
+        // .outerHTML remplace le div placeholder (div#header-placeholder)
+        // par le contenu du fichier (header.html),
+        // au lieu de le mettre à l'intérieur.
+        document.getElementById(id).outerHTML = data;
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+      });
+  }
 
-    loadHTML('header-placeholder', 'header.html');
-    loadHTML('footer-placeholder', 'footer.html');
-  </script>
-  
-</body>
-</html>
+  loadHTML('header-placeholder', 'header.html');
+  loadHTML('footer-placeholder', 'footer.html');
+</script>
+  
+</body> </html>
     
 </body>
 </html>
