@@ -1,16 +1,15 @@
-/* CHANGEMENT 1: Règle globale pour éviter les débordements (marge blanche horizontale) */
+/* Règle globale pour les marges */
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
-/* Base */
-/* CHANGEMENT 2: Cible 'html' ET 'body' pour supprimer toutes les marges */
+/* Base (Cible HTML et BODY) */
 html, body {
   font-family: 'Alata', sans-serif;
   background: #fefaf5;
   margin: 0;
   padding: 0;
-  width: 100%; /* S'assure que html et body prennent toute la largeur */
+  width: 100%;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -35,7 +34,7 @@ nav {
   align-items: center;
 }
 
-/* Ajout display inline-block pour bien gérer hover/transform */
+/* ... (tout le reste de votre nav est correct) ... */
 nav a {
   color: white;
   text-decoration: none;
@@ -43,23 +42,16 @@ nav a {
   letter-spacing: 0.03em;
   transition: transform 0.2s ease, color 0.1s ease;
 }
-
-/* margin-left uniquement sur les liens sauf le premier dans la 2e div */
 nav div:last-child a:not(:first-child) {
   margin-left: 1rem;
 }
-
-/* Animation pour tous les liens sauf ceux avec .no-animation */
 nav a:hover:not(.no-animation) {
   transform: scale(0.95);
 }
-
 nav a:active:not(.no-animation) {
   color: #cccccc;
   transform: scale(0.92);
 }
-
-/* Désactiver animation pour Tristan Arbona */
 nav a.no-animation:hover,
 nav a.no-animation:active {
   transform: none !important;
@@ -71,22 +63,20 @@ nav a.no-animation:active {
   max-width: 960px;
   margin: 2rem auto;
   padding: 1rem;
-  flex: 1; /* C'est cette ligne qui pousse le footer en bas */
+  flex: 1; /* Clé N°1: Pousse le footer vers le bas */
   border-bottom: 1px solid #ddd;
 }
 
+/* ... (tout le reste du contenu est correct) ... */
 .container::after {
   content: "";
   display: block;
   height: 4rem;
 }
-
 h1, h2 {
   color: #222;
   margin-bottom: 1rem;
 }
-
-/* Boutons */
 a.button {
   display: inline-block;
   margin-top: 1rem;
@@ -97,31 +87,25 @@ a.button {
   border-radius: 6px;
   transition: transform 0.2s ease, background 0.1s ease;
 }
-
 a.button:hover {
   transform: scale(0.95);
 }
-
 a.button:active {
   background: #444;
   transform: scale(0.92);
 }
-
-/* Accueil */
 .main-content {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 2rem;
 }
-
 .main-content img {
   max-width: 100%;
   width: 300px;
   height: auto;
   border-radius: 8px;
 }
-
 .description {
   flex: 1;
   min-width: 250px;
@@ -133,10 +117,11 @@ footer {
   color: white;
   padding: 1.5rem 1rem;
   text-align: center;
-  margin-top: auto; /* C'est cette ligne qui colle le footer en bas */
+  margin-top: auto; /* Clé N°2: Colle-le en bas (fonctionnera maintenant) */
   border-top: 1px solid #ddd;
 }
 
+/* ... (le reste du footer est correct) ... */
 .footer-links {
   display: flex;
   flex-wrap: wrap;
@@ -144,43 +129,36 @@ footer {
   gap: 1rem;
   margin-bottom: 1rem;
 }
-
 .footer-links a {
   color: white;
   text-decoration: none;
   transition: transform 0.2s ease, color 0.1s ease;
 }
-
 .footer-links a:hover {
   transform: scale(0.95);
 }
-
 .footer-links a:active {
   color: #cccccc;
   transform: scale(0.92);
 }
-
 .small-text {
   color: #1f1f1f;
   font-size: 0.8rem;
 }
 
-/* Responsive */
+/* ... (le responsive est correct) ... */
 @media (max-width: 768px) {
   .main-content {
     flex-direction: column;
     align-items: center;
   }
-
   nav {
     flex-direction: column;
     align-items: center;
   }
-
   nav div:last-child a {
     margin: 0.5rem;
   }
-
   .footer-links {
     flex-direction: column;
   }
