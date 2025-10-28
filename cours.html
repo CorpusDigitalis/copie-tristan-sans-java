@@ -7,11 +7,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    body {
-      font-family: 'Alata', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f9f9f9;
+    <style>
+    details {
+      margin-bottom: 1rem;
     }
 
     details {
@@ -193,24 +191,24 @@
   
     <div id="footer-placeholder"></div>
 
-  <script>
-    function loadHTML(id, url) {
-      fetch(url)
-        .then(response => {
-          if (!response.ok) throw new Error('Erreur de chargement');
-          return response.text();
-        })
-        .then(data => {
-          document.getElementById(id).innerHTML = data;
-        })
-        .catch(error => {
-          console.error('Erreur:', error);
-        });
-    }
+<script>
+  function loadHTML(id, url) {
+    fetch(url)
+      .then(response => {
+        if (!response.ok) throw new Error('Erreur de chargement');
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(id).outerHTML = data;
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+      });
+  }
 
-    loadHTML('header-placeholder', 'header.html');
-    loadHTML('footer-placeholder', 'footer.html');
-  </script>
+  loadHTML('header-placeholder', 'header.html');
+  loadHTML('footer-placeholder', 'footer.html');
+</script>
   
 </body>
 </html>
