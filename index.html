@@ -1,55 +1,52 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tristan Arbona</title>
-  <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-    </head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tristan Arbona</title>
+  <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
 
-    <div id="header-placeholder"></div>
+<body>
 
-  <div class="container">
-    <div class="main-content">
-      <img src="portrait.jpg" alt="Portrait de Tristan Arbona" />
-      <div class="description">
-        <h1>Bienvenue</h1>
-        <p>
-          Je conçois des sites web professionnels sur mesure, pensés pour valoriser l’identité, les différents travaux et l’expertise de professionnels issus de divers secteurs.<br>
-          <br>
-          Chaque site est développé de manière personnalisée, avec une attention portée à la lisibilité, à la simplicité d’usage et à l’autonomie du client.
-        </p>
-      </div>
-    </div>
-  </div>
+  <div id="header-placeholder"></div>
 
-<div id="footer-placeholder"></div>
+  <div class="container">
+    <div class="main-content">
+      <img src="portrait.jpg" alt="Portrait de Tristan Arbona" />
+      <div class="description">
+        <h1>Bienvenue</h1>
+        <p>
+          Je conçois des sites web professionnels sur mesure, pensés pour valoriser l’identité, les différents travaux et l’expertise de professionnels issus de divers secteurs.<br>
+          <br>
+          Chaque site est développé de manière personnalisée, avec une attention portée à la lisibilité, à la simplicité d’usage et à l’autonomie du client.
+        </p>
+      </div>
+    </div>
+  </div>
 
-<script>
-  function loadHTML(id, url) {
-    fetch(url)
-      .then(response => {
-        if (!response.ok) throw new Error('Erreur de chargement');
-        return response.text();
-      })
-      .then(data => {
-        // !! CHANGEMENT CLÉ ICI !!
-        // .outerHTML remplace le div placeholder (div#header-placeholder)
-        // par le contenu du fichier (header.html),
-        // au lieu de le mettre à l'intérieur.
-        document.getElementById(id).outerHTML = data;
-      })
-      .catch(error => {
-        console.error('Erreur:', error);
-      });
-  }
+  <div id="footer-placeholder"></div>
 
-  loadHTML('header-placeholder', 'header.html');
-  loadHTML('footer-placeholder', 'footer.html');
-</script>
+  <script>
+    function loadHTML(id, url) {
+      fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error('Erreur de chargement');
+          return response.text();
+        })
+        .then(data => {
+          // .outerHTML remplace le div placeholder
+          document.getElementById(id).outerHTML = data;
+        })
+        .catch(error => {
+          console.error('Erreur:', error);
+        });
+    }
+
+    loadHTML('header-placeholder', 'header.html');
+    loadHTML('footer-placeholder', 'footer.html');
+  </script>
   
-</body> </html>
-    
 </body>
 </html>
