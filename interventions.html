@@ -27,10 +27,13 @@
   position: sticky;
   top: var(--header-offset);
   z-index: 10;
-  background: transparent;
-  box-shadow: none;
+  /* MODIFIÉ : On donne le fond de la page pour masquer le scroll */
+  background: #fefaf5; 
+  /* MODIFIÉ : On ajoute une ombre pour un effet "flottant" */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
   margin: 1.25rem auto 0.5rem auto;
-  padding: 0.25rem 0;
+  /* MODIFIÉ : On ajoute plus d'espace vertical */
+  padding: 0.5rem 0; 
   max-width: 960px;
   display: flex;
   align-items: center;
@@ -90,7 +93,8 @@
 /* -------- TIMELINE -------- */
 #timeline-wrapper {
   position: relative;
-  margin-top: 2.25rem;
+  /* MODIFIÉ : On décale la timeline plus bas */
+  margin-top: 5rem; 
   margin-bottom: 4rem;
 }
 
@@ -101,11 +105,11 @@
   left: 50%;
   transform: translateX(-50%);
   width: 4px;
+  /* MODIFIÉ : Le dégradé commence bien plus tôt (de 0 à 80px) */
   background: linear-gradient(
     to bottom,
     rgba(31,31,31,0) 0px,
-    rgba(31,31,31,0) 160px,
-    rgba(31,31,31,1) 220px,
+    rgba(31,31,31,1) 80px,
     rgba(31,31,31,1) calc(100% - 16px),
     rgba(31,31,31,0.85) 100%
   );
@@ -233,7 +237,8 @@ mark {
     flex-direction: column;
     align-items: stretch;
     gap: 0.6rem;
-    padding: 0.35rem 0;
+    /* MODIFIÉ : Ajout de padding horizontal sur mobile */
+    padding: 0.5rem 1rem; 
   }
   #tools-left, #tools-right {
     flex: 1 1 auto;
@@ -393,7 +398,7 @@ mark {
         <div class="timeline-event" data-date="2018-06-30" data-keywords="atelier toulouse visualisation de données big data">
           <div class="event-left">
             <div class="event-card">
-              <p class="event-date" id="event-3-date">30/06/2018</p>
+              <p class="event-date" id="event-3-date">30/06/2E018</p>
               <p class="event-lieu" id="event-3-lieu">Toulouse, France</p>
             </div>
           </div>
