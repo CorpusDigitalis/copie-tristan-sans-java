@@ -113,42 +113,52 @@
 
 /* Grille : gauche (box) | ligne | droite (contenu) */
 .timeline-grid {
-  display: grid;
-  grid-template-columns: minmax(260px, 380px) 4px minmax(320px, 1fr);
-  column-gap: 2rem;
-  row-gap: 2rem;
-  align-items: center;
-  position: relative;
+  display: grid;
+  /* MODIFIÉ : 2 colonnes égales (1fr) avec un grand écart au milieu */
+  grid-template-columns: 1fr 1fr;
+  /* MODIFIÉ : 4rem d'écart pour laisser 2rem de chaque côté de la ligne */
+  column-gap: 4rem; 
+  row-gap: 2rem;
+  align-items: center;
+  position: relative;
 }
 
-/* Chaque événement */
-.timeline-event { display: contents; }
-
-/* Point central */
+/* Point central : On le centre dans l'écart */
 .timeline-dot {
-  grid-column: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  position: relative;
-  min-height: 48px;
-}
-.timeline-dot::after {
-  content: "";
-  width: 10px; height: 10px;
-  background: #1f1f1f;
-  border-radius: 50%;
-  display: block;
+  /* MODIFIÉ : Le point s'étend sur les 2 colonnes pour se centrer au milieu */
+  grid-column: 1 / span 2; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+  min-height: 48px;
+  /* AJOUTÉ : S'assure que le point est au-dessus de la ligne */
+  z-index: 5; 
 }
 
 /* Colonne GAUCHE = box date/lieu */
 .event-left {
-  grid-column: 1;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+  grid-column: 1;
+  display: flex;
+  /* MODIFIÉ : On aligne la carte à droite de sa colonne */
+  justify-content: flex-end; 
+  align-items: center;
+  /* AJOUTÉ : S'assure que la carte est au-dessus de la ligne */
+  position: relative; 
+  z-index: 5;
 }
+
+/* Colonne DROITE = type + description + lien */
+.event-right {
+  /* MODIFIÉ : On place le contenu dans la 2e colonne */
+  grid-column: 2; 
+  align-self: stretch;
+  /* AJOUTÉ : S'assure que le contenu est au-dessus de la ligne */
+  position: relative; 
+  z-index: 5;
+}
+   
 .event-card {
   width: 380px; max-width: 100%;
   background: #ffffff;
@@ -167,12 +177,6 @@
   margin: 0;
   color: #222;
   opacity: .95;
-}
-
-/* Colonne DROITE = type + description + lien */
-.event-right {
-  grid-column: 3;
-  align-self: stretch;
 }
 .event-type {
   font-size: 1.25rem;
