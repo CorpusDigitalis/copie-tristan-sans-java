@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interventions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+ <style>
+/* ====== Layout local à la page Interventions ====== */
+
+/* Titre + intro alignés au thème */
+#titre-interventions {
+  text-align: center;
+  margin-top: 1rem;
+}
+#texte-intro-interventions {
+  text-align: center;
+  max-width: 760px;
+  margin: 0.25rem auto 1.25rem auto;
+}
+
+/* -------- Zone FILTRES (sticky sous header) -------- */
+:root { --header-offset: 0px; } /* mis à jour par JS au chargement */
+#tools-box {
+  position: sticky;
+  top: var(--header-offset);
+  z-index: 10;
+  background: transparent;
+  box-shadow: none;
+  margin: 1.25rem auto 0.5rem auto;
+  padding: 0.25rem 0;
+  max-width: 960px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+/* Groupe de gauche = recherche */
+#tools-left {
+  flex: 1 1 50%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+#search-keyword {
+  width: 100%;
+  max-width: 360px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-family: 'Alata', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* Groupe de droite = dates + reset */
+#tools-right {
+  flex: 1 1 50%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+#date-start, #date-end {
+  padding: 0.5rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-family: 'Alata', sans-serif;
+  letter-spacing: 0.02em;
+}
+#btn-reset {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
+  background: #1f1f1f;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.1s ease;
+  font-family: 'Alata', sans-serif;
+  letter-spacing: 0.02em;
+}
+#btn-reset:hover { transform: scale(0.98); }
+#btn-reset:active { transform: scale(0.96); background: #444; }
+
+/* -------- TIMELINE -------- */
+#timeline-wrapper {
+  position: relative;
+  margin-top: 2.25rem;
+  margin-bottom: 4rem;
+}
+
+/* Ligne centrale */
+#timeline-line {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  background: linear-gradient(
+    to bottom,
+    rgba(31,31,31,0) 0px,
+    rgba(31,31,31,0) 160px,
+    rgba(31,31,31,1) 220px,
+    rgba(31,31,31,1) calc(100% - 16px),
+    rgba(31,31,31,0.85) 100%
+  );
+}
+
+/* Grille : gauche (box) | ligne | droite (contenu) */
+.timeline-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 380px) 4px minmax(320px, 1fr);
+  column-gap: 2rem;
+  row-gap: 2rem;
+  align-items: center;
+  position: relative;
+}
+
+/* Chaque événement */
+.timeline-event { display: contents; }
+
+/* Point central */
+.timeline-dot {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+  min-height: 48px;
+}
+.timeline-dot::after {
+  content: "";
+  width: 10px; height: 10px;
+  background: #1f1f1f;
+  border-radius: 50%;
+  display: block;
+}
+
+/* Colonne GAUCHE = box date/lieu */
+.event-left {
+  grid-column: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.event-card {
+  width: 380px; max-width: 100%;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  text-align: center;
+}
+.event-date {
+  font-weight: 700;
+  margin: 0 0 .35rem 0;
+  color: #222;
+}
+.event-lieu {
+  margin: 0;
+  color: #222;
+  opacity: .95;
+}
+
+/* Colonne DROITE = type + description + lien */
+.event-right {
+  grid-column: 3;
+  align-self: stretch;
+}
+.event-type {
+  font-size: 1.25rem;
+  margin: 0 0 .35rem 0;
+  color: #222;
+  letter-spacing: .015em;
+}
+.event-description {
+  margin: 0 0 .35rem 0;
+  color: #222;
+  letter-spacing: .015em;
+  line-height: 1.6;
+}
+.event-link a {
+  text-decoration: none;
+  color: #0077cc;
+  font-weight: 700;
+  transition: color .2s ease;
+}
+.event-link a:hover { color: #005999; }
+
+/* Point final */
+#timeline-end-dot {
+  position: absolute;
+  left: 50%; bottom: -8px;
+  transform: translateX(-50%);
+  width: 10px; height: 10px;
+  background: #1f1f1f;
+  border-radius: 50%;
+}
+
+/* -------- Recherche highlight -------- */
+mark {
+  background: #fff59d;
+  color: #222;
+  padding: 0 .05em;
+  border-radius: 2px;
+}
+
+/* -------- Responsive -------- */
+@media (max-width: 880px) {
+  /* Zone filtres = colonne */
+  #tools-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+    padding: 0.35rem 0;
+  }
+  #tools-left, #tools-right {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  #search-keyword { max-width: none; }
+
+  /* Timeline en une colonne */
+  .timeline-grid { grid-template-columns: 1fr; }
+  #timeline-line { left: 16px; transform: none; }
+  .timeline-dot { grid-column: 1; align-items: center; }
+  .timeline-dot::after { margin-left: 16px; }
+  .event-left { grid-column: 1; justify-content: flex-start; }
+  .event-right { grid-column: 1; margin-top: .5rem; }
+  .event-card { width: 100%; }
+  #timeline-end-dot { left: 16px; transform: translateX(-50%); }
+}
+
+/* Réduction motion */
+@media (prefers-reduced-motion: reduce) {
+  #btn-reset { transition: none; }
+}
+</style>
+
+</head>
+<body style="outline: none;">
+
+  <!-- Header dynamique -->
+  <div id="header-placeholder"></div>
+
+  <div class="container">
+    <h1 id="titre-interventions">Interventions & Colloques</h1>
+    <p id="texte-intro-interventions" class="publications-text">
+      Présentation chronologique des interventions, colloques et communications du professeur. 
+      Filtrez par période ou par mots-clés.
+    </p>
+
+    <!-- Zone filtres : UNE LIGNE, sans box, sticky sous le header -->
+    <aside id="tools-box" aria-label="Outils de filtrage">
+      <div id="tools-left">
+        <input type="text" id="search-keyword" placeholder="Rechercher un mot-clé…" aria-label="Recherche par mots-clés" />
+      </div>
+      <div id="tools-right">
+        <input type="date" id="date-start" aria-label="Date de début" />
+        <input type="date" id="date-end" aria-label="Date de fin" />
+        <button id="btn-reset" type="button">Réinitialiser</button>
+      </div>
+    </aside>
+
+    <!-- Timeline -->
+    <section id="timeline-wrapper" aria-label="Chronologie des interventions">
+      <div id="timeline-line" aria-hidden="true"></div>
+      <div class="timeline-grid" id="timeline-grid">
+
+        <!-- Exemple d’événements (toujours box à gauche, contenu à droite) -->
+        <div class="timeline-event" data-date="2025-05-12" data-keywords="colloque ia paris enseignement supérieur intelligence artificielle">
+          <div class="event-left">
+            <div class="event-card">
+              <p class="event-date" id="event-10-date">12/05/2025</p>
+              <p class="event-lieu" id="event-10-lieu">Paris, France</p>
+            </div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="event-right">
+            <h1 class="event-type" id="event-10-type">Colloque</h1>
+            <p class="event-description" id="event-10-desc">Présentation sur l’impact de l’IA dans l’enseignement supérieur.</p>
+            <p class="event-link" id="event-10-link"><a href="#" target="_blank" rel="noopener">Voir le document</a></p>
+          </div>
+        </div>
+
+        <div class="timeline-event" data-date="2024-11-20" data-keywords="conférence lyon sciences des données machine learning">
+          <div class="event-left">
+            <div class="event-card">
+              <p class="event-date" id="event-9-date">20/11/2024</p>
+              <p class="event-lieu" id="event-9-lieu">Lyon, France</p>
+            </div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="event-right">
+            <h1 class="event-type" id="event-9-type">Conférence</h1>
+            <p class="event-description" id="event-9-desc">Conférence invitée sur l’avenir des sciences des données.</p>
+            <p class="event-link" id="event-9-link"><a href="#">Documentation</a></p>
+          </div>
+        </div>
+
+        <div class="timeline-event" data-date="2023-09-10" data-keywords="présentation bordeaux pédagogie numérique atelier">
+          <div class="event-left">
+            <div class="event-card">
+              <p class="event-date" id="event-8-date">10/09/2023</p>
+              <p class="event-lieu" id="event-8-lieu">Bordeaux, France</p>
+            </div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="event-right">
+            <h1 class="event-type" id="event-8-type">Présentation</h1>
+            <p class="event-description" id="event-8-desc">Atelier sur les outils numériques pour la pédagogie.</p>
+            <p class="event-link" id="event-8-link"><a href="#">Slides</a></p>
+          </div>
+        </div>
+
+        <div class="timeline-event" data-date="2022-06-05" data-keywords="atelier marseille humanités numériques formation">
+          <div class="event-left">
+            <div class="event-card">
+              <p class="event-date" id="event-7-date">05/06/2022</p>
+              <p class="event-lieu" id="event-7-lieu">Marseille, France</p>
+            </div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="event-right">
+            <h1 class="event-type" id="event-7-type">Atelier</h1>
+            <p class="event-description" id="event-7-desc">Atelier pratique sur les humanités numériques.</p>
+            <p class="event-link" id="event-7-link"><a href="#">Programme</a></p>
+          </div>
+        </div>
+
+        <div class="timeline-event" data-date="2021-11-17" data-keywords="colloque nantes open data données ouvertes">
+          <div class="event-left">
+            <div class="event-card">
+              <p class="event-date" id="event-6-date">17/11/2021</p>
+              <p class="event-lieu" id="event-6-lieu">Nantes, France</p>
+            </div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="event-right">
+            <h1 class="event-type" id="event-6-type">Colloque</h1>
+            <p class="event-description" id="event-6-desc">Colloque international sur l’Open Data et ses usages.</p>
+            <p class="event-link" id="event-6-link"><a href="#">Compte rendu</a></p>
+          </div>
+        </div>
+
+        <div class="timeline-event" data-date="2020-10-08" data-keywords="séminaire lille science numérique collaboration">
+          <div class="event-left">
+            <div class="event-card">
+              <p class="event-date" id="event-5-date">08/10/2020</p>
+              <p class="event-lieu" id="event-5-lieu">Lille, France</p>
+            </div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="event-right">
+            <h1 class="event-type" id="event-5-type">Séminaire</h1>
+            <p class="event-description" id="event-5-desc">Séminaire interdisciplinaire sur la science numérique.</p>
+            <p class="event-link" id="event-5-link"><a href="#">Programme</a></p>
+          </div>
+        </div>
+
+        <div class="timeline-event" data-date="2019-04-12" data-keywords="présentation strasbourg linguistique corpus">
+          <div class="event-left">
+            <div class="event-card">
+              <p class="event-date" id="event-4-date">12/04/2019</p>
+              <p class="event-lieu" id="event-4-lieu">Strasbourg, France</p>
+            </div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="event-right">
+            <h1 class="event-type" id="event-4-type">Présentation</h1>
+            <p class="event-description" id="event-4-desc">Présentation sur l’analyse de corpus linguistiques.</p>
+            <p class="event-link" id="event-4-link"><a href="#">Slides</a></p>
+          </div>
+        </div>
+
+        <div class="timeline-event" data-date="2018-06-30" data-keywords="atelier toulouse visualisation de données big data">
+          <div class="event-left">
+            <div class="event-card">
+              <p class="event-date" id="event-3-date">30/06/2018</p>
+              <p class="event-lieu" id="event-3-lieu">Toulouse, France</p>
+            </div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="event-right">
+            <h1 class="event-type" id="event-3-type">Atelier</h1>
+            <p class="event-description" id="event-3-desc">Initiation aux outils de visualisation de données massives.</p>
+            <p class="event-link" id="event-3-link"><a href="#">Support</a></p>
+          </div>
+        </div>
+
+        <div class="timeline-event" data-date="2017-03-25" data-keywords="séminaire montpellier éducation numérique">
+          <div class="event-left">
+            <div class="event-card">
+              <p class="event-date" id="event-2-date">25/03/2017</p>
+              <p class="event-lieu" id="event-2-lieu">Montpellier, France</p>
+            </div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="event-right">
+            <h1 class="event-type" id="event-2-type">Séminaire</h1>
+            <p class="event-description" id="event-2-desc">Séminaire sur l’éducation et les technologies numériques.</p>
+            <p class="event-link" id="event-2-link"><a href="#">Programme</a></p>
+          </div>
+        </div>
+
+        <div class="timeline-event" data-date="2015-12-02" data-keywords="conférence nice réseaux sociaux communication">
+          <div class="event-left">
+            <div class="event-card">
+              <p class="event-date" id="event-1-date">02/12/2015</p>
+              <p class="event-lieu" id="event-1-lieu">Nice, France</p>
+            </div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="event-right">
+            <h1 class="event-type" id="event-1-type">Conférence</h1>
+            <p class="event-description" id="event-1-desc">Conférence sur l’évolution des réseaux sociaux dans la communication.</p>
+            <p class="event-link" id="event-1-link"><a href="#">Compte rendu</a></p>
+          </div>
+        </div>
+
+      </div>
+      <div id="timeline-end-dot" aria-hidden="true"></div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <div id="footer-placeholder"></div>
+
+  <script>
+    // ====== Chargement header/footer + calcul de l’offset sticky ======
+    function loadHTML(id, url) {
+      return fetch(url)
+        .then(r => { if(!r.ok) throw new Error('Erreur de chargement'); return r.text(); })
+        .then(html => { document.getElementById(id).innerHTML = html; });
+    }
+
+    function updateHeaderOffset() {
+      const header = document.querySelector('header');
+      const h = header ? header.getBoundingClientRect().height : 0;
+      document.documentElement.style.setProperty('--header-offset', h + 'px');
+    }
+
+    Promise.all([
+      loadHTML('header-placeholder','header.html'),
+      loadHTML('footer-placeholder','footer.html')
+    ]).then(() => {
+      // une fois le header injecté
+      updateHeaderOffset();
+      window.addEventListener('resize', updateHeaderOffset);
+    }).catch(err => console.error(err));
+
+    // ====== Utilitaires recherche / normalisation ======
+    const $search  = document.getElementById('search-keyword');
+    const $start   = document.getElementById('date-start');
+    const $end     = document.getElementById('date-end');
+    const $reset   = document.getElementById('btn-reset');
+    const $events  = Array.from(document.querySelectorAll('.timeline-event'));
+
+    // pour un filtrage accent-insensible
+    function normalize(str){ 
+      return (str||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,''); 
+    }
+
+    // Sauvegarde du HTML original pour pouvoir nettoyer le highlight
+    const highlightTargets = ['.event-type', '.event-description', '.event-lieu', '.event-date'];
+    $events.forEach(ev=>{
+      highlightTargets.forEach(sel=>{
+        const el = ev.querySelector(sel);
+        if(el) el.dataset.originalHtml = el.innerHTML;
+      });
+    });
+
+    function clearHighlights(ev){
+      highlightTargets.forEach(sel=>{
+        const el = ev.querySelector(sel);
+        if(el && el.dataset.originalHtml !== undefined){
+          el.innerHTML = el.dataset.originalHtml;
+        }
+      });
+    }
+
+    function applyHighlights(ev, query){
+      if(!query) return;
+      const q = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // escape regex
+      const re = new RegExp(q, 'gi'); // casse-insensible (accents: on garde le texte d’origine)
+      highlightTargets.forEach(sel=>{
+        const el = ev.querySelector(sel);
+        if(el){
+          // éviter de re-surligner dans un contenu déjà marqué
+          const plain = el.textContent;
+          el.innerHTML = plain.replace(re, m=>`<mark>${m}</mark>`);
+        }
+      });
+    }
+
+    function applyFilters(){
+      const kw = normalize($search.value.trim());
+      const hasKw = kw.length > 0;
+      const startDate = $start.value ? new Date($start.value) : null;
+      const endDate   = $end.value   ? new Date($end.value)   : null;
+
+      $events.forEach(ev=>{
+        // Nettoyer précédents surlignages
+        clearHighlights(ev);
+
+        // Filtrage par date
+        const evDate = new Date(ev.dataset.date);
+        let visible = true;
+        if(startDate && evDate < startDate) visible = false;
+        if(endDate   && evDate > endDate)   visible = false;
+
+        // Filtrage par mot-clé (sur data-keywords + textes visibles)
+        if(visible && hasKw){
+          const pool = [
+            ev.getAttribute('data-keywords') || '',
+            ev.querySelector('.event-type')?.textContent || '',
+            ev.querySelector('.event-description')?.textContent || '',
+            ev.querySelector('.event-lieu')?.textContent || '',
+            ev.querySelector('.event-date')?.textContent || ''
+          ].join(' ');
+          if(!normalize(pool).includes(kw)) visible = false;
+        }
+
+        // Appliquer visibilité
+        ev.style.display = visible ? 'contents' : 'none';
+
+        // Surligner si visible et recherche
+        if(visible && hasKw){
+          applyHighlights(ev, $search.value.trim());
+        }
+      });
+    }
+
+    [$search, $start, $end].forEach(el=>{
+      el.addEventListener('input', applyFilters);
+      el.addEventListener('change', applyFilters);
+    });
+    $reset.addEventListener('click', ()=>{
+      $search.value = '';
+      $start.value = '';
+      $end.value = '';
+      applyFilters();
+    });
+
+    // Lancer une première fois
+    applyFilters();
+  </script>
+
+  <!-- Script de modification dynamique s'il existe déjà dans ton projet -->
+  <script src="modifications.js"></script>
+</body>
+</html>
