@@ -10,33 +10,64 @@
  <style>
 /* ====== Layout local à la page Interventions ====== */
 
+/* MODIFIÉ : Assure que le header est AU-DESSUS de tout */
+header {
+  position: relative;
+  z-index: 11;
+}
+
+/* NOUVEAU : Le voile dégradé fixe */
+.top-fade-voile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* La hauteur est calculée par JS */
+  height: var(--voile-height, 150px); 
+  /* Dégradé : opaque en haut, fondu sur 80px en bas */
+  background: linear-gradient(
+    to bottom,
+    #fefaf5 0%,
+    #fefaf5 calc(100% - 80px),
+    rgba(254, 250, 245, 0) 100%
+  );
+  /* Derrière le header (11) et la toolbar (10), mais DEVANT la timeline (2) */
+  z-index: 9; 
+  /* N'intercepte pas les clics de souris */
+  pointer-events: none; 
+}
+
 /* Titre + intro alignés au thème */
 #titre-interventions {
   text-align: center;
   margin-top: 1rem;
+  /* MODIFIÉ : Doit être au-dessus du voile */
+  position: relative;
+  z-index: 10;
 }
 #texte-intro-interventions {
   text-align: center;
   max-width: 760px;
   margin: 0.25rem auto 1.25rem auto;
+  /* MODIFIÉ : Doit être au-dessus du voile */
+  position: relative;
+  z-index: 10;
 }
 
 /* -------- Zone FILTRES (sticky sous header) -------- */
-:root { --header-offset: 0px; } /* mis à jour par JS au chargement */
+:root { 
+  --header-offset: 0px; 
+  --voile-height: 150px; /* NOUVEAU : Variable pour le voile */
+}
 #tools-box {
   position: sticky;
   top: var(--header-offset);
+  /* (z-index: 10 est correct) */
   z-index: 10;
-  /* MODIFIÉ : Fond transparent comme demandé */
   background: transparent; 
-  /* MODIFIÉ : Ombre retirée */
   box-shadow: none; 
-  /* MODIFIÉ : Marge 'auto' retirée */
   margin: 1.25rem 0 0.5rem 0; 
-  /* MODIFIÉ : Plus d'espace vertical ("écarter +") */
   padding: 1rem 0; 
-  /* MODIFIÉ : max-width retirée pour "écarter +" les éléments */
-  /* max-width: 960px; */ 
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -95,7 +126,6 @@
 /* -------- TIMELINE -------- */
 #timeline-wrapper {
   position: relative;
-  /* (espace de la modif précédente) */
   margin-top: 5rem; 
   margin-bottom: 4rem;
 }
@@ -107,7 +137,6 @@
   left: 50%;
   transform: translateX(-50%);
   width: 4px;
-  /* (dégradé de la modif précédente) */
   background: linear-gradient(
     to bottom,
     rgba(31,31,31,0) 0px,
@@ -121,7 +150,6 @@
 /* Grille : GAUCHE | CENTRE (auto) | DROITE */
 .timeline-grid {
   display: grid;
-  /* (correction de la grille) */
   grid-template-columns: 1fr auto 1fr; 
   column-gap: 2rem;
   row-gap: 2rem;
@@ -134,7 +162,6 @@
 
 /* Point central */
 .timeline-dot {
-  /* (correction de la grille) */
   grid-column: 2; 
   display: flex;
   align-items: center;
@@ -154,7 +181,6 @@
 
 /* Colonne GAUCHE = box date/lieu */
 .event-left {
-  /* (correction de la grille) */
   grid-column: 1; 
   display: flex;
   justify-content: flex-end;
@@ -184,7 +210,6 @@
 
 /* Colonne DROITE = type + description + lien */
 .event-right {
-  /* (correction de la grille) */
   grid-column: 3; 
   align-self: stretch;
   position: relative;
@@ -235,7 +260,6 @@ mark {
   #tools-box {
     flex-direction: column;
     align-items: stretch;
-    /* MODIFIÉ : Espace mobile augmenté */
     gap: 1rem; 
     padding: 0.5rem 1rem; 
   }
@@ -245,7 +269,6 @@ mark {
   }
   #search-keyword { max-width: none; }
   
-  /* MODIFIÉ : Règle esthétique pour le mobile */
   #tools-right {
     flex-direction: column;
     align-items: stretch;
@@ -271,6 +294,8 @@ mark {
 
 </head>
 <body style="outline: none;">
+
+  <div class="top-fade-voile" aria-hidden="true"></div>
 
   <div id="header-placeholder"></div>
 
@@ -461,10 +486,20 @@ mark {
         .then(html => { document.getElementById(id).innerHTML = html; });
     }
 
+    // MODIFIÉ : La fonction calcule maintenant la hauteur du header ET du voile
     function updateHeaderOffset() {
       const header = document.querySelector('header');
+      const toolbar = document.getElementById('tools-box'); // NOUVEAU : Récupère la barre d'outils
+      
       const h = header ? header.getBoundingClientRect().height : 0;
+      const th = toolbar ? toolbar.getBoundingClientRect().height : 0; // NOUVEAU : Récupère sa hauteur
+      
+      // Définit l'offset pour la barre d'outils sticky
       document.documentElement.style.setProperty('--header-offset', h + 'px');
+      
+      // NOUVEAU : Définit la hauteur totale du voile (header + toolbar)
+      const totalVoileHeight = h + th;
+      document.documentElement.style.setProperty('--voile-height', totalVoileHeight + 'px');
     }
 
     Promise.all([
