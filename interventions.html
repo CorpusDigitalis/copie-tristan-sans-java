@@ -23,12 +23,12 @@ header {
   left: 0;
   width: 100%;
   /* La hauteur est calculée par JS */
-  height: var(--voile-height, 500px); 
-  /* Dégradé : opaque en haut, fondu sur 80px en bas */
- background: linear-gradient(
+  height: var(--voile-height, 150px); 
+  /* MODIFIÉ : Opaque sur 70%, fondu sur les 30% du bas */
+  background: linear-gradient(
     to bottom,
-    #fefaf5 30%,                /* <--- MODIFIÉ : Opaque jusqu'à 30% */
-    rgba(254, 250, 245, 0) 100%   /* <--- MODIFIÉ : Transparent à 100% */
+    #fefaf5 70%,
+    rgba(254, 250, 245, 0) 100%
   );
   /* Derrière le header (11) et la toolbar (10), mais DEVANT la timeline (2) */
   z-index: 9; 
