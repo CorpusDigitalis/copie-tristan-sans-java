@@ -1,7 +1,7 @@
 {
   "profil": {
     "titre": "Bienvenue",
-    "description": "Je conçois des sites web professionnels sur mesure, pensés pour valoriser l’identité, les différents travaux et l’expertise de professionnels issus de divers secteurs.\n\nChaque site est développé de manière personnalisée, avec une attention portée à la lisibilité, à la simplicité d’usage et à l’autonomie du client.",
+    "description": "Je conçois des sites web professionnels sur mesure, pensés pour valoriser l’identité, les différents travaux et l’expertise de professionnels issus de divers secteurs.\n\nChaque site est développé de manière personnalisée, avec une attention portée à la lisibilité, à la simplicité d’usage et à l’autonomie du client. HAHAAH",
     "image": "portrait.jpg"
   },
   "publications": [
@@ -49,14 +49,23 @@
         {
           "titre": "Slides Magistraux",
           "fichiers": [
-            { "nom": "Introduction (Chap 1)", "url": "slides1.pdf" },
-            { "nom": "Le marché des biens (Chap 2)", "url": "slides2.pdf" }
+            {
+              "nom": "Introduction (Chap 1)",
+              "url": "slides1.pdf"
+            },
+            {
+              "nom": "Le marché des biens (Chap 2)",
+              "url": "slides2.pdf"
+            }
           ]
         },
         {
           "titre": "Travaux Dirigés",
           "fichiers": [
-            { "nom": "Fiche TD 1", "url": "td1.pdf" }
+            {
+              "nom": "Fiche TD 1",
+              "url": "td1.pdf"
+            }
           ]
         }
       ]
