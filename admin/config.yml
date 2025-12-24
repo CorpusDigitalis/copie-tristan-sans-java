@@ -1,0 +1,68 @@
+backend:
+  name: git-gateway
+  branch: main # Assurez-vous que votre branche s'appelle 'main' ou 'master'
+
+media_folder: "." # Les images seront uploadées à la racine pour l'instant
+public_folder: "."
+
+# C'est ici qu'on définit la structure du formulaire
+collections:
+  - name: "pages"
+    label: "Contenu du Site"
+    files:
+      - name: "donnees"
+        label: "Modifier les Données"
+        file: "data.json" # Le fichier cible
+        fields:
+          # --- SECTION PROFIL ---
+          - label: "Profil & Accueil"
+            name: "profil"
+            widget: "object"
+            fields:
+              - {label: "Titre Accueil", name: "titre", widget: "string"}
+              - {label: "Biographie", name: "description", widget: "text"}
+              - {label: "Photo de profil", name: "image", widget: "image"}
+
+          # --- SECTION PUBLICATIONS ---
+          - label: "Publications"
+            name: "publications"
+            widget: "list"
+            fields:
+              - label: "Catégorie"
+                name: "categorie"
+                widget: "select"
+                options: ["Articles de recherche", "Colloques", "Ouvrages", "Autres"]
+                create: true # Permet au client de créer une nouvelle catégorie
+              - {label: "Description / Titre", name: "texte", widget: "string"}
+              - {label: "Lien URL", name: "lien", widget: "string"}
+              - {label: "Texte du bouton", name: "texteLien", widget: "string", default: "Voir"}
+
+          # --- SECTION INTERVENTIONS ---
+          - label: "Interventions"
+            name: "interventions"
+            widget: "list"
+            fields:
+              - {label: "Date", name: "date", widget: "date", format: "YYYY-MM-DD"}
+              - {label: "Lieu", name: "lieu", widget: "string"}
+              - {label: "Type (Colloque...)", name: "type", widget: "string"}
+              - {label: "Description", name: "description", widget: "text"}
+              - {label: "Mots-clés (pour la recherche)", name: "motsCles", widget: "string"}
+              - {label: "Lien", name: "lien", widget: "string"}
+          
+          # --- SECTION COURS (Complexe : Liste dans une liste) ---
+          - label: "Cours"
+            name: "cours"
+            widget: "list"
+            fields:
+              - {label: "Nom du Cours", name: "nom", widget: "string"}
+              - label: "Sections (ex: Slides, TD)"
+                name: "sections"
+                widget: "list"
+                fields:
+                  - {label: "Titre de la section", name: "titre", widget: "string"}
+                  - label: "Fichiers"
+                    name: "fichiers"
+                    widget: "list"
+                    fields:
+                      - {label: "Nom du fichier", name: "nom", widget: "string"}
+                      - {label: "Fichier PDF", name: "url", widget: "file"}
