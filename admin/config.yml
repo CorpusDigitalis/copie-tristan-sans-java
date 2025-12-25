@@ -32,8 +32,19 @@ collections:
             fields:
               - label: "MENU DU HAUT (Header)"
                 name: "menu"
-                widget: "object"
-                hint: "Cochez pour afficher les pages. Vous pouvez aussi changer leur nom."
+                widget: "list" # <-- C'est ça la clé : une liste illimitée
+                summary: "{{fields.titre}}" # Affiche le nom du lien dans la liste
+                fields:
+                  - label: "Titre du lien"
+                    name: "titre"
+                    widget: "string"
+                    hint: "Ex: Publications, Cours, Mon Université..."
+                  
+                  - label: "Destination (Page ou URL)"
+                    name: "url"
+                    widget: "string"
+                    # On aide le client avec la liste des pages qui existent
+                    hint: "⚠️ Pages dispos : 'publications.html', 'interventions.html', 'cours.html'. Ou mettez un lien complet 'https://...'"
                 fields:
                   - label: "Afficher 'Publications' ?"
                     name: "show_publi"
