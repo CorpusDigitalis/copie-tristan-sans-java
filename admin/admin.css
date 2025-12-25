@@ -1,0 +1,38 @@
+/* admin/admin.css */
+
+/* Import de votre police */
+@import url('https://fonts.googleapis.com/css2?family=Alata&display=swap');
+
+:root {
+  --primary-color: #1f1f1f; /* Votre noir "charbon" */
+  --bg-color: #fefaf5;      /* Votre fond "crème" */
+  --text-color: #1f1f1f;
+}
+
+/* Appliquer la police partout */
+body, h1, h2, h3, button, input, textarea, .cms-editor-visual {
+  font-family: 'Alata', sans-serif !important;
+}
+
+/* Changer la barre du haut */
+div[class*="AppHeader-header"] {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* Changer les boutons "Log in" et "Publish" */
+button[class*="Button"], button[class*="Control"] {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 4px !important;
+  transition: opacity 0.2s;
+}
+button:hover {
+  opacity: 0.9;
+}
+
+/* Le fond général */
+#nc-root {
+  background-color: var(--bg-color);
+}
