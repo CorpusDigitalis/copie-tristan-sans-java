@@ -1,14 +1,56 @@
 <header>
-  <nav>
-    <div>
-      <a href="index.html" class="no-animation">Tristan Arbona</a>
-    </div>
-    <div>
-      <a href="index.html">Accueil</a>
-      <a href="cours.html">Cours</a>
-      <a href="interventions.html">Interventions</a>
-      <a href="publications.html">Publications</a>
-      <a href="rdv.html">Agenda</a>
-    </div>
-  </nav>
+  <nav class="navbar">
+    <div class="logo">
+      <a href="index.html" id="header-site-title">Mon Site</a>
+    </div>
+    <ul class="nav-links" id="dynamic-menu">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="publications.html">Publications</a></li>
+      <li><a href="interventions.html">Interventions</a></li>
+      <li><a href="cours.html">Cours</a></li>
+    </ul>
+    <div class="burger">
+      <div class="line1"></div>
+      <div class="line2"></div>
+      <div class="line3"></div>
+    </div>
+  </nav>
+
+  <script>
+    // Lire la config pour afficher/cacher les menus
+    fetch('data.json?t=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        // 1. Mettre à jour le nom du site (Titre Profil)
+        if(data.profil && data.profil.titre) {
+          // On prend juste le nom s'il est dans le titre, ou un texte par défaut
+          // Ici on peut garder "Accueil" ou mettre le nom du prof
+        }
+
+        // 2. Gérer le Menu
+        const cfg = data.config && data.config.menu;
+        if(cfg) {
+          const menuHtml = `
+            <li><a href="index.html">Accueil</a></li>
+            ${ cfg.show_publi !== false ? `<li><a href="publications.html">${cfg.label_publi || 'Publications'}</a></li>` : '' }
+            ${ cfg.show_inter !== false ? `<li><a href="interventions.html">${cfg.label_inter || 'Interventions'}</a></li>` : '' }
+            ${ cfg.show_cours !== false ? `<li><a href="cours.html">${cfg.label_cours || 'Cours'}</a></li>` : '' }
+          `;
+          document.getElementById('dynamic-menu').innerHTML = menuHtml;
+        }
+      })
+      .catch(e => console.log("Menu par défaut chargé (data non dispo)"));
+
+    // Script du Burger Menu
+    const burger = document.querySelector('.burger');
+    const nav = document.querySelector('.nav-links');
+    const navLinks = document.querySelectorAll('.nav-links li');
+
+    if(burger){
+        burger.addEventListener('click', () => {
+            nav.classList.toggle('nav-active');
+            burger.classList.toggle('toggle');
+        });
+    }
+  </script>
 </header>
