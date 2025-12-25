@@ -3,305 +3,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Interventions</title>
+  <title>Interventions & Colloques</title>
   <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 
  <style>
 /* ====== Layout local à la page Interventions ====== */
+header { position: relative; z-index: 11; }
 
-/* MODIFIÉ : Assure que le header est AU-DESSUS de tout */
-header {
-  position: relative;
-  z-index: 11;
-}
-
-/* NOUVEAU : Le voile dégradé fixe */
 .top-fade-voile {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  /* La hauteur est calculée par JS */
+  position: fixed; top: 0; left: 0; width: 100%;
   height: var(--voile-height, 150px); 
-  /* MODIFIÉ : Opaque sur 90%, fondu sur les 10% du bas */
-  background: linear-gradient(
-    to bottom,
-    #fefaf5 90%,
-    rgba(254, 250, 245, 0) 100%
-  );
-  /* Derrière le header (11) et la toolbar (10), mais DEVANT la timeline (2) */
-  z-index: 9; 
-  /* N'intercepte pas les clics de souris */
-  pointer-events: none; 
+  background: linear-gradient(to bottom, #fefaf5 90%, rgba(254, 250, 245, 0) 100%);
+  z-index: 9; pointer-events: none; 
 }
 
-/* Titre + intro alignés au thème */
-#titre-interventions {
-  text-align: center;
-  margin-top: 1rem;
-  /* MODIFIÉ : Doit être au-dessus du voile */
-  position: relative;
-  z-index: 10;
-}
-#texte-intro-interventions {
-  text-align: center;
-  max-width: 760px;
-  margin: 0.25rem auto 1.25rem auto;
-  /* MODIFIÉ : Doit être au-dessus du voile */
-  position: relative;
-  z-index: 10;
-}
+#titre-interventions { text-align: center; margin-top: 1rem; position: relative; z-index: 10; }
+#texte-intro-interventions { text-align: center; max-width: 760px; margin: 0.25rem auto 1.25rem auto; position: relative; z-index: 10; }
 
-/* -------- Zone FILTRES (sticky sous header) -------- */
-:root { 
-  --header-offset: 0px; 
-  --voile-height: 150px; /* NOUVEAU : Variable pour le voile */
-}
+/* -------- Zone FILTRES (sticky) -------- */
+:root { --header-offset: 0px; --voile-height: 150px; }
 #tools-box {
-  position: sticky;
-  top: var(--header-offset);
-  /* (z-index: 10 est correct) */
-  z-index: 10;
-  background: transparent; 
-  box-shadow: none; 
-  margin: 1.25rem 0 0.5rem 0; 
-  padding: 1rem 0; 
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.25rem;
+  position: sticky; top: var(--header-offset); z-index: 10;
+  background: transparent; margin: 1.25rem 0 0.5rem 0; padding: 1rem 0; 
+  display: flex; align-items: center; justify-content: space-between; gap: 1.25rem;
 }
-
-/* Groupe de gauche = recherche */
-#tools-left {
-  flex: 1 1 50%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
+#tools-left { flex: 1 1 50%; display: flex; align-items: center; justify-content: flex-start; }
 #search-keyword {
-  width: 100%;
-  max-width: 360px;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fff;
-  font-family: 'Alata', sans-serif;
-  letter-spacing: 0.02em;
+  width: 100%; max-width: 360px; padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd; border-radius: 8px; background: #fff;
+  font-family: 'Alata', sans-serif; letter-spacing: 0.02em;
 }
-
-/* Groupe de droite = dates + reset */
-#tools-right {
-  flex: 1 1 50%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-#date-start, #date-end {
-  padding: 0.5rem 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fff;
-  font-family: 'Alata', sans-serif;
-  letter-spacing: 0.02em;
-}
+#tools-right { flex: 1 1 50%; display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex-wrap: wrap; }
+#date-start, #date-end { padding: 0.5rem; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-family: 'Alata', sans-serif; }
 #btn-reset {
-  padding: 0.5rem 0.9rem;
-  border: 1px solid #1f1f1f;
-  border-radius: 8px;
-  background: #1f1f1f;
-  color: #fff;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.1s ease;
-  font-family: 'Alata', sans-serif;
-  letter-spacing: 0.02em;
+  padding: 0.5rem 0.9rem; border: 1px solid #1f1f1f; border-radius: 8px;
+  background: #1f1f1f; color: #fff; cursor: pointer; font-family: 'Alata', sans-serif;
 }
 #btn-reset:hover { transform: scale(0.98); }
-#btn-reset:active { transform: scale(0.96); background: #444; }
 
 /* -------- TIMELINE -------- */
-#timeline-wrapper {
-  position: relative;
-  margin-top: 5rem; 
-  margin-bottom: 4rem;
-}
-
-/* Ligne centrale (Absolue, centrée à 50%) */
+#timeline-wrapper { position: relative; margin-top: 5rem; margin-bottom: 4rem; }
 #timeline-line {
-  position: absolute;
-  top: 0; bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  background: linear-gradient(
-    to bottom,
-    rgba(31,31,31,0) 0px,
-    rgba(31,31,31,1) 80px,
-    rgba(31,31,31,1) calc(100% - 16px),
-    rgba(31,31,31,0.85) 100%
-  );
+  position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 4px;
+  background: linear-gradient(to bottom, rgba(31,31,31,0) 0px, rgba(31,31,31,1) 80px, rgba(31,31,31,1) calc(100% - 16px), rgba(31,31,31,0.85) 100%);
   z-index: 1; 
 }
+.timeline-grid { display: grid; grid-template-columns: 1fr auto 1fr; column-gap: 2rem; row-gap: 2rem; align-items: center; position: relative; }
+.timeline-event { display: contents; } /* Important pour la grid */
+.timeline-dot { grid-column: 2; display: flex; align-items: center; justify-content: center; height: 100%; position: relative; min-height: 48px; z-index: 2; }
+.timeline-dot::after { content: ""; width: 10px; height: 10px; background: #1f1f1f; border-radius: 50%; display: block; }
 
-/* Grille : GAUCHE | CENTRE (auto) | DROITE */
-.timeline-grid {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr; 
-  column-gap: 2rem;
-  row-gap: 2rem;
-  align-items: center;
-  position: relative;
-}
+.event-left { grid-column: 1; display: flex; justify-content: flex-end; align-items: center; position: relative; z-index: 2; }
+.event-card { width: 380px; max-width: 100%; background: #ffffff; border: 1px solid #ddd; border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; }
+.event-date { font-weight: 700; margin: 0 0 .35rem 0; color: #222; }
+.event-lieu { margin: 0; color: #222; opacity: .95; }
 
-/* Chaque événement */
-.timeline-event { display: contents; }
-
-/* Point central */
-.timeline-dot {
-  grid-column: 2; 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  position: relative;
-  min-height: 48px;
-  z-index: 2; 
-}
-.timeline-dot::after {
-  content: "";
-  width: 10px; height: 10px;
-  background: #1f1f1f;
-  border-radius: 50%;
-  display: block;
-}
-
-/* Colonne GAUCHE = box date/lieu */
-.event-left {
-  grid-column: 1; 
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  position: relative;
-  z-index: 2;
-}
-.event-card {
-  width: 380px; max-width: 100%;
-  background: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 1rem 1.25rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  text-align: center;
-}
-.event-date {
-  font-weight: 700;
-  margin: 0 0 .35rem 0;
-  color: #222;
-}
-.event-lieu {
-  margin: 0;
-  color: #222;
-  opacity: .95;
-}
-
-/* Colonne DROITE = type + description + lien */
-.event-right {
-  grid-column: 3; 
-  align-self: stretch;
-  position: relative;
-  z-index: 2;
-}
-.event-type {
-  font-size: 1.25rem;
-  margin: 0 0 .35rem 0;
-  color: #222;
-  letter-spacing: .015em;
-}
-.event-description {
-  margin: 0 0 .35rem 0;
-  color: #222;
-  letter-spacing: .015em;
-  line-height: 1.6;
-}
-.event-link a {
-  text-decoration: none;
-  color: #0077cc;
-  font-weight: 700;
-  transition: color .2s ease;
-}
+.event-right { grid-column: 3; align-self: stretch; position: relative; z-index: 2; }
+.event-type { font-size: 1.25rem; margin: 0 0 .35rem 0; color: #222; }
+.event-description { margin: 0 0 .35rem 0; color: #222; line-height: 1.6; }
+.event-link a { text-decoration: none; color: #0077cc; font-weight: 700; }
 .event-link a:hover { color: #005999; }
 
-/* Point final */
-#timeline-end-dot {
-  position: absolute;
-  left: 50%; bottom: -8px;
-  transform: translateX(-50%);
-  width: 10px; height: 10px;
-  background: #1f1f1f;
-  border-radius: 50%;
-  z-index: 2;
-}
+#timeline-end-dot { position: absolute; left: 50%; bottom: -8px; transform: translateX(-50%); width: 10px; height: 10px; background: #1f1f1f; border-radius: 50%; z-index: 2; }
+mark { background: #fff59d; color: #222; padding: 0 .05em; border-radius: 2px; }
 
-/* -------- Recherche highlight -------- */
-mark {
-  background: #fff59d;
-  color: #222;
-  padding: 0 .05em;
-  border-radius: 2px;
-}
-
-/* -------- Responsive -------- */
+/* Responsive */
 @media (max-width: 880px) {
-  /* Zone filtres = colonne */
-  #tools-box {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem; 
-    padding: 0.5rem 1rem; 
-  }
-  #tools-left, #tools-right {
-    flex: 1 1 auto;
-    justify-content: center;
-  }
-  #search-keyword { max-width: none; }
-  
-  #tools-right {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  /* Timeline en une colonne */
+  #tools-box { flex-direction: column; align-items: stretch; gap: 1rem; }
+  #tools-left, #tools-right { justify-content: center; flex-direction: column; gap: 0.5rem; }
   .timeline-grid { grid-template-columns: 1fr; }
   #timeline-line { left: 16px; transform: none; }
-  .timeline-dot { grid-column: 1; align-items: center; }
+  .timeline-dot { grid-column: 1; }
   .timeline-dot::after { margin-left: 16px; }
   .event-left { grid-column: 1; justify-content: flex-start; }
   .event-right { grid-column: 1; margin-top: .5rem; }
   .event-card { width: 100%; }
   #timeline-end-dot { left: 16px; transform: translateX(-50%); }
 }
-
-/* Réduction motion */
-@media (prefers-reduced-motion: reduce) {
-  #btn-reset { transition: none; }
-}
 </style>
+
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 </head>
 <body style="outline: none;">
 
   <div class="top-fade-voile" aria-hidden="true"></div>
-
   <div id="header-placeholder"></div>
 
   <div class="container">
     <h1 id="titre-interventions">Interventions & Colloques</h1>
     <p id="texte-intro-interventions" class="publications-text">
-      Présentation chronologique des interventions, colloques et communications du professeur. 
+      Présentation chronologique des interventions, colloques et communications. 
       Filtrez par période ou par mots-clés.
     </p>
 
@@ -318,159 +111,9 @@ mark {
 
     <section id="timeline-wrapper" aria-label="Chronologie des interventions">
       <div id="timeline-line" aria-hidden="true"></div>
-      <div class="timeline-grid" id="timeline-grid">
-
-        <div class="timeline-event" data-date="2025-05-12" data-keywords="colloque ia paris enseignement supérieur intelligence artificielle">
-          <div class="event-left">
-            <div class="event-card">
-              <p class="event-date" id="event-10-date">12/05/2025</p>
-              <p class="event-lieu" id="event-10-lieu">Paris, France</p>
-            </div>
-          </div>
-          <div class="timeline-dot"></div>
-          <div class="event-right">
-            <h1 class="event-type" id="event-10-type">Colloque</h1>
-            <p class="event-description" id="event-10-desc">Présentation sur l’impact de l’IA dans l’enseignement supérieur.</p>
-            <p class="event-link" id="event-10-link"><a href="#" target="_blank" rel="noopener">Voir le document</a></p>
-          </div>
-        </div>
-
-        <div class="timeline-event" data-date="2024-11-20" data-keywords="conférence lyon sciences des données machine learning">
-          <div class="event-left">
-            <div class="event-card">
-              <p class="event-date" id="event-9-date">20/11/2024</p>
-              <p class="event-lieu" id="event-9-lieu">Lyon, France</p>
-            </div>
-          </div>
-          <div class="timeline-dot"></div>
-          <div class="event-right">
-            <h1 class="event-type" id="event-9-type">Conférence</h1>
-            <p class="event-description" id="event-9-desc">Conférence invitée sur l’avenir des sciences des données.</p>
-            <p class="event-link" id="event-9-link"><a href="#">Documentation</a></p>
-          </div>
-        </div>
-
-        <div class="timeline-event" data-date="2023-09-10" data-keywords="présentation bordeaux pédagogie numérique atelier">
-          <div class="event-left">
-            <div class="event-card">
-              <p class="event-date" id="event-8-date">10/09/2023</p>
-              <p class="event-lieu" id="event-8-lieu">Bordeaux, France</p>
-            </div>
-          </div>
-          <div class="timeline-dot"></div>
-          <div class="event-right">
-            <h1 class="event-type" id="event-8-type">Présentation</h1>
-            <p class="event-description" id="event-8-desc">Atelier sur les outils numériques pour la pédagogie.</p>
-            <p class="event-link" id="event-8-link"><a href="#">Slides</a></p>
-          </div>
-        </div>
-
-        <div class="timeline-event" data-date="2022-06-05" data-keywords="atelier marseille humanités numériques formation">
-          <div class="event-left">
-            <div class="event-card">
-              <p class="event-date" id="event-7-date">05/06/2022</p>
-              <p class="event-lieu" id="event-7-lieu">Marseille, France</p>
-            </div>
-          </div>
-          <div class="timeline-dot"></div>
-          <div class="event-right">
-            <h1 class="event-type" id="event-7-type">Atelier</h1>
-            <p class="event-description" id="event-7-desc">Atelier pratique sur les humanités numériques.</p>
-            <p class="event-link" id="event-7-link"><a href="#">Programme</a></p>
-          </div>
-        </div>
-
-        <div class="timeline-event" data-date="2021-11-17" data-keywords="colloque nantes open data données ouvertes">
-          <div class="event-left">
-            <div class="event-card">
-              <p class="event-date" id="event-6-date">17/11/2021</p>
-              <p class="event-lieu" id="event-6-lieu">Nantes, France</p>
-            </div>
-          </div>
-          <div class="timeline-dot"></div>
-          <div class="event-right">
-            <h1 class="event-type" id="event-6-type">Colloque</h1>
-            <p class="event-description" id="event-6-desc">Colloque international sur l’Open Data et ses usages.</p>
-            <p class="event-link" id="event-6-link"><a href="#">Compte rendu</a></p>
-          </div>
-        </div>
-
-        <div class="timeline-event" data-date="2020-10-08" data-keywords="séminaire lille science numérique collaboration">
-          <div class="event-left">
-            <div class="event-card">
-              <p class="event-date" id="event-5-date">08/10/2020</p>
-              <p class="event-lieu" id="event-5-lieu">Lille, France</p>
-            </div>
-          </div>
-          <div class="timeline-dot"></div>
-          <div class="event-right">
-            <h1 class="event-type" id="event-5-type">Séminaire</h1>
-            <p class="event-description" id="event-5-desc">Séminaire interdisciplinaire sur la science numérique.</p>
-            <p class="event-link" id="event-5-link"><a href="#">Programme</a></p>
-          </div>
-        </div>
-
-        <div class="timeline-event" data-date="2019-04-12" data-keywords="présentation strasbourg linguistique corpus">
-          <div class="event-left">
-            <div class="event-card">
-              <p class="event-date" id="event-4-date">12/04/2019</p>
-              <p class="event-lieu" id="event-4-lieu">Strasbourg, France</p>
-            </div>
-          </div>
-          <div class="timeline-dot"></div>
-          <div class="event-right">
-            <h1 class="event-type" id="event-4-type">Présentation</h1>
-            <p class="event-description" id="event-4-desc">Présentation sur l’analyse de corpus linguistiques.</p>
-            <p class="event-link" id="event-4-link"><a href="#">Slides</a></p>
-          </div>
-        </div>
-
-        <div class="timeline-event" data-date="2018-06-30" data-keywords="atelier toulouse visualisation de données big data">
-          <div class="event-left">
-            <div class="event-card">
-              <p class="event-date" id="event-3-date">30/06/2018</p>
-              <p class="event-lieu" id="event-3-lieu">Toulouse, France</p>
-            </div>
-          </div>
-          <div class="timeline-dot"></div>
-          <div class="event-right">
-            <h1 class="event-type" id="event-3-type">Atelier</h1>
-            <p class="event-description" id="event-3-desc">Initiation aux outils de visualisation de données massives.</p>
-            <p class="event-link" id="event-3-link"><a href="#">Support</a></p>
-          </div>
-        </div>
-
-        <div class="timeline-event" data-date="2017-03-25" data-keywords="séminaire montpellier éducation numérique">
-          <div class="event-left">
-            <div class="event-card">
-              <p class="event-date" id="event-2-date">25/03/2017</p>
-              <p class="event-lieu" id="event-2-lieu">Montpellier, France</p>
-            </div>
-          </div>
-          <div class="timeline-dot"></div>
-          <div class="event-right">
-            <h1 class="event-type" id="event-2-type">Séminaire</h1>
-            <p class="event-description" id="event-2-desc">Séminaire sur l’éducation et les technologies numériques.</p>
-            <p class="event-link" id="event-2-link"><a href="#">Programme</a></p>
-          </div>
-        </div>
-
-        <div class="timeline-event" data-date="2015-12-02" data-keywords="conférence nice réseaux sociaux communication">
-          <div class="event-left">
-            <div class="event-card">
-              <p class="event-date" id="event-1-date">02/12/2015</p>
-              <p class="event-lieu" id="event-1-lieu">Nice, France</p>
-            </div>
-          </div>
-          <div class="timeline-dot"></div>
-          <div class="event-right">
-            <h1 class="event-type" id="event-1-type">Conférence</h1>
-            <p class="event-description" id="event-1-desc">Conférence sur l’évolution des réseaux sociaux dans la communication.</p>
-            <p class="event-link" id="event-1-link"><a href="#">Compte rendu</a></p>
-          </div>
-        </div>
-
-      </div>
+      
+      <div class="timeline-grid" id="timeline-grid">Chargement des données...</div>
+      
       <div id="timeline-end-dot" aria-hidden="true"></div>
     </section>
   </div>
@@ -478,135 +121,155 @@ mark {
   <div id="footer-placeholder"></div>
 
   <script>
-    // ====== Chargement header/footer + calcul de l’offset sticky ======
+    // 1. Charger Header/Footer + Calcul Sticky
     function loadHTML(id, url) {
       return fetch(url)
-        .then(r => { if(!r.ok) throw new Error('Erreur de chargement'); return r.text(); })
+        .then(r => r.ok ? r.text() : '')
         .then(html => { document.getElementById(id).innerHTML = html; });
     }
 
-    // MODIFIÉ : La fonction calcule maintenant la hauteur du header ET du voile
     function updateHeaderOffset() {
       const header = document.querySelector('header');
-      const toolbar = document.getElementById('tools-box'); // NOUVEAU : Récupère la barre d'outils
-      
+      const toolbar = document.getElementById('tools-box');
       const h = header ? header.getBoundingClientRect().height : 0;
-      const th = toolbar ? toolbar.getBoundingClientRect().height : 0; // NOUVEAU : Récupère sa hauteur
-      
-      // Définit l'offset pour la barre d'outils sticky
+      const th = toolbar ? toolbar.getBoundingClientRect().height : 0;
       document.documentElement.style.setProperty('--header-offset', h + 'px');
-      
-      // NOUVEAU : Définit la hauteur totale du voile (header + toolbar)
-      const totalVoileHeight = h + th;
-      document.documentElement.style.setProperty('--voile-height', totalVoileHeight + 'px');
+      document.documentElement.style.setProperty('--voile-height', (h + th) + 'px');
     }
 
+    // 2. Fonction utilitaire pour formater la date (YYYY-MM-DD -> DD/MM/YYYY)
+    function formatDateFR(dateString) {
+      if(!dateString) return "";
+      const d = new Date(dateString);
+      return d.toLocaleDateString('fr-FR');
+    }
+
+    // 3. Script Principal : Charger Data + Générer Timeline + Activer Filtres
     Promise.all([
       loadHTML('header-placeholder','header.html'),
-      loadHTML('footer-placeholder','footer.html')
-    ]).then(() => {
-      // une fois le header injecté
-      updateHeaderOffset();
-      window.addEventListener('resize', updateHeaderOffset);
-    }).catch(err => console.error(err));
+      loadHTML('footer-placeholder','footer.html'),
+      fetch('data.json').then(r => r.json()) // Charger les données
+    ]).then(([_, __, data]) => {
+      
+      // A. Mettre à jour l'offset header
+      setTimeout(() => { updateHeaderOffset(); window.addEventListener('resize', updateHeaderOffset); }, 100);
 
-    // ====== Utilitaires recherche / normalisation ======
-    const $search  = document.getElementById('search-keyword');
-    const $start   = document.getElementById('date-start');
-    const $end     = document.getElementById('date-end');
-    const $reset   = document.getElementById('btn-reset');
-    const $events  = Array.from(document.querySelectorAll('.timeline-event'));
+      // B. Générer la Timeline
+      const container = document.getElementById('timeline-grid');
+      container.innerHTML = ""; // Vider le "Chargement..."
+      
+      const interventions = data.interventions || [];
 
-    // pour un filtrage accent-insensible
-    function normalize(str){ 
-      return (str||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,''); 
-    }
+      // Trier par date (Le plus récent en haut)
+      interventions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    // Sauvegarde du HTML original pour pouvoir nettoyer le highlight
-    const highlightTargets = ['.event-type', '.event-description', '.event-lieu', '.event-date'];
-    $events.forEach(ev=>{
-      highlightTargets.forEach(sel=>{
-        const el = ev.querySelector(sel);
-        if(el) el.dataset.originalHtml = el.innerHTML;
+      interventions.forEach((item, index) => {
+        // Préparer les mots clés pour la recherche
+        const keywords = `${item.motsCles || ''} ${item.type} ${item.lieu} ${item.description}`.toLowerCase();
+        
+        // Créer le HTML
+        const html = `
+        <div class="timeline-event" data-date="${item.date}" data-keywords="${keywords}">
+          <div class="event-left">
+            <div class="event-card">
+              <p class="event-date">${formatDateFR(item.date)}</p>
+              <p class="event-lieu">${item.lieu}</p>
+            </div>
+          </div>
+          <div class="timeline-dot"></div>
+          <div class="event-right">
+            <h1 class="event-type">${item.type}</h1>
+            <p class="event-description">${item.description}</p>
+            ${ item.lien ? `<p class="event-link"><a href="${item.lien}" target="_blank">Voir le document</a></p>` : '' }
+          </div>
+        </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
       });
+
+      // C. Activer les Filtres (Maintenant que le HTML existe)
+      setupFilters();
+
+    }).catch(err => {
+      console.error("Erreur:", err);
+      document.getElementById('timeline-grid').innerHTML = "<p style='text-align:center'>Erreur de chargement des données.</p>";
     });
 
-    function clearHighlights(ev){
-      highlightTargets.forEach(sel=>{
-        const el = ev.querySelector(sel);
-        if(el && el.dataset.originalHtml !== undefined){
-          el.innerHTML = el.dataset.originalHtml;
-        }
+
+    // 4. Logique de Filtrage (Copiée et adaptée de votre ancien code)
+    function setupFilters() {
+      const $search  = document.getElementById('search-keyword');
+      const $start   = document.getElementById('date-start');
+      const $end     = document.getElementById('date-end');
+      const $reset   = document.getElementById('btn-reset');
+      
+      // Surlignage
+      const highlightTargets = ['.event-type', '.event-description', '.event-lieu', '.event-date'];
+      
+      function normalize(str){ 
+        return (str||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,''); 
+      }
+
+      function applyHighlights(ev, query){
+        if(!query) return;
+        const re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        highlightTargets.forEach(sel => {
+          const el = ev.querySelector(sel);
+          if(el) {
+            // Sauvegarder le HTML original si pas fait
+            if(el.dataset.originalHtml === undefined) el.dataset.originalHtml = el.innerHTML;
+            // Reset avant d'appliquer
+            el.innerHTML = el.dataset.originalHtml; 
+            // Appliquer mark
+            el.innerHTML = el.innerHTML.replace(re, m => `<mark>${m}</mark>`);
+          }
+        });
+      }
+
+      function clearHighlights(ev){
+        highlightTargets.forEach(sel => {
+          const el = ev.querySelector(sel);
+          if(el && el.dataset.originalHtml !== undefined) el.innerHTML = el.dataset.originalHtml;
+        });
+      }
+
+      function applyFilters(){
+        const events = document.querySelectorAll('.timeline-event');
+        const kw = normalize($search.value.trim());
+        const startDate = $start.value ? new Date($start.value) : null;
+        const endDate   = $end.value   ? new Date($end.value)   : null;
+
+        events.forEach(ev => {
+          clearHighlights(ev);
+          const evDate = new Date(ev.dataset.date);
+          let visible = true;
+
+          // Date
+          if(startDate && evDate < startDate) visible = false;
+          if(endDate   && evDate > endDate)   visible = false;
+
+          // Mots clés (on cherche dans l'attribut data-keywords généré plus haut)
+          if(visible && kw.length > 0){
+             const dataKw = normalize(ev.getAttribute('data-keywords'));
+             if(!dataKw.includes(kw)) visible = false;
+          }
+
+          ev.style.display = visible ? 'contents' : 'none';
+
+          if(visible && kw.length > 0) applyHighlights(ev, $search.value.trim());
+        });
+      }
+
+      [$search, $start, $end].forEach(el => {
+        el.addEventListener('input', applyFilters);
+        el.addEventListener('change', applyFilters);
+      });
+
+      $reset.addEventListener('click', () => {
+        $search.value = ''; $start.value = ''; $end.value = '';
+        applyFilters();
       });
     }
-
-    function applyHighlights(ev, query){
-      if(!query) return;
-      const q = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // escape regex
-      const re = new RegExp(q, 'gi'); // casse-insensible (accents: on garde le texte d’origine)
-      highlightTargets.forEach(sel=>{
-        const el = ev.querySelector(sel);
-        if(el){
-          // éviter de re-surligner dans un contenu déjà marqué
-          const plain = el.textContent;
-          el.innerHTML = plain.replace(re, m=>`<mark>${m}</mark>`);
-        }
-      });
-    }
-
-    function applyFilters(){
-      const kw = normalize($search.value.trim());
-      const hasKw = kw.length > 0;
-      const startDate = $start.value ? new Date($start.value) : null;
-      const endDate   = $end.value   ? new Date($end.value)   : null;
-
-      $events.forEach(ev=>{
-        // Nettoyer précédents surlignages
-        clearHighlights(ev);
-
-        // Filtrage par date
-        const evDate = new Date(ev.dataset.date);
-        let visible = true;
-        if(startDate && evDate < startDate) visible = false;
-        if(endDate   && evDate > endDate)   visible = false;
-
-        // Filtrage par mot-clé (sur data-keywords + textes visibles)
-        if(visible && hasKw){
-          const pool = [
-            ev.getAttribute('data-keywords') || '',
-            ev.querySelector('.event-type')?.textContent || '',
-            ev.querySelector('.event-description')?.textContent || '',
-            ev.querySelector('.event-lieu')?.textContent || '',
-            ev.querySelector('.event-date')?.textContent || ''
-          ].join(' ');
-          if(!normalize(pool).includes(kw)) visible = false;
-        }
-
-        // Appliquer visibilité
-        ev.style.display = visible ? 'contents' : 'none';
-
-        // Surligner si visible et recherche
-        if(visible && hasKw){
-          applyHighlights(ev, $search.value.trim());
-        }
-      });
-    }
-
-    [$search, $start, $end].forEach(el=>{
-      el.addEventListener('input', applyFilters);
-      el.addEventListener('change', applyFilters);
-    });
-    $reset.addEventListener('click', ()=>{
-      $search.value = '';
-      $start.value = '';
-      $end.value = '';
-      applyFilters();
-    });
-
-    // Lancer une première fois
-    applyFilters();
   </script>
-
-  <script src="modifications.js"></script>
 </body>
 </html>
