@@ -3,87 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tristan Arbona - Cours</title>
+  <title>Cours & Enseignements</title>
   <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
   <style>
-    /* La balise style en double et la règle 'details' en double ont été supprimées */
+    /* Styles spécifiques pour l'accordéon des cours */
     details {
       margin-bottom: 1rem;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      overflow: hidden;
     }
 
     details > summary {
       font-size: 1.2rem;
       font-weight: bold;
       cursor: pointer;
-      padding: 0.5rem;
-      background: #f0f0f0;
-      border-radius: 4px;
+      padding: 1rem;
+      background: #f8f8f8;
       list-style: none;
+      position: relative;
+      transition: background 0.2s;
+    }
+    details > summary:hover { background: #eee; }
+    details > summary::-webkit-details-marker { display: none; } /* Cache la flèche par défaut */
+
+    /* Notre propre flèche personnalisée */
+    details > summary::after {
+      content: "+";
+      position: absolute;
+      right: 1rem;
+      font-weight: bold;
+      font-size: 1.5rem;
+      transition: transform 0.2s;
+    }
+    details[open] > summary::after {
+      content: "-";
+      transform: rotate(0deg); /* Peut être animé si besoin */
     }
 
-    details > summary::-webkit-details-marker { display: none; }
-
-    details > summary::before {
-      content: "▸";
-      display: inline-block;
-      width: 1em;
-      transition: transform 0.2s ease;
+    /* Sous-section (ex: Slides, TD) */
+    .course-section {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #eee;
     }
-
-    details[open] > summary::before {
-      transform: rotate(90deg);
-    }
-
-    details details {
-      margin-left: 1.5rem;
-      background: #fafafa;
-      padding: 0.5rem;
-      border-radius: 4px;
-    }
-
-    details details > summary {
+    .section-title {
       font-size: 1rem;
-      background: #eaeaea;
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 0.5rem;
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
+    /* Liste des fichiers */
     .resource-list {
       list-style: none;
-      padding-left: 2rem;
-      margin-top: 0.5rem;
+      padding-left: 0;
+      margin: 0;
     }
-
     .resource-list li {
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.5rem;
     }
-
     .resource-list li a {
       text-decoration: none;
       color: #1f1f1f;
       display: flex;
       align-items: center;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background 0.2s;
     }
-
     .resource-list li a:hover {
-      text-decoration: underline;
+      background: #f0f0f0;
+      color: #0077cc;
     }
-
     .resource-list li a::before {
       content: "📄";
-      margin-right: 0.5rem;
+      margin-right: 0.8rem;
     }
-
-    .container {
-      max-width: 900px;
-      margin: 3rem auto;
-      padding: 0 1rem;
-    }
-
-    .container > h1 {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 2rem;
-    }
+    
+    .empty-msg { text-align: center; color: #888; font-style: italic; margin-top: 2rem; }
   </style>
 </head>
 <body>
@@ -91,119 +96,88 @@
   <div id="header-placeholder"></div>
   
   <div class="container">
-    <h1>Cours</h1>
+    <h1 style="text-align: center; margin-bottom: 2rem;">Cours & Ressources</h1>
 
-    <details>
-      <summary>Exemple de nom de cours 1</summary>
-
-      <details>
-        <summary>Slides</summary>
-        <ul class="resource-list">
-          <li><a href="slides1.pdf" target="_blank">slides1.pdf</a></li>
-          <li><a href="slides2.pdf" target="_blank">slides2.pdf</a></li>
-          <li><a href="slides3.pdf" target="_blank">slides3.pdf</a></li>
-          <li><a href="slides4.pdf" target="_blank">slides4.pdf</a></li>
-          <li><a href="slides5.pdf" target="_blank">slides5.pdf</a></li>
-          <li><a href="slides6.pdf" target="_blank">slides6.pdf</a></li>
-          <li><a href="slides7.pdf" target="_blank">slides7.pdf</a></li>
-          <li><a href="slides8.pdf" target="_blank">slides8.pdf</a></li>
-          <li><a href="slides9.pdf" target="_blank">slides9.pdf</a></li>
-          <li><a href="slides10.pdf" target="_blank">slides10.pdf</a></li>
-          <li><a href="slides11.pdf" target="_blank">slides11.pdf</a></li>
-          <li><a href="slides12.pdf" target="_blank">slides12.pdf</a></li>
-          <li><a href="slides13.pdf" target="_blank">slides13.pdf</a></li>
-          <li><a href="slides14.pdf" target="_blank">slides14.pdf</a></li>
-          <li><a href="slides15.pdf" target="_blank">slides15.pdf</a></li>
-          <li><a href="slides16.pdf" target="_blank">slides16.pdf</a></li>
-          <li><a href="slides17.pdf" target="_blank">slides17.pdf</a></li>
-          <li><a href="slides18.pdf" target="_blank">slides18.pdf</a></li>
-          <li><a href="slides19.pdf" target="_blank">slides19.pdf</a></li>
-          <li><a href="slides20.pdf" target="_blank">slides20.pdf</a></li>
-        </ul>
-      </details>
-
-      <details>
-        <summary>Exercices</summary>
-        <ul class="resource-list">
-          <li><a href="exercice1.pdf" target="_blank">exercice1.pdf</a></li>
-          <li><a href="exercice2.pdf" target="_blank">exercice2.pdf</a></li>
-          <li><a href="exercice3.pdf" target="_blank">exercice3.pdf</a></li>
-          <li><a href="exercice4.pdf" target="_blank">exercice4.pdf</a></li>
-          <li><a href="exercice5.pdf" target="_blank">exercice5.pdf</a></li>
-          <li><a href="exercice6.pdf" target="_blank">exercice6.pdf</a></li>
-          <li><a href="exercice7.pdf" target="_blank">exercice7.pdf</a></li>
-          <li><a href="exercice8.pdf" target="_blank">exercice8.pdf</a></li>
-          <li><a href="exercice9.pdf" target="_blank">exercice9.pdf</a></li>
-          <li><a href="exercice10.pdf" target="_blank">exercice10.pdf</a></li>
-          <li><a href="exercice11.pdf" target="_blank">exercice11.pdf</a></li>
-          <li><a href="exercice12.pdf" target="_blank">exercice12.pdf</a></li>
-          <li><a href="exercice13.pdf" target="_blank">exercice13.pdf</a></li>
-          <li><a href="exercice14.pdf" target="_blank">exercice14.pdf</a></li>
-          <li><a href="exercice15.pdf" target="_blank">exercice15.pdf</a></li>
-          <li><a href="exercice16.pdf" target="_blank">exercice16.pdf</a></li>
-          <li><a href="exercice17.pdf" target="_blank">exercice17.pdf</a></li>
-          <li><a href="exercice18.pdf" target="_blank">exercice18.pdf</a></li>
-          <li><a href="exercice19.pdf" target="_blank">exercice19.pdf</a></li>
-          <li><a href="exercice20.pdf" target="_blank">exercice20.pdf</a></li>
-        </ul>
-      </details>
-
-      <details>
-        <summary>Documents</summary>
-        <ul class="resource-list">
-          <li><a href="document1.pdf" target="_blank">document1.pdf</a></li>
-          <li><a href="document2.pdf" target="_blank">document2.pdf</a></li>
-          <li><a href="document3.pdf" target="_blank">document3.pdf</a></li>
-          <li><a href="document4.pdf" target="_blank">document4.pdf</a></li>
-          <li><a href="document5.pdf" target="_blank">document5.pdf</a></li>
-          <li><a href="document6.pdf" target="_blank">document6.pdf</a></li>
-          <li><a href="document7.pdf" target="_blank">document7.pdf</a></li>
-          <li><a href="document8.pdf" target="_blank">document8.pdf</a></li>
-          <li><a href="document9.pdf" target="_blank">document9.pdf</a></li>
-          <li><a href="document10.pdf" target="_blank">document10.pdf</a></li>
-          <li><a href="document11.pdf" target="_blank">document11.pdf</a></li>
-          <li><a href="document12.pdf" target="_blank">document12.pdf</a></li>
-          <li><a href="document13.pdf" target="_blank">document13.pdf</a></li>
-          <li><a href="document14.pdf" target="_blank">document14.pdf</a></li>
-          <li><a href="document15.pdf" target="_blank">document15.pdf</a></li>
-          <li><a href="document16.pdf" target="_blank">document16.pdf</a></li>
-          <li><a href="document17.pdf" target="_blank">document17.pdf</a></li>
-          <li><a href="document18.pdf" target="_blank">document18.pdf</a></li>
-          <li><a href="document19.pdf" target="_blank">document19.pdf</a></li>
-          <li><a href="document20.pdf" target="_blank">document20.pdf</a></li>
-        </ul>
-      </details>
-    </details>
-    
-    <details>
-      <summary>Exemple de nom de cours 2</summary>
-    </details>
-    
-    <details>
-      <summary>Exemple de nom de cours 3</summary>
-    </details>
+    <div id="courses-container">
+      <p class="empty-msg">Chargement des cours...</p>
+    </div>
 
   </div>
   
   <div id="footer-placeholder"></div>
 
   <script>
+    // 1. Charger Header/Footer
     function loadHTML(id, url) {
       fetch(url)
-        .then(response => {
-          if (!response.ok) throw new Error('Erreur de chargement');
-          return response.text();
-        })
-        .then(data => {
-          document.getElementById(id).outerHTML = data;
-        })
-        .catch(error => {
-          console.error('Erreur:', error);
-        });
+        .then(r => r.ok ? r.text() : '')
+        .then(html => document.getElementById(id).innerHTML = html);
     }
-
     loadHTML('header-placeholder', 'header.html');
     loadHTML('footer-placeholder', 'footer.html');
+
+    // 2. Charger les données et générer le HTML
+    fetch('data.json')
+      .then(r => r.json())
+      .then(data => {
+        const container = document.getElementById('courses-container');
+        const coursList = data.cours || [];
+
+        if(coursList.length === 0) {
+          container.innerHTML = "<p class='empty-msg'>Aucun cours disponible pour le moment.</p>";
+          return;
+        }
+
+        container.innerHTML = ""; // Vider le message de chargement
+
+        // Boucle sur chaque Cours (ex: Macroéconomie)
+        coursList.forEach(cours => {
+          
+          // Construire le HTML des sections interne (Slides, TD...)
+          let sectionsHTML = "";
+          
+          if(cours.sections && cours.sections.length > 0) {
+            cours.sections.forEach(section => {
+              
+              // Construire la liste des fichiers pour cette section
+              let fichiersHTML = "";
+              if(section.fichiers && section.fichiers.length > 0) {
+                section.fichiers.forEach(fichier => {
+                  fichiersHTML += `
+                    <li>
+                      <a href="${fichier.url}" target="_blank">
+                        ${fichier.nom}
+                      </a>
+                    </li>`;
+                });
+              }
+
+              // Ajouter la section au bloc
+              sectionsHTML += `
+                <div class="course-section">
+                  <div class="section-title">${section.titre}</div>
+                  <ul class="resource-list">
+                    ${fichiersHTML}
+                  </ul>
+                </div>
+              `;
+            });
+          }
+
+          // Créer l'élément <details> principal
+          const details = document.createElement('details');
+          details.innerHTML = `
+            <summary>${cours.nom}</summary>
+            ${sectionsHTML}
+          `;
+          
+          container.appendChild(details);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById('courses-container').innerHTML = "<p class='empty-msg'>Erreur de chargement.</p>";
+      });
   </script>
   
 </body>
