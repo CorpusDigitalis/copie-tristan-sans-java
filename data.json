@@ -40,6 +40,13 @@
       "description": "Conférence invitée sur l’avenir des sciences des données.",
       "lien": "#",
       "motsCles": "conférence lyon sciences des données machine learning"
+    },
+    {
+      "lieu": "beh oui cest lexelmple et ca marche!",
+      "type": "classe",
+      "description": "pas besoin tu sais deja",
+      "motsCles": "classe ia automatisatoion",
+      "lien": ""
     }
   ],
   "cours": [
