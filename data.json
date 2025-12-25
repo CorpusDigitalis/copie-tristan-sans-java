@@ -1,13 +1,43 @@
 {
+  "config": {
+    "menu": [
+      {
+        "titre": "Accueil",
+        "url": "index.html"
+      },
+      {
+        "titre": "Publications",
+        "url": "publications.html"
+      },
+      {
+        "titre": "Interventions",
+        "url": "interventions.html"
+      },
+      {
+        "titre": "Cours",
+        "url": "cours.html"
+      }
+    ],
+    "footer": [
+      {
+        "nom": "Me contacter",
+        "url": "mailto:contact@email.com"
+      },
+      {
+        "nom": "Mon Université",
+        "url": "https://www.univ-paris.fr"
+      }
+    ]
+  },
   "profil": {
-    "titre": "Bienvenue A MOI",
-    "description": "Je conçois des sites webBBBBBB professionnels sur mesure, pensés pour valoriser l’identité, les différents travaux et l’expertise de professionnels issus de divers secteurs.\n\nChaque site est développé de manière personnalisée, avec une attention portée à la lisibilité, à la simplicité d’usage et à l’autonomie du client. ",
+    "titre": "Bienvenue",
+    "description": "Je conçois des sites web professionnels sur mesure, pensés pour valoriser l’identité, les différents travaux et l’expertise de professionnels issus de divers secteurs.\n\nChaque site est développé de manière personnalisée, avec une attention portée à la lisibilité, à la simplicité d’usage et à l’autonomie du client.",
     "image": "portrait.jpg"
   },
   "publications": [
     {
-      "categorie": "Colloques",
-      "texte": "Exemple d'article de recherche sur des thématiques économiques. HAHAHAHA",
+      "categorie": "Articles de recherche",
+      "texte": "Exemple d'article de recherche sur des thématiques économiques.",
       "lien": "#",
       "texteLien": "Consulter le document"
     },
@@ -27,7 +57,7 @@
   "interventions": [
     {
       "date": "2025-05-12",
-      "lieu": "Paris, France iaaaaaaa lol",
+      "lieu": "Paris, France",
       "type": "Colloque",
       "description": "Présentation sur l’impact de l’IA dans l’enseignement supérieur.",
       "lien": "#",
@@ -40,14 +70,6 @@
       "description": "Conférence invitée sur l’avenir des sciences des données.",
       "lien": "#",
       "motsCles": "conférence lyon sciences des données machine learning"
-    },
-    {
-      "lieu": "beh oui cest lexelmple et ca marche!",
-      "type": "classe",
-      "description": "pas besoin tu sais deja",
-      "motsCles": "classe ia automatisatoion",
-      "lien": "",
-      "date": "2015-05-12"
     }
   ],
   "cours": [
@@ -75,17 +97,6 @@
               "url": "td1.pdf"
             }
           ]
-        }
-      ]
-    },
-    {
-      "nom": "pas de classes"
-    },
-    {
-      "nom": "baddies sesh",
-      "sections": [
-        {
-          "titre": "upsi"
         }
       ]
     }
