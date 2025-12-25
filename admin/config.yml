@@ -166,3 +166,5 @@ collections:
                         name: "url"
                         widget: "file"
                         hint: "⚠️ PDF ou Image uniquement. Max 10Mo. Pour les vidéos, mettez un lien YouTube."
+
+                        
