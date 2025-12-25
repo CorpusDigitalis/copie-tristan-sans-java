@@ -32,10 +32,12 @@ collections:
                 name: "titre"
                 widget: "string"
                 hint: "Le grand titre sur la page d'accueil (ex: Bienvenue)."
-              - label: "Biographie"
+             - label: "Biographie"
                 name: "description"
-                widget: "text"
-                hint: "Votre présentation principale. Utilisez la touche Entrée pour faire des paragraphes."
+                widget: "markdown"  # <-- C'est ça qui change tout !
+                buttons: ["bold", "italic", "link", "bulleted-list"] # On choisit les options autorisées
+                editor_components: [] # On enlève les options complexes (images etc) pour garder ça simple
+                hint: "Surlignez du texte pour le mettre en Gras ou Italique."
               - label: "Photo de profil"
                 name: "image"
                 widget: "image"
