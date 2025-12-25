@@ -1,15 +1,16 @@
 backend:
   name: git-gateway
-  branch: main # Assurez-vous que votre branche s'appelle 'main' ou 'master'
+  branch: main
   logo_url: "https://corpusdigitalis.github.io/copie-tristan-sans-java/portrait.jpg"
 
-# 1. AMÉLIORATION : Interface en Français
+# 1. INTERFACE EN FRANÇAIS
 locale: 'fr'
 
+# 2. GESTION DES FICHIERS (Propre et rangé)
 media_folder: "uploads"
 public_folder: "uploads"
 
-# 2. AMÉLIORATION : On cache la prévisualisation pour avoir un formulaire pleine page
+# 3. SUPPRESSION DE LA PRÉVISUALISATION (Formulaire pleine page)
 editor:
   preview: false
 
@@ -32,12 +33,14 @@ collections:
                 name: "titre"
                 widget: "string"
                 hint: "Le grand titre sur la page d'accueil (ex: Bienvenue)."
-             - label: "Biographie"
+              
+              - label: "Biographie"
                 name: "description"
-                widget: "markdown"  # <-- C'est ça qui change tout !
-                buttons: ["bold", "italic", "link", "bulleted-list"] # On choisit les options autorisées
-                editor_components: [] # On enlève les options complexes (images etc) pour garder ça simple
+                widget: "markdown" # Permet le gras et l'italique
+                buttons: ["bold", "italic", "link", "bulleted-list"]
+                editor_components: []
                 hint: "Surlignez du texte pour le mettre en Gras ou Italique."
+              
               - label: "Photo de profil"
                 name: "image"
                 widget: "image"
@@ -58,16 +61,14 @@ collections:
               - label: "Titre / Description"
                 name: "texte"
                 widget: "string"
-                hint: "Le titre complet de la publication."
               - label: "Lien URL"
                 name: "lien"
                 widget: "string"
-                hint: "Lien vers le site de l'éditeur ou le PDF (ex: https://...)"
+                hint: "Lien vers le site de l'éditeur ou le PDF."
               - label: "Texte du bouton"
                 name: "texteLien"
                 widget: "string"
                 default: "Voir"
-                hint: "Ce qui est écrit sur le lien (ex: Consulter, PDF, Voir)."
 
           # --- SECTION INTERVENTIONS ---
           - label: "🎤 Interventions & Colloques"
@@ -77,31 +78,29 @@ collections:
             fields:
               - label: "Date"
                 name: "date"
-                widget: "datetime" # On utilise datetime au lieu de date pour éviter le bug
-                time_format: false # On cache l'heure
-                format: "YYYY-MM-DD" # Format enregistré dans le fichier
+                widget: "datetime" 
+                time_format: false 
+                format: "YYYY-MM-DD"
                 hint: "Cliquez pour choisir la date."
               - label: "Lieu"
                 name: "lieu"
                 widget: "string"
-                hint: "Ville, Pays ou Université."
               - label: "Type"
                 name: "type"
                 widget: "string"
-                hint: "Ex: Colloque, Séminaire, Conférence invitée..."
+                hint: "Ex: Colloque, Séminaire..."
               - label: "Description"
                 name: "description"
                 widget: "text"
-                hint: "Détails sur votre intervention."
               - label: "Mots-clés (Recherche)"
                 name: "motsCles"
                 widget: "string"
-                hint: "IMPORTANT : Mots qui permettent de trouver cet événement via la barre de recherche (ex: ia, pédagogie, paris)."
-              - label: "Lien (Document)"
+                hint: "Pour la barre de recherche (ex: ia, pédagogie)."
+              - label: "Lien (Document/Slides)"
                 name: "lien"
                 widget: "string"
-                required: false
-                hint: "Lien vers les slides ou le programme (facultatif)."
+                required: false # FACULTATIF
+                hint: "Lien vers les slides (facultatif)."
 
           # --- SECTION COURS ---
           - label: "🎓 Cours & Enseignements"
@@ -112,7 +111,7 @@ collections:
               - label: "Nom du Cours"
                 name: "nom"
                 widget: "string"
-                hint: "Le titre principal du cours (ex: Macroéconomie L1)."
+                hint: "Ex: Macroéconomie L1."
               
               - label: "📂 Sections (Chapitres / TD)"
                 name: "sections"
@@ -132,7 +131,8 @@ collections:
                         name: "nom"
                         widget: "string"
                         hint: "Le nom du document tel qu'il apparaîtra."
-                      - label: "Fichier PDF"
+                      - label: "Fichier (PDF uniquement)"
                         name: "url"
                         widget: "file"
-                        hint: "Cliquez pour uploader le PDF depuis votre ordinateur."
+                        # C'est ici qu'on bloque psychologiquement les vidéos
+                        hint: "⚠️ PDF ou Image uniquement. Max 10Mo. Pour les vidéos, mettez un lien YouTube."
