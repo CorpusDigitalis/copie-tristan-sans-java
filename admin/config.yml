@@ -3,67 +3,126 @@ backend:
   name: git-gateway
   branch: main # Assurez-vous que votre branche s'appelle 'main' ou 'master'
 
-media_folder: "." # Les images seront uploadées à la racine pour l'instant
+media_folder: "." # Les images seront uploadées à la racine
 public_folder: "."
 
-# C'est ici qu'on définit la structure du formulaire
+# Structure du formulaire d'administration
 collections:
   - name: "pages"
-    label: "GÉRER MON SITE"  # <-- Changement ici (en majuscules, plus visible)
+    label: "GÉRER MON SITE"
     files:
       - name: "donnees"
-        label: "Modifier le contenu (Bio, Publis, Cours...)" # <-- Plus clair pour le client
+        label: "📝 Modifier le contenu global"
         file: "data.json"
         fields:
           # --- SECTION PROFIL ---
-          - label: "Profil & Accueil"
+          - label: "👤 Profil & Accueil"
             name: "profil"
             widget: "object"
+            collapsed: false
             fields:
-              - {label: "Titre Accueil", name: "titre", widget: "string"}
-              - {label: "Biographie", name: "description", widget: "text"}
-              - {label: "Photo de profil", name: "image", widget: "image"}
+              - label: "Titre Accueil"
+                name: "titre"
+                widget: "string"
+                hint: "Le grand titre sur la page d'accueil (ex: Bienvenue)."
+              - label: "Biographie"
+                name: "description"
+                widget: "text"
+                hint: "Votre présentation principale. Utilisez la touche Entrée pour faire des paragraphes."
+              - label: "Photo de profil"
+                name: "image"
+                widget: "image"
+                hint: "Choisissez une image (format portrait conseillé)."
 
           # --- SECTION PUBLICATIONS ---
-          - label: "Publications"
+          - label: "📚 Publications"
             name: "publications"
             widget: "list"
+            collapsed: true
             fields:
               - label: "Catégorie"
                 name: "categorie"
                 widget: "select"
                 options: ["Articles de recherche", "Colloques", "Ouvrages", "Autres"]
-                create: true # Permet au client de créer une nouvelle catégorie
-              - {label: "Description / Titre", name: "texte", widget: "string"}
-              - {label: "Lien URL", name: "lien", widget: "string"}
-              - {label: "Texte du bouton", name: "texteLien", widget: "string", default: "Voir"}
+                create: true
+                hint: "Choisissez une catégorie ou tapez-en une nouvelle."
+              - label: "Titre / Description"
+                name: "texte"
+                widget: "string"
+                hint: "Le titre complet de la publication."
+              - label: "Lien URL"
+                name: "lien"
+                widget: "string"
+                hint: "Lien vers le site de l'éditeur ou le PDF (ex: https://...)"
+              - label: "Texte du bouton"
+                name: "texteLien"
+                widget: "string"
+                default: "Voir"
+                hint: "Ce qui est écrit sur le lien (ex: Consulter, PDF, Voir)."
 
           # --- SECTION INTERVENTIONS ---
-          - label: "Interventions"
+          - label: "🎤 Interventions & Colloques"
             name: "interventions"
             widget: "list"
+            collapsed: true
             fields:
-              - {label: "Date", name: "date", widget: "date", format: "YYYY-MM-DD"}
-              - {label: "Lieu", name: "lieu", widget: "string"}
-              - {label: "Type (Colloque...)", name: "type", widget: "string"}
-              - {label: "Description", name: "description", widget: "text"}
-              - {label: "Mots-clés (pour la recherche)", name: "motsCles", widget: "string"}
-              - {label: "Lien", name: "lien", widget: "string"}
-          
-          # --- SECTION COURS (Complexe : Liste dans une liste) ---
-          - label: "Cours"
+              - label: "Date"
+                name: "date"
+                widget: "date"
+                format: "YYYY-MM-DD"
+                hint: "Sert à trier chronologiquement."
+              - label: "Lieu"
+                name: "lieu"
+                widget: "string"
+                hint: "Ville, Pays ou Université."
+              - label: "Type"
+                name: "type"
+                widget: "string"
+                hint: "Ex: Colloque, Séminaire, Conférence invitée..."
+              - label: "Description"
+                name: "description"
+                widget: "text"
+                hint: "Détails sur votre intervention."
+              - label: "Mots-clés (Recherche)"
+                name: "motsCles"
+                widget: "string"
+                hint: "IMPORTANT : Mots qui permettent de trouver cet événement via la barre de recherche (ex: ia, pédagogie, paris)."
+              - label: "Lien (Document)"
+                name: "lien"
+                widget: "string"
+                required: false
+                hint: "Lien vers les slides ou le programme (facultatif)."
+
+          # --- SECTION COURS ---
+          - label: "🎓 Cours & Enseignements"
             name: "cours"
             widget: "list"
+            collapsed: true
             fields:
-              - {label: "Nom du Cours", name: "nom", widget: "string"}
-              - label: "Sections (ex: Slides, TD)"
+              - label: "Nom du Cours"
+                name: "nom"
+                widget: "string"
+                hint: "Le titre principal du cours (ex: Macroéconomie L1)."
+              
+              - label: "📂 Sections (Chapitres / TD)"
                 name: "sections"
                 widget: "list"
+                hint: "Créez des groupes (ex: Cours Magistraux, Travaux Dirigés)."
                 fields:
-                  - {label: "Titre de la section", name: "titre", widget: "string"}
-                  - label: "Fichiers"
+                  - label: "Titre de la section"
+                    name: "titre"
+                    widget: "string"
+                    hint: "Ex: Slides CM, Fiches TD..."
+                  
+                  - label: "📄 Fichiers à télécharger"
                     name: "fichiers"
                     widget: "list"
                     fields:
-                      - {label: "Nom du fichier", name: "nom", widget: "string"}
-                      - {label: "Fichier PDF", name: "url", widget: "file"}
+                      - label: "Nom affiché"
+                        name: "nom"
+                        widget: "string"
+                        hint: "Le nom du document tel qu'il apparaîtra."
+                      - label: "Fichier PDF"
+                        name: "url"
+                        widget: "file"
+                        hint: "Cliquez pour uploader le PDF depuis votre ordinateur."
