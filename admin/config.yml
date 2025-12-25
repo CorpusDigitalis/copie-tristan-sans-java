@@ -68,9 +68,10 @@ collections:
             fields:
               - label: "Date"
                 name: "date"
-                widget: "date"
-                format: "YYYY-MM-DD"
-                hint: "Sert à trier chronologiquement."
+                widget: "datetime" # On utilise datetime au lieu de date
+                time_format: false # On cache l'heure
+                format: "YYYY-MM-DD" # Format enregistré dans le fichier
+                hint: "Cliquez pour choisir la date."
               - label: "Lieu"
                 name: "lieu"
                 widget: "string"
