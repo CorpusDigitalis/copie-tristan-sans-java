@@ -1,4 +1,5 @@
 backend:
+  logo_url: "https://corpusdigitalis.github.io/copie-tristan-sans-java/portrait.jpg"
   name: git-gateway
   branch: main # Assurez-vous que votre branche s'appelle 'main' ou 'master'
 
