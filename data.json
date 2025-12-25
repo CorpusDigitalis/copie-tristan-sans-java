@@ -46,7 +46,8 @@
       "type": "classe",
       "description": "pas besoin tu sais deja",
       "motsCles": "classe ia automatisatoion",
-      "lien": ""
+      "lien": "",
+      "date": "2015-05-12"
     }
   ],
   "cours": [
@@ -79,6 +80,14 @@
     },
     {
       "nom": "pas de classes"
+    },
+    {
+      "nom": "baddies sesh",
+      "sections": [
+        {
+          "titre": "upsi"
+        }
+      ]
     }
   ]
 }
