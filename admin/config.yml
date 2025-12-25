@@ -6,7 +6,7 @@ backend:
 # 1. INTERFACE EN FRANÇAIS
 locale: 'fr'
 
-# 2. GESTION DES FICHIERS (Propre et rangé)
+# 2. GESTION DES FICHIERS
 media_folder: "uploads"
 public_folder: "uploads"
 
@@ -23,17 +23,17 @@ collections:
         label: "📝 Modifier le contenu global"
         file: "data.json"
         fields:
-          # === NOUVEAU : CONFIGURATION MENU & FOOTER ===
-          # Cette section permet de cacher des pages ou modifier le footer
+          # === CONFIGURATION MENU & FOOTER ===
           - label: "⚙️ Configuration (Menu & Footer)"
             name: "config"
             widget: "object"
-            collapsed: true # Fermé par défaut pour ne pas gêner
+            collapsed: true
             fields:
+              # C'est ici la version LISTE (Flexible)
               - label: "MENU DU HAUT (Header)"
                 name: "menu"
-                widget: "list" # <-- C'est ça la clé : une liste illimitée
-                summary: "{{fields.titre}}" # Affiche le nom du lien dans la liste
+                widget: "list"
+                summary: "{{fields.titre}}"
                 fields:
                   - label: "Titre du lien"
                     name: "titre"
@@ -43,46 +43,18 @@ collections:
                   - label: "Destination (Page ou URL)"
                     name: "url"
                     widget: "string"
-                    # On aide le client avec la liste des pages qui existent
-                    hint: "⚠️ Pages dispos : 'publications.html', 'interventions.html', 'cours.html'. Ou mettez un lien complet 'https://...'"
-                fields:
-                  - label: "Afficher 'Publications' ?"
-                    name: "show_publi"
-                    widget: "boolean"
-                    default: true
-                  - label: "Titre du lien (ex: Publications)"
-                    name: "label_publi"
-                    widget: "string"
-                    default: "Publications"
-                  
-                  - label: "Afficher 'Interventions' ?"
-                    name: "show_inter"
-                    widget: "boolean"
-                    default: true
-                  - label: "Titre du lien (ex: Interventions)"
-                    name: "label_inter"
-                    widget: "string"
-                    default: "Interventions"
-                  
-                  - label: "Afficher 'Cours' ?"
-                    name: "show_cours"
-                    widget: "boolean"
-                    default: true
-                  - label: "Titre du lien (ex: Cours)"
-                    name: "label_cours"
-                    widget: "string"
-                    default: "Cours"
+                    hint: "Pages dispos : 'publications.html', 'interventions.html', 'cours.html'. Ou lien complet 'https://...'"
 
               - label: "PIED DE PAGE (Footer)"
                 name: "footer"
                 widget: "list"
-                hint: "Ajoutez des liens (ex: Mentions légales, Email, LinkedIn...)"
+                summary: "{{fields.nom}}"
                 fields:
                   - {label: "Nom du lien", name: "nom", widget: "string"}
-                  - {label: "Lien URL (http...) ou Email (mailto:...)", name: "url", widget: "string", required: false}
-                  - {label: "OU Document à télécharger", name: "doc", widget: "file", required: false}
+                  - {label: "Lien URL", name: "url", widget: "string", required: false}
+                  - {label: "OU Document", name: "doc", widget: "file", required: false}
 
-          # --- SECTION PROFIL ---
+          # === SECTION PROFIL ===
           - label: "👤 Profil & Accueil"
             name: "profil"
             widget: "object"
@@ -95,7 +67,7 @@ collections:
               
               - label: "Biographie"
                 name: "description"
-                widget: "markdown" # Permet le gras et l'italique
+                widget: "markdown"
                 buttons: ["bold", "italic", "link", "bulleted-list"]
                 editor_components: []
                 hint: "Surlignez du texte pour le mettre en Gras ou Italique."
@@ -105,7 +77,7 @@ collections:
                 widget: "image"
                 hint: "Choisissez une image (format portrait conseillé)."
 
-          # --- SECTION PUBLICATIONS ---
+          # === SECTION PUBLICATIONS ===
           - label: "📚 Publications"
             name: "publications"
             widget: "list"
@@ -129,7 +101,7 @@ collections:
                 widget: "string"
                 default: "Voir"
 
-          # --- SECTION INTERVENTIONS ---
+          # === SECTION INTERVENTIONS ===
           - label: "🎤 Interventions & Colloques"
             name: "interventions"
             widget: "list"
@@ -158,10 +130,10 @@ collections:
               - label: "Lien (Document/Slides)"
                 name: "lien"
                 widget: "string"
-                required: false # FACULTATIF
+                required: false
                 hint: "Lien vers les slides (facultatif)."
 
-          # --- SECTION COURS ---
+          # === SECTION COURS ===
           - label: "🎓 Cours & Enseignements"
             name: "cours"
             widget: "list"
@@ -193,5 +165,4 @@ collections:
                       - label: "Fichier (PDF uniquement)"
                         name: "url"
                         widget: "file"
-                        # C'est ici qu'on bloque psychologiquement les vidéos
                         hint: "⚠️ PDF ou Image uniquement. Max 10Mo. Pour les vidéos, mettez un lien YouTube."
