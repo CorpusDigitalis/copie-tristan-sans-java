@@ -6,6 +6,13 @@
   <title>Tristan Arbona</title>
   <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Important : permet de respecter les sauts de ligne (paragraphes) de votre texte JSON */
+    #profil-desc {
+      white-space: pre-line;
+    }
+  </style>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 
 <body>
@@ -14,14 +21,11 @@
 
   <div class="container">
     <div class="main-content">
-      <img src="portrait.jpg" alt="Portrait de Tristan Arbona" />
+      <img id="profil-img" src="portrait.jpg" alt="Portrait" />
+      
       <div class="description">
-        <h1>Bienvenue</h1>
-        <p>
-          Je conçois des sites web professionnels sur mesure, pensés pour valoriser l’identité, les différents travaux et l’expertise de professionnels issus de divers secteurs.<br>
-          <br>
-          Chaque site est développé de manière personnalisée, avec une attention portée à la lisibilité, à la simplicité d’usage et à l’autonomie du client.
-        </p>
+        <h1 id="profil-titre">Chargement...</h1>
+        <p id="profil-desc"></p>
       </div>
     </div>
   </div>
@@ -29,6 +33,7 @@
   <div id="footer-placeholder"></div>
 
   <script>
+    // 1. Charger Header et Footer
     function loadHTML(id, url) {
       fetch(url)
         .then(response => {
@@ -36,17 +41,34 @@
           return response.text();
         })
         .then(data => {
-          // .outerHTML remplace le div placeholder
           document.getElementById(id).outerHTML = data;
         })
-        .catch(error => {
-          console.error('Erreur:', error);
-        });
+        .catch(error => console.error('Erreur:', error));
     }
 
     loadHTML('header-placeholder', 'header.html');
     loadHTML('footer-placeholder', 'footer.html');
+
+    // 2. Charger les données dynamiques (Anti-Cache activé)
+    fetch('data.json?t=' + Date.now())
+      .then(response => response.json())
+      .then(data => {
+        // On récupère les infos du profil dans le JSON
+        const p = data.profil;
+
+        if (p) {
+          // Mise à jour du Titre
+          if(p.titre) document.getElementById('profil-titre').innerText = p.titre;
+
+          // Mise à jour de la Biographie
+          if(p.description) document.getElementById('profil-desc').innerText = p.description;
+
+          // Mise à jour de l'image
+          if(p.image) document.getElementById('profil-img').src = p.image;
+        }
+      })
+      .catch(err => console.error("Erreur lecture JSON:", err));
   </script>
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
 </body>
 </html>
