@@ -1,10 +1,17 @@
 backend:
-  logo_url: "https://corpusdigitalis.github.io/copie-tristan-sans-java/portrait.jpg"
   name: git-gateway
   branch: main # Assurez-vous que votre branche s'appelle 'main' ou 'master'
+  logo_url: "https://corpusdigitalis.github.io/copie-tristan-sans-java/portrait.jpg"
+
+# 1. AMÉLIORATION : Interface en Français
+locale: 'fr'
 
 media_folder: "." # Les images seront uploadées à la racine
 public_folder: "."
+
+# 2. AMÉLIORATION : On cache la prévisualisation pour avoir un formulaire pleine page
+editor:
+  preview: false
 
 # Structure du formulaire d'administration
 collections:
@@ -68,7 +75,7 @@ collections:
             fields:
               - label: "Date"
                 name: "date"
-                widget: "datetime" # On utilise datetime au lieu de date
+                widget: "datetime" # On utilise datetime au lieu de date pour éviter le bug
                 time_format: false # On cache l'heure
                 format: "YYYY-MM-DD" # Format enregistré dans le fichier
                 hint: "Cliquez pour choisir la date."
