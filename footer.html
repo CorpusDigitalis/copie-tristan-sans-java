@@ -1,9 +1,48 @@
 <footer>
-  <div class="footer-links">
-    <a href="mailto:tristan.arbona@gmail.com">email</a>
-    <a href="https://www.linkedin.com/in/tristan-arbona-a4829a269/" target="_blank">linkedin</a>
-    <a href="https://scholar.google.com" target="_blank">scholar</a>
-    <a href="https://drive.google.com/file/d/1iy_p1gbycwSr_AFHjfRfNRiofvvcXwD7/view?usp=drive_link" target="_blank">cv</a>
-  </div>
-  <div class="small-text">signature</div>
+  <div class="footer-content">
+    <div class="footer-section">
+      <h3>Contact & Liens</h3>
+      <ul id="footer-links-list">
+        <li>Chargement...</li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <p>&copy; <span id="year"></span> - Tous droits réservés.</p>
+    </div>
+  </div>
+
+  <style>
+    footer { background: #1f1f1f; color: #fff; padding: 2rem 0; margin-top: 4rem; }
+    .footer-content { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-around; flex-wrap: wrap; padding: 0 1rem; }
+    .footer-section { margin-bottom: 1rem; }
+    .footer-section h3 { margin-bottom: 1rem; font-size: 1.1rem; border-bottom: 1px solid #444; display: inline-block; padding-bottom: 5px; }
+    .footer-section ul { list-style: none; padding: 0; }
+    .footer-section ul li { margin-bottom: 0.5rem; }
+    .footer-section ul li a { color: #ddd; text-decoration: none; transition: color 0.2s; }
+    .footer-section ul li a:hover { color: #fff; text-decoration: underline; }
+  </style>
+
+  <script>
+    document.getElementById('year').innerText = new Date().getFullYear();
+
+    fetch('data.json?t=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        const linksList = document.getElementById('footer-links-list');
+        const footerData = data.config && data.config.footer;
+
+        if (footerData && footerData.length > 0) {
+          let html = "";
+          footerData.forEach(item => {
+            // Priorité au fichier uploadé, sinon lien URL
+            const url = item.doc || item.url || "#";
+            html += `<li><a href="${url}" target="_blank">${item.nom}</a></li>`;
+          });
+          linksList.innerHTML = html;
+        } else {
+          linksList.innerHTML = "<li><a href='mailto:contact@email.com'>Me contacter</a></li>";
+        }
+      })
+      .catch(e => console.error(e));
+  </script>
 </footer>
