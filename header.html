@@ -3,12 +3,11 @@
     <div class="logo">
       <a href="index.html" id="header-site-title">Mon Site</a>
     </div>
+    
     <ul class="nav-links" id="dynamic-menu">
-      <li><a href="index.html">Accueil</a></li>
-      <li><a href="publications.html">Publications</a></li>
-      <li><a href="interventions.html">Interventions</a></li>
-      <li><a href="cours.html">Cours</a></li>
+      <li>Chargement...</li>
     </ul>
+
     <div class="burger">
       <div class="line1"></div>
       <div class="line2"></div>
@@ -17,35 +16,53 @@
   </nav>
 
   <script>
-    // Lire la config pour afficher/cacher les menus
+    // 1. Définir le menu par défaut (au cas où le client vide tout)
+    const defaultMenu = `
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="publications.html">Publications</a></li>
+      <li><a href="interventions.html">Interventions</a></li>
+      <li><a href="cours.html">Cours</a></li>
+    `;
+
+    // 2. Charger la configuration
     fetch('data.json?t=' + Date.now())
       .then(r => r.json())
       .then(data => {
-        // 1. Mettre à jour le nom du site (Titre Profil)
+        // Titre du site (optionnel)
         if(data.profil && data.profil.titre) {
-          // On prend juste le nom s'il est dans le titre, ou un texte par défaut
-          // Ici on peut garder "Accueil" ou mettre le nom du prof
+           // Tu peux décommenter la ligne dessous si tu veux afficher le nom du prof en haut à gauche
+           // document.getElementById('header-site-title').innerText = data.profil.titre; 
         }
 
-        // 2. Gérer le Menu
-        const cfg = data.config && data.config.menu;
-        if(cfg) {
-          const menuHtml = `
-            <li><a href="index.html">Accueil</a></li>
-            ${ cfg.show_publi !== false ? `<li><a href="publications.html">${cfg.label_publi || 'Publications'}</a></li>` : '' }
-            ${ cfg.show_inter !== false ? `<li><a href="interventions.html">${cfg.label_inter || 'Interventions'}</a></li>` : '' }
-            ${ cfg.show_cours !== false ? `<li><a href="cours.html">${cfg.label_cours || 'Cours'}</a></li>` : '' }
-          `;
-          document.getElementById('dynamic-menu').innerHTML = menuHtml;
+        // Génération du Menu
+        const menuList = data.config && data.config.menu;
+        const menuContainer = document.getElementById('dynamic-menu');
+
+        if(menuList && menuList.length > 0) {
+          let html = `<li><a href="index.html">Accueil</a></li>`; // On garde toujours l'Accueil en premier
+          
+          menuList.forEach(item => {
+            // On sécurise : s'il n'y a pas d'URL, on met #
+            const link = item.url || "#";
+            const label = item.titre || "Lien";
+            html += `<li><a href="${link}">${label}</a></li>`;
+          });
+          
+          menuContainer.innerHTML = html;
+        } else {
+          // Si la config est vide, on met le menu par défaut
+          menuContainer.innerHTML = defaultMenu;
         }
       })
-      .catch(e => console.log("Menu par défaut chargé (data non dispo)"));
+      .catch(e => {
+        console.log("Erreur menu ou pas encore de config");
+        document.getElementById('dynamic-menu').innerHTML = defaultMenu;
+      });
 
-    // Script du Burger Menu
+    // 3. Gestion du Burger Menu (Mobile)
     const burger = document.querySelector('.burger');
     const nav = document.querySelector('.nav-links');
-    const navLinks = document.querySelectorAll('.nav-links li');
-
+    
     if(burger){
         burger.addEventListener('click', () => {
             nav.classList.toggle('nav-active');
