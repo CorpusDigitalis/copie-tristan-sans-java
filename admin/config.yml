@@ -9,11 +9,11 @@ public_folder: "."
 # C'est ici qu'on définit la structure du formulaire
 collections:
   - name: "pages"
-    label: "Contenu du Site"
+    label: "GÉRER MON SITE"  # <-- Changement ici (en majuscules, plus visible)
     files:
       - name: "donnees"
-        label: "Modifier les Données"
-        file: "data.json" # Le fichier cible
+        label: "Modifier le contenu (Bio, Publis, Cours...)" # <-- Plus clair pour le client
+        file: "data.json"
         fields:
           # --- SECTION PROFIL ---
           - label: "Profil & Accueil"
