@@ -3,29 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Espace Professeur | Corpus Digitalis</title>
+  <title>Administration | Corpus Digitalis</title>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  
-  <style>
-    /* 1. Cacher le gros logo Decap/Netlify par défaut si possible */
-    /* On personnalise la page de login via l'injection CMS plus bas, 
-       mais ici on peut styliser le bouton avant le chargement */
-    
-    body {
-      background-color: #f4f4f4;
-      font-family: sans-serif;
-    }
-  </style>
 </head>
 <body>
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-  
   <script>
-    // Configuration pour injecter du CSS personnalisé DANS le CMS
-    CMS.registerPreviewStyle("https://fonts.googleapis.com/css2?family=Alata&display=swap");
-    
-    // Ici, on peut même changer le texte des boutons via Javascript si besoin,
-    // mais le plus simple est d'accepter que la popup de login est sécurisée par un tiers.
+    // 1. Injecter votre CSS personnalisé
+    CMS.registerPreviewStyle("admin.css");
   </script>
 </body>
 </html>
