@@ -33,40 +33,27 @@
   <div id="footer-placeholder"></div>
 
   <script>
-    // 1. Charger Header et Footer
-    function loadHTML(id, url) {
-      fetch(url)
-        .then(response => {
-          if (!response.ok) throw new Error('Erreur de chargement');
-          return response.text();
-        })
-        .then(data => {
-          document.getElementById(id).outerHTML = data;
-        })
-        .catch(error => console.error('Erreur:', error));
-    }
+   function loadHTML(id, url) {
+  fetch(url)
+    .then(response => {
+      if (!response.ok) throw new Error('Erreur de chargement de ' + url);
+      return response.text();
+    })
+    .then(data => {
+      const element = document.getElementById(id);
+      element.innerHTML = data;
 
-    loadHTML('header-placeholder', 'header.html');
-    loadHTML('footer-placeholder', 'footer.html');
-
-    // 2. Charger les données dynamiques (Anti-Cache activé)
-    fetch('data.json?t=' + Date.now())
-      .then(response => response.json())
-      .then(data => {
-        // On récupère les infos du profil dans le JSON
-        const p = data.profil;
-
-        if (p) {
-          // Mise à jour du Titre
-          if(p.titre) document.getElementById('profil-titre').innerText = p.titre;
-
-          // Mise à jour de la Biographie
-          if(p.description) document.getElementById('profil-desc').innerHTML = p.description.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>');
-          // Mise à jour de l'image
-          if(p.image) document.getElementById('profil-img').src = p.image;
-        }
-      })
-      .catch(err => console.error("Erreur lecture JSON:", err));
+      // Force l'exécution des scripts contenus dans le header/footer
+      const scripts = element.querySelectorAll('script');
+      scripts.forEach(oldScript => {
+        const newScript = document.createElement('script');
+        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+      });
+    })
+    .catch(error => console.error('Erreur:', error));
+}
   </script>
   
 </body>
