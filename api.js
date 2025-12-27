@@ -1,7 +1,7 @@
 
 // REMPLACE PAR TES INFOS SUPABASE (Dashboard -> Settings -> API)
-const SUPABASE_URL = 'https://TON_PROJET_ID.supabase.co';
-const SUPABASE_KEY = 'TA_CLE_ANON_PUBLIQUE';
+const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
 
 /**
  * Fonction universelle pour récupérer les données du prof actuel
