@@ -33,27 +33,57 @@
   <div id="footer-placeholder"></div>
 
   <script>
-   function loadHTML(id, url) {
-  fetch(url)
-    .then(response => {
-      if (!response.ok) throw new Error('Erreur de chargement de ' + url);
-      return response.text();
-    })
-    .then(data => {
-      const element = document.getElementById(id);
-      element.innerHTML = data;
+    // 1. Fonction pour charger le Header et le Footer avec exécution des scripts
+    function loadHTML(id, url) {
+      fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error('Erreur de chargement de ' + url);
+          return response.text();
+        })
+        .then(data => {
+          const element = document.getElementById(id);
+          element.innerHTML = data;
 
-      // Force l'exécution des scripts contenus dans le header/footer
-      const scripts = element.querySelectorAll('script');
-      scripts.forEach(oldScript => {
-        const newScript = document.createElement('script');
-        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-        oldScript.parentNode.replaceChild(newScript, oldScript);
-      });
-    })
-    .catch(error => console.error('Erreur:', error));
-}
+          // Force l'exécution des scripts (nécessaire pour le menu dynamique)
+          const scripts = element.querySelectorAll('script');
+          scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+          });
+        })
+        .catch(error => console.error('Erreur:', error));
+    }
+
+    // 2. Appel du chargement des fichiers (assure-toi que les noms sont exacts sur GitHub)
+    loadHTML('header-placeholder', 'header.html');
+    loadHTML('footer-placeholder', 'footer.html');
+  </script>
+
+  <script type="module">
+    import { getSiteData } from './api.js';
+
+    getSiteData().then(prof => {
+      if (prof) {
+        // Mise à jour du Titre (ex: "Bienvenue")
+        if (prof.display_name) {
+          document.getElementById('profil-titre').innerText = prof.display_name;
+        }
+
+        // Mise à jour de la Biographie (on gère les sauts de ligne)
+        if (prof.bio) {
+          document.getElementById('profil-desc').innerHTML = prof.bio.replace(/\n/g, '<br>');
+        }
+
+        // Mise à jour de l'Image de profil
+        if (prof.avatar_url) {
+          document.getElementById('profil-img').src = prof.avatar_url;
+        }
+      } else {
+        console.error("Aucun profil trouvé pour ce slug.");
+      }
+    }).catch(err => console.error("Erreur de récupération du profil:", err));
   </script>
   
 </body>
