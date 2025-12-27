@@ -1,52 +1,36 @@
-<header>
-  <nav class="navbar">
-    <div class="logo">
-      <a href="index.html" id="header-site-title">Mon Site</a>
-    </div>
-    
-    <ul class="nav-links" id="dynamic-menu">
-      <li><a href="index.html">Accueil</a></li>
-      <li><a href="publications.html">Publications</a></li>
-      <li><a href="interventions.html">Interventions</a></li>
-      <li><a href="cours.html">Cours</a></li>
-    </ul>
+<script type="module">
+  import { getSiteData } from './api.js';
 
-    <div class="burger">
-      <div class="line1"></div>
-      <div class="line2"></div>
-      <div class="line3"></div>
-    </div>
-  </nav>
-
-  <script>
-    // Lire la config
-    fetch('data.json?t=' + Date.now())
-      .then(r => r.json())
-      .then(data => {
-        // 1. Gestion du Menu
-        const menuList = data.config && data.config.menu;
-        const menuContainer = document.getElementById('dynamic-menu');
-
-        if(menuList && menuList.length > 0) {
-          let html = "";
-          menuList.forEach(item => {
-            const link = item.url || "#";
-            const label = item.titre || "Lien";
-            html += `<li><a href="${link}">${label}</a></li>`;
-          });
-          menuContainer.innerHTML = html;
-        }
-      })
-      .catch(e => console.log("Utilisation du menu par défaut"));
-
-    // Burger Menu
-    const burger = document.querySelector('.burger');
-    const nav = document.querySelector('.nav-links');
-    if(burger){
-        burger.addEventListener('click', () => {
-            nav.classList.toggle('nav-active');
-            burger.classList.toggle('toggle');
-        });
+  getSiteData().then(prof => {
+    if (!prof) {
+      console.log("Utilisation du menu par défaut (aucun prof trouvé)");
+      return;
     }
-  </script>
-</header>
+
+    // 1. Mise à jour du Titre du site
+    const siteTitle = document.getElementById('header-site-title');
+    if (prof.site_title) siteTitle.innerText = prof.site_title;
+
+    // 2. Gestion du Menu dynamique
+    const menuList = prof.menu_config; // Champ JSONB dans Supabase
+    const menuContainer = document.getElementById('dynamic-menu');
+
+    if (menuList && menuList.length > 0) {
+      let html = "";
+      menuList.forEach(item => {
+        html += `<li><a href="${item.url || '#'}">${item.titre || 'Lien'}</a></li>`;
+      });
+      menuContainer.innerHTML = html;
+    }
+  });
+
+  // Logique du Burger Menu (inchangée)
+  const burger = document.querySelector('.burger');
+  const nav = document.querySelector('.nav-links');
+  if(burger){
+    burger.addEventListener('click', () => {
+      nav.classList.toggle('nav-active');
+      burger.classList.toggle('toggle');
+    });
+  }
+</script>
