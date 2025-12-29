@@ -55,68 +55,67 @@
   <div id="footer-placeholder"></div>
 
 <script type="module">
-  // 1. Charger les composants Header/Footer (avec ta fonction corrigée)
+  import { getSiteData } from './api.js';
+
+  // 1. Fonction de chargement (Indispensable pour le header)
   function loadHTML(id, url) {
     fetch(url)
-      .then(r => r.ok ? r.text() : Promise.reject('Erreur 404'))
-      .then(data => {
+      .then(r => r.ok ? r.text() : Promise.reject('Fichier introuvable'))
+      .then(html => {
         const el = document.getElementById(id);
-        el.innerHTML = data;
-        // Exécution des scripts pour le menu dynamique
+        el.innerHTML = html;
+        // Relance les scripts pour que le menu Supabase s'affiche
         el.querySelectorAll('script').forEach(oldScript => {
           const newScript = document.createElement('script');
           Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
           newScript.appendChild(document.createTextNode(oldScript.innerHTML));
           oldScript.parentNode.replaceChild(newScript, oldScript);
         });
-      })
-      .catch(e => console.error(e));
+      });
   }
-  
+
   loadHTML('header-placeholder', 'header.html');
   loadHTML('footer-placeholder', 'footer.html');
 
-  // 2. Importer la connexion Supabase
-  import { getSiteData } from './api.js';
-
+  // 2. Affichage des publications
   getSiteData().then(prof => {
-    if (!prof || !prof.publications) {
-      console.warn("Aucune publication trouvée.");
+    console.log("Profil récupéré :", prof); // Vérifie cela dans ta console F12
+
+    const container = document.getElementById('publications-container');
+    
+    if (!prof || !prof.publications || prof.publications.length === 0) {
+      container.innerHTML = "<p class='intro-text'>Aucune donnée trouvée. Vérifiez le prof_id dans Supabase.</p>";
       return;
     }
 
-    const container = document.getElementById('publications-container');
-    const publications = prof.publications; // Récupéré via la jointure dans api.js
-
-    // On regroupe les publications par catégorie
+    // Tri par catégorie
     const groupes = {};
-    publications.forEach(pub => {
+    prof.publications.forEach(pub => {
       const cat = pub.categorie || "Autres";
       if (!groupes[cat]) groupes[cat] = [];
       groupes[cat].push(pub);
     });
 
-    // Affichage dynamique
-    container.innerHTML = ""; // On vide le conteneur
+    container.innerHTML = "";
     for (const [categorie, items] of Object.entries(groupes)) {
-      // Titre de la catégorie
       const titreCat = document.createElement('h2');
       titreCat.className = 'categorie-title';
       titreCat.textContent = categorie;
       container.appendChild(titreCat);
 
-      // Liste des items
       items.forEach(pub => {
         const div = document.createElement('div');
         div.className = 'publication-item';
+        // On teste les deux noms de colonnes possibles (texteLien ou texte_lien)
+        const labelBouton = pub.texteLien || pub.texte_lien || "Voir";
         div.innerHTML = `
-          <span>${pub.texte}</span>
-          <a href="${pub.lien || '#'}" target="_blank">${pub.texte_lien || "Voir"}</a>
+          <span>${pub.texte || 'Sans titre'}</span>
+          <a href="${pub.lien || '#'}" target="_blank">${labelBouton}</a>
         `;
         container.appendChild(div);
       });
     }
-  }).catch(error => console.error('Erreur chargement Supabase:', error));
+  });
 </script>
   
 </body>
