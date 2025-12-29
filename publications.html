@@ -54,54 +54,69 @@
 
   <div id="footer-placeholder"></div>
 
-<script>
-  // 1. Charger Header/Footer
+<script type="module">
+  // 1. Charger les composants Header/Footer (avec ta fonction corrigée)
   function loadHTML(id, url) {
     fetch(url)
       .then(r => r.ok ? r.text() : Promise.reject('Erreur 404'))
-      .then(data => document.getElementById(id).outerHTML = data)
+      .then(data => {
+        const el = document.getElementById(id);
+        el.innerHTML = data;
+        // Exécution des scripts pour le menu dynamique
+        el.querySelectorAll('script').forEach(oldScript => {
+          const newScript = document.createElement('script');
+          Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+          newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+          oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+      })
       .catch(e => console.error(e));
   }
+  
   loadHTML('header-placeholder', 'header.html');
   loadHTML('footer-placeholder', 'footer.html');
 
-  // 2. Charger les données du fichier JSON
-  fetch('data.json')
-    .then(response => response.json())
-    .then(data => {
-      const container = document.getElementById('publications-container');
-      const publications = data.publications;
+  // 2. Importer la connexion Supabase
+  import { getSiteData } from './api.js';
 
-      // On regroupe les publications par catégorie
-      const groupes = {};
-      publications.forEach(pub => {
-        // Si pas de catégorie, on met "Autres"
-        const cat = pub.categorie || "Autres";
-        if (!groupes[cat]) groupes[cat] = [];
-        groupes[cat].push(pub);
+  getSiteData().then(prof => {
+    if (!prof || !prof.publications) {
+      console.warn("Aucune publication trouvée.");
+      return;
+    }
+
+    const container = document.getElementById('publications-container');
+    const publications = prof.publications; // Récupéré via la jointure dans api.js
+
+    // On regroupe les publications par catégorie
+    const groupes = {};
+    publications.forEach(pub => {
+      const cat = pub.categorie || "Autres";
+      if (!groupes[cat]) groupes[cat] = [];
+      groupes[cat].push(pub);
+    });
+
+    // Affichage dynamique
+    container.innerHTML = ""; // On vide le conteneur
+    for (const [categorie, items] of Object.entries(groupes)) {
+      // Titre de la catégorie
+      const titreCat = document.createElement('h2');
+      titreCat.className = 'categorie-title';
+      titreCat.textContent = categorie;
+      container.appendChild(titreCat);
+
+      // Liste des items
+      items.forEach(pub => {
+        const div = document.createElement('div');
+        div.className = 'publication-item';
+        div.innerHTML = `
+          <span>${pub.texte}</span>
+          <a href="${pub.lien || '#'}" target="_blank">${pub.texte_lien || "Voir"}</a>
+        `;
+        container.appendChild(div);
       });
-
-      // On affiche chaque groupe
-      for (const [categorie, items] of Object.entries(groupes)) {
-        // Titre de la catégorie
-        const titreCat = document.createElement('h2');
-        titreCat.className = 'categorie-title';
-        titreCat.textContent = categorie;
-        container.appendChild(titreCat);
-
-        // Liste des items
-        items.forEach(pub => {
-          const div = document.createElement('div');
-          div.className = 'publication-item';
-          div.innerHTML = `
-            <span>${pub.texte}</span>
-            <a href="${pub.lien}" target="_blank">${pub.texteLien || "Voir"}</a>
-          `;
-          container.appendChild(div);
-        });
-      }
-    })
-    .catch(error => console.error('Erreur chargement JSON:', error));
+    }
+  }).catch(error => console.error('Erreur chargement Supabase:', error));
 </script>
   
 </body>
