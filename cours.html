@@ -106,79 +106,90 @@
   
   <div id="footer-placeholder"></div>
 
-  <script>
-    // 1. Charger Header/Footer
-    function loadHTML(id, url) {
-      fetch(url)
-        .then(r => r.ok ? r.text() : '')
-        .then(html => document.getElementById(id).innerHTML = html);
+  <script type="module">
+  // 1. Importation du "Cerveau" Supabase
+  import { getSiteData } from './api.js';
+
+  // 2. Charger Header/Footer avec exécution des scripts modules
+  function loadHTML(id, url) {
+    return fetch(url)
+      .then(r => r.ok ? r.text() : '')
+      .then(html => { 
+        const el = document.getElementById(id);
+        el.innerHTML = html;
+        el.querySelectorAll('script').forEach(oldScript => {
+          const newScript = document.createElement('script');
+          Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+          newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+          oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+      });
+  }
+
+  loadHTML('header-placeholder', 'header.html');
+  loadHTML('footer-placeholder', 'footer.html');
+
+  // 3. Charger les données depuis Supabase
+  getSiteData().then(prof => {
+    const container = document.getElementById('courses-container');
+    
+    // Dans Supabase, la table s'appelle 'courses' (pluriel)
+    const coursList = prof.courses || [];
+
+    if(coursList.length === 0) {
+      container.innerHTML = "<p class='empty-msg'>Aucun cours disponible pour le moment.</p>";
+      return;
     }
-    loadHTML('header-placeholder', 'header.html');
-    loadHTML('footer-placeholder', 'footer.html');
 
-    // 2. Charger les données et générer le HTML
-    fetch('data.json')
-      .then(r => r.json())
-      .then(data => {
-        const container = document.getElementById('courses-container');
-        const coursList = data.cours || [];
+    container.innerHTML = ""; // Vider le message de chargement
 
-        if(coursList.length === 0) {
-          container.innerHTML = "<p class='empty-msg'>Aucun cours disponible pour le moment.</p>";
-          return;
-        }
-
-        container.innerHTML = ""; // Vider le message de chargement
-
-        // Boucle sur chaque Cours (ex: Macroéconomie)
-        coursList.forEach(cours => {
+    // Boucle sur chaque Cours (ex: Macroéconomie)
+    coursList.forEach(cours => {
+      
+      let sectionsHTML = "";
+      
+      // 'sections' est stocké en format JSONB dans Supabase
+      if(cours.sections && Array.isArray(cours.sections)) {
+        cours.sections.forEach(section => {
           
-          // Construire le HTML des sections interne (Slides, TD...)
-          let sectionsHTML = "";
-          
-          if(cours.sections && cours.sections.length > 0) {
-            cours.sections.forEach(section => {
-              
-              // Construire la liste des fichiers pour cette section
-              let fichiersHTML = "";
-              if(section.fichiers && section.fichiers.length > 0) {
-                section.fichiers.forEach(fichier => {
-                  fichiersHTML += `
-                    <li>
-                      <a href="${fichier.url}" target="_blank">
-                        ${fichier.nom}
-                      </a>
-                    </li>`;
-                });
-              }
-
-              // Ajouter la section au bloc
-              sectionsHTML += `
-                <div class="course-section">
-                  <div class="section-title">${section.titre}</div>
-                  <ul class="resource-list">
-                    ${fichiersHTML}
-                  </ul>
-                </div>
-              `;
+          let fichiersHTML = "";
+          if(section.fichiers && Array.isArray(section.fichiers)) {
+            section.fichiers.forEach(fichier => {
+              fichiersHTML += `
+                <li>
+                  <a href="${fichier.url}" target="_blank">
+                    ${fichier.nom}
+                  </a>
+                </li>`;
             });
           }
 
-          // Créer l'élément <details> principal
-          const details = document.createElement('details');
-          details.innerHTML = `
-            <summary>${cours.nom}</summary>
-            ${sectionsHTML}
+          sectionsHTML += `
+            <div class="course-section">
+              <div class="section-title">${section.titre}</div>
+              <ul class="resource-list">
+                ${fichiersHTML}
+              </ul>
+            </div>
           `;
-          
-          container.appendChild(details);
         });
-      })
-      .catch(err => {
-        console.error(err);
-        document.getElementById('courses-container').innerHTML = "<p class='empty-msg'>Erreur de chargement.</p>";
-      });
-  </script>
+      }
+
+      // Créer l'élément <details> principal
+      const details = document.createElement('details');
+      details.innerHTML = `
+        <summary>${cours.nom}</summary>
+        ${sectionsHTML}
+      `;
+      
+      container.appendChild(details);
+    });
+  })
+  .catch(err => {
+    console.error("Erreur Supabase Cours:", err);
+    document.getElementById('courses-container').innerHTML = "<p class='empty-msg'>Erreur de chargement des cours.</p>";
+  });
+</script>
   
 </body>
 </html>
