@@ -55,42 +55,59 @@
   <div id="footer-placeholder"></div>
 
 <script type="module">
+  // On importe la connexion
   import { getSiteData } from './api.js';
+  console.log("1. Script chargé et api.js importé"); // TEST 1
 
-  // 1. Fonction de chargement (Indispensable pour le header)
+  // Fonction de chargement
   function loadHTML(id, url) {
+    console.log("2. Tentative de chargement de :", url); // TEST 2
     fetch(url)
-      .then(r => r.ok ? r.text() : Promise.reject('Fichier introuvable'))
+      .then(r => {
+        if (!r.ok) throw new Error("Fichier introuvable : " + url);
+        return r.text();
+      })
       .then(html => {
+        document.getElementById(id).innerHTML = html;
+        console.log("3. Succès :", url, "injecté"); // TEST 3
+        
+        // Relance les scripts pour le menu
         const el = document.getElementById(id);
-        el.innerHTML = html;
-        // Relance les scripts pour que le menu Supabase s'affiche
         el.querySelectorAll('script').forEach(oldScript => {
           const newScript = document.createElement('script');
           Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
           newScript.appendChild(document.createTextNode(oldScript.innerHTML));
           oldScript.parentNode.replaceChild(newScript, oldScript);
         });
-      });
+      })
+      .catch(err => console.error("ERREUR CHARGEMENT HTML :", err));
   }
 
+  // Lancement du chargement
   loadHTML('header-placeholder', 'header.html');
   loadHTML('footer-placeholder', 'footer.html');
 
-  // 2. Affichage des publications
+  // Récupération des données Supabase
   getSiteData().then(prof => {
-    console.log("Profil récupéré :", prof); // Vérifie cela dans ta console F12
+    console.log("4. Données reçues de Supabase :", prof); // TEST 4 (CRUCIAL)
 
-    const container = document.getElementById('publications-container');
-    
-    if (!prof || !prof.publications || prof.publications.length === 0) {
-      container.innerHTML = "<p class='intro-text'>Aucune donnée trouvée. Vérifiez le prof_id dans Supabase.</p>";
+    if (!prof) {
+      console.error("5. AUCUN PROFIL TROUVÉ. Vérifie le SLUG.");
       return;
     }
 
-    // Tri par catégorie
+    const container = document.getElementById('publications-container');
+    const publications = prof.publications || [];
+    console.log("6. Nombre de publications trouvées :", publications.length);
+
+    if (publications.length === 0) {
+      container.innerHTML = "<p>Aucune publication trouvée. Vérifie le prof_id dans Supabase.</p>";
+      return;
+    }
+
+    // (Reste de ta logique de tri par catégorie...)
     const groupes = {};
-    prof.publications.forEach(pub => {
+    publications.forEach(pub => {
       const cat = pub.categorie || "Autres";
       if (!groupes[cat]) groupes[cat] = [];
       groupes[cat].push(pub);
@@ -106,16 +123,16 @@
       items.forEach(pub => {
         const div = document.createElement('div');
         div.className = 'publication-item';
-        // On teste les deux noms de colonnes possibles (texteLien ou texte_lien)
-        const labelBouton = pub.texteLien || pub.texte_lien || "Voir";
+        // Utilise texteLien comme défini dans ton config.yml
+        const btnLabel = pub.texteLien || pub.texte_lien || "Voir";
         div.innerHTML = `
-          <span>${pub.texte || 'Sans titre'}</span>
-          <a href="${pub.lien || '#'}" target="_blank">${labelBouton}</a>
+          <span>${pub.texte}</span>
+          <a href="${pub.lien || '#'}" target="_blank">${btnLabel}</a>
         `;
         container.appendChild(div);
       });
     }
-  });
+  }).catch(err => console.error("ERREUR SUPABASE :", err));
 </script>
   
 </body>
