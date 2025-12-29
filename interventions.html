@@ -120,156 +120,135 @@ mark { background: #fff59d; color: #222; padding: 0 .05em; border-radius: 2px; }
 
   <div id="footer-placeholder"></div>
 
-  <script>
-    // 1. Charger Header/Footer + Calcul Sticky
-    function loadHTML(id, url) {
-      return fetch(url)
-        .then(r => r.ok ? r.text() : '')
-        .then(html => { document.getElementById(id).innerHTML = html; });
+ <script type="module">
+  // 1. Importation du "Cerveau" Supabase
+  import { getSiteData } from './api.js';
+
+  // 2. Charger Header/Footer avec exécution des scripts modules
+  function loadHTML(id, url) {
+    return fetch(url)
+      .then(r => r.ok ? r.text() : '')
+      .then(html => { 
+        const el = document.getElementById(id);
+        el.innerHTML = html;
+        el.querySelectorAll('script').forEach(oldScript => {
+          const newScript = document.createElement('script');
+          Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+          newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+          oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+      });
+  }
+
+  function updateHeaderOffset() {
+    const header = document.querySelector('header');
+    const toolbar = document.getElementById('tools-box');
+    const h = header ? header.getBoundingClientRect().height : 0;
+    const th = toolbar ? toolbar.getBoundingClientRect().height : 0;
+    document.documentElement.style.setProperty('--header-offset', h + 'px');
+    document.documentElement.style.setProperty('--voile-height', (h + th) + 'px');
+  }
+
+  function formatDateFR(dateString) {
+    if(!dateString) return "";
+    const d = new Date(dateString);
+    return d.toLocaleDateString('fr-FR');
+  }
+
+  // 3. Script Principal : Charger Data Supabase + Générer Timeline
+  Promise.all([
+    loadHTML('header-placeholder','header.html'),
+    loadHTML('footer-placeholder','footer.html'),
+    getSiteData() // On récupère les données via api.js
+  ]).then(([_, __, prof]) => {
+    
+    if (!prof) {
+      document.getElementById('timeline-grid').innerHTML = "<p>Erreur : Profil non trouvé.</p>";
+      return;
     }
 
-    function updateHeaderOffset() {
-      const header = document.querySelector('header');
-      const toolbar = document.getElementById('tools-box');
-      const h = header ? header.getBoundingClientRect().height : 0;
-      const th = toolbar ? toolbar.getBoundingClientRect().height : 0;
-      document.documentElement.style.setProperty('--header-offset', h + 'px');
-      document.documentElement.style.setProperty('--voile-height', (h + th) + 'px');
-    }
+    // A. Mettre à jour l'offset header
+    setTimeout(() => { updateHeaderOffset(); window.addEventListener('resize', updateHeaderOffset); }, 100);
 
-    // 2. Fonction utilitaire pour formater la date (YYYY-MM-DD -> DD/MM/YYYY)
-    function formatDateFR(dateString) {
-      if(!dateString) return "";
-      const d = new Date(dateString);
-      return d.toLocaleDateString('fr-FR');
-    }
+    // B. Générer la Timeline
+    const container = document.getElementById('timeline-grid');
+    container.innerHTML = ""; 
+    
+    const interventions = prof.interventions || [];
 
-    // 3. Script Principal : Charger Data + Générer Timeline + Activer Filtres
-    Promise.all([
-      loadHTML('header-placeholder','header.html'),
-      loadHTML('footer-placeholder','footer.html'),
-      fetch('data.json').then(r => r.json()) // Charger les données
-    ]).then(([_, __, data]) => {
+    // Trier par date (Le plus récent en haut)
+    interventions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    interventions.forEach((item) => {
+      // Attention : adaptation aux noms de colonnes Supabase (mots_cles et lien_url)
+      const keywords = `${item.mots_cles || ''} ${item.type || ''} ${item.lieu || ''} ${item.description || ''}`.toLowerCase();
       
-      // A. Mettre à jour l'offset header
-      setTimeout(() => { updateHeaderOffset(); window.addEventListener('resize', updateHeaderOffset); }, 100);
-
-      // B. Générer la Timeline
-      const container = document.getElementById('timeline-grid');
-      container.innerHTML = ""; // Vider le "Chargement..."
-      
-      const interventions = data.interventions || [];
-
-      // Trier par date (Le plus récent en haut)
-      interventions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      interventions.forEach((item, index) => {
-        // Préparer les mots clés pour la recherche
-        const keywords = `${item.motsCles || ''} ${item.type} ${item.lieu} ${item.description}`.toLowerCase();
-        
-        // Créer le HTML
-        const html = `
-        <div class="timeline-event" data-date="${item.date}" data-keywords="${keywords}">
-          <div class="event-left">
-            <div class="event-card">
-              <p class="event-date">${formatDateFR(item.date)}</p>
-              <p class="event-lieu">${item.lieu}</p>
-            </div>
-          </div>
-          <div class="timeline-dot"></div>
-          <div class="event-right">
-            <h1 class="event-type">${item.type}</h1>
-            <p class="event-description">${item.description}</p>
-            ${ item.lien ? `<p class="event-link"><a href="${item.lien}" target="_blank">Voir le document</a></p>` : '' }
+      const html = `
+      <div class="timeline-event" data-date="${item.date}" data-keywords="${keywords}">
+        <div class="event-left">
+          <div class="event-card">
+            <p class="event-date">${formatDateFR(item.date)}</p>
+            <p class="event-lieu">${item.lieu || ''}</p>
           </div>
         </div>
-        `;
-        container.insertAdjacentHTML('beforeend', html);
-      });
-
-      // C. Activer les Filtres (Maintenant que le HTML existe)
-      setupFilters();
-
-    }).catch(err => {
-      console.error("Erreur:", err);
-      document.getElementById('timeline-grid').innerHTML = "<p style='text-align:center'>Erreur de chargement des données.</p>";
+        <div class="timeline-dot"></div>
+        <div class="event-right">
+          <h1 class="event-type">${item.type || ''}</h1>
+          <p class="event-description">${item.description || ''}</p>
+          ${ item.lien_url ? `<p class="event-link"><a href="${item.lien_url}" target="_blank">Voir le document</a></p>` : '' }
+        </div>
+      </div>
+      `;
+      container.insertAdjacentHTML('beforeend', html);
     });
 
+    // C. Activer les Filtres
+    setupFilters();
 
-    // 4. Logique de Filtrage (Copiée et adaptée de votre ancien code)
-    function setupFilters() {
-      const $search  = document.getElementById('search-keyword');
-      const $start   = document.getElementById('date-start');
-      const $end     = document.getElementById('date-end');
-      const $reset   = document.getElementById('btn-reset');
-      
-      // Surlignage
-      const highlightTargets = ['.event-type', '.event-description', '.event-lieu', '.event-date'];
-      
-      function normalize(str){ 
-        return (str||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,''); 
-      }
+  }).catch(err => {
+    console.error("Erreur critique:", err);
+    document.getElementById('timeline-grid').innerHTML = "<p style='text-align:center'>Erreur de chargement des données.</p>";
+  });
 
-      function applyHighlights(ev, query){
-        if(!query) return;
-        const re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-        highlightTargets.forEach(sel => {
-          const el = ev.querySelector(sel);
-          if(el) {
-            // Sauvegarder le HTML original si pas fait
-            if(el.dataset.originalHtml === undefined) el.dataset.originalHtml = el.innerHTML;
-            // Reset avant d'appliquer
-            el.innerHTML = el.dataset.originalHtml; 
-            // Appliquer mark
-            el.innerHTML = el.innerHTML.replace(re, m => `<mark>${m}</mark>`);
-          }
-        });
-      }
+  // 4. Logique de Filtrage (Identique à ton code actuel)
+  function setupFilters() {
+    const $search  = document.getElementById('search-keyword');
+    const $start   = document.getElementById('date-start');
+    const $end     = document.getElementById('date-end');
+    const $reset   = document.getElementById('btn-reset');
+    const highlightTargets = ['.event-type', '.event-description', '.event-lieu', '.event-date'];
+    
+    function normalize(str){ return (str||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,''); }
 
-      function clearHighlights(ev){
-        highlightTargets.forEach(sel => {
-          const el = ev.querySelector(sel);
-          if(el && el.dataset.originalHtml !== undefined) el.innerHTML = el.dataset.originalHtml;
-        });
-      }
+    function applyFilters(){
+      const events = document.querySelectorAll('.timeline-event');
+      const kw = normalize($search.value.trim());
+      const startDate = $start.value ? new Date($start.value) : null;
+      const endDate   = $end.value   ? new Date($end.value)   : null;
 
-      function applyFilters(){
-        const events = document.querySelectorAll('.timeline-event');
-        const kw = normalize($search.value.trim());
-        const startDate = $start.value ? new Date($start.value) : null;
-        const endDate   = $end.value   ? new Date($end.value)   : null;
-
-        events.forEach(ev => {
-          clearHighlights(ev);
-          const evDate = new Date(ev.dataset.date);
-          let visible = true;
-
-          // Date
-          if(startDate && evDate < startDate) visible = false;
-          if(endDate   && evDate > endDate)   visible = false;
-
-          // Mots clés (on cherche dans l'attribut data-keywords généré plus haut)
-          if(visible && kw.length > 0){
-             const dataKw = normalize(ev.getAttribute('data-keywords'));
-             if(!dataKw.includes(kw)) visible = false;
-          }
-
-          ev.style.display = visible ? 'contents' : 'none';
-
-          if(visible && kw.length > 0) applyHighlights(ev, $search.value.trim());
-        });
-      }
-
-      [$search, $start, $end].forEach(el => {
-        el.addEventListener('input', applyFilters);
-        el.addEventListener('change', applyFilters);
-      });
-
-      $reset.addEventListener('click', () => {
-        $search.value = ''; $start.value = ''; $end.value = '';
-        applyFilters();
+      events.forEach(ev => {
+        const evDate = new Date(ev.dataset.date);
+        let visible = true;
+        if(startDate && evDate < startDate) visible = false;
+        if(endDate   && evDate > endDate)   visible = false;
+        if(visible && kw.length > 0){
+           const dataKw = normalize(ev.getAttribute('data-keywords'));
+           if(!dataKw.includes(kw)) visible = false;
+        }
+        ev.style.display = visible ? 'contents' : 'none';
       });
     }
-  </script>
+
+    [$search, $start, $end].forEach(el => {
+      el.addEventListener('input', applyFilters);
+      el.addEventListener('change', applyFilters);
+    });
+
+    $reset.addEventListener('click', () => {
+      $search.value = ''; $start.value = ''; $end.value = '';
+      applyFilters();
+    });
+  }
+</script>
 </body>
 </html>
