@@ -1,34 +1,43 @@
-const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
+<script type="module">
+    // On importe directement la version ESM pour éviter les conflits
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-export async function getSiteData() {
-    const hostname = window.location.hostname;
-    const pathname = window.location.pathname;
+    const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
     
-    let slug = hostname.split('.')[0];
+    // On initialise le client avec un nom différent
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Forçage du profil "tristan" pour tes environnements de test
-    if (
-        hostname.includes('github.io') || 
-        hostname.includes('pages.dev') || 
-        pathname.includes('copie-tristan-sans-java') ||
-        hostname === 'localhost'
-    ) {
-        slug = 'tristan'; 
-    }
+    const form = document.getElementById('login-form');
+    const msg = document.getElementById('message');
 
-    try {
-        const url = `${SUPABASE_URL}/rest/v1/profiles?slug=eq.${slug}&select=*,publications(*),interventions(*),courses(*)`;
-        const response = await fetch(url, {
-            headers: {
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        msg.style.color = "black";
+        msg.innerText = "Vérification...";
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                msg.style.color = "red";
+                msg.innerText = "Erreur : " + error.message;
+            } else {
+                msg.style.color = "green";
+                msg.innerText = "Connexion réussie ! Redirection...";
+                // Stockage du profil dans le navigateur
+                localStorage.setItem('supabase.auth.token', data.session.access_token);
+                window.location.href = 'admin.html';
             }
-        });
-        const data = await response.json();
-        return data[0] || null;
-    } catch (error) {
-        console.error("Erreur base de données:", error);
-        return null;
-    }
-}
+        } catch (err) {
+            msg.innerText = "Une erreur technique est survenue.";
+            console.error(err);
+        }
+    });
+</script>
