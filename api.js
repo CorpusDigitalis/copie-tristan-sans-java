@@ -1,33 +1,27 @@
 const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
 
-/**
- * Récupère les données complètes du profil et des tables liées.
- * Gère la détection automatique du "slug" (le nom du prof) selon l'URL.
- */
 export async function getSiteData() {
     const hostname = window.location.hostname;
+    const pathname = window.location.pathname;
     
     // 1. Détection du Slug
-    // Par défaut, on prend le premier mot de l'URL (ex: 'tristan' dans tristan.site.com)
     let slug = hostname.split('.')[0];
 
-    // 2. Logique de Test (GitHub / Cloudflare / Localhost)
-    // Si on est sur les domaines de test ou en local, on force 'tristan' 
-    // pour éviter d'avoir un site vide pendant le développement.
+    // 2. Forçage du profil "tristan" pour ton environnement de test actuel
+    // On vérifie si on est sur GitHub, sur Cloudflare Pages ou dans ton dossier spécifique
     if (
-        slug.includes('github') || 
+        hostname.includes('github.io') || 
         hostname.includes('pages.dev') || 
-        hostname === 'localhost' || 
-        hostname === '127.0.0.1'
+        pathname.includes('copie-tristan-sans-java') ||
+        hostname === 'localhost'
     ) {
         slug = 'tristan'; 
     }
 
-    console.log("🔍 Recherche des données pour le slug :", slug);
+    console.log("🔍 Tentative de chargement du profil pour :", slug);
 
     try {
-        // 3. Requête Supabase avec jointures (select=*,publications(*), etc.)
         const url = `${SUPABASE_URL}/rest/v1/profiles?slug=eq.${slug}&select=*,publications(*),interventions(*),courses(*)`;
         
         const response = await fetch(url, {
@@ -37,23 +31,17 @@ export async function getSiteData() {
             }
         });
 
-        if (!response.ok) {
-            throw new Error(`Erreur réseau : ${response.status} ${response.statusText}`);
-        }
-
         const data = await response.json();
 
-        // 4. Retourne le premier profil trouvé (ou null)
         if (data && data.length > 0) {
-            console.log("✅ Données chargées avec succès.");
+            console.log("✅ Données de " + slug + " chargées.");
             return data[0];
         } else {
-            console.warn("⚠️ Aucun profil trouvé dans Supabase pour le slug :", slug);
+            console.warn("⚠️ Aucun profil trouvé pour :", slug);
             return null;
         }
-
     } catch (error) {
-        console.error("❌ Erreur critique lors de l'accès à Supabase :", error);
+        console.error("❌ Erreur de connexion Supabase :", error);
         return null;
     }
 }
