@@ -3,26 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Console d'Administration - SaaS</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Console Admin - Corpus Digitalis</title>
     <style>
-        .admin-container { max-width: 800px; margin: 50px auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .nav-admin { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 1rem; margin-bottom: 2rem; }
-        .btn-logout { background: #ff4444; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; }
-        .card { border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; }
+        :root { --bg: #fdfdfd; --text: #1a1a1a; --border: #e0e0e0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .admin-wrapper { max-width: 900px; margin: 40px auto; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--text); padding-bottom: 20px; margin-bottom: 40px; }
+        .card { background: white; border: 1px solid var(--border); padding: 30px; border-radius: 4px; margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem; margin-bottom: 20px; box-sizing: border-box; }
+        textarea { height: 120px; resize: vertical; }
+        .btn-save { background: #1a1a1a; color: white; border: none; padding: 15px 30px; cursor: pointer; font-weight: bold; border-radius: 4px; transition: opacity 0.2s; }
+        .btn-save:hover { opacity: 0.8; }
+        #status-msg { margin-top: 20px; font-weight: bold; }
+        .logout { background: none; border: 1px solid #ff4444; color: #ff4444; padding: 8px 15px; cursor: pointer; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
-    <div class="nav-admin">
-        <h1>Mon Tableau de Bord</h1>
-        <button id="logout-btn" class="btn-logout">Déconnexion</button>
-    </div>
+<div class="admin-wrapper">
+    <header>
+        <h1>CONSOLE ÉDITION</h1>
+        <button onclick="logout()" class="logout">DÉCONNEXION</button>
+    </header>
 
-    <div id="admin-content">
-        <p>Chargement de vos outils de gestion...</p>
+    <div id="loader">Chargement de vos données...</div>
+
+    <div id="editor" class="hidden" style="display:none;">
+        <div class="card">
+            <label>Nom complet</label>
+            <input type="text" id="prof-name">
+
+            <label>Image de profil (URL)</label>
+            <input type="text" id="prof-image">
+
+            <label>Bio / Description</label>
+            <textarea id="prof-bio"></textarea>
+
+            <button class="btn-save" onclick="saveData()">ENREGISTRER LES MODIFICATIONS</button>
+            <div id="status-msg"></div>
+        </div>
     </div>
 </div>
 
@@ -33,39 +53,60 @@
     const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function checkUser() {
-        // 1. On vérifie si une session est active
+    let userSession = null;
+
+    async function initAdmin() {
         const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { window.location.href = 'login.html'; return; }
+        userSession = session;
 
-        if (!session) {
-            // Pas de session ? Retour au login
-            alert("Accès refusé. Veuillez vous connecter.");
-            window.location.href = 'login.html';
-            return;
+        // Charger les données actuelles depuis la table profiles
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+        if (data) {
+            document.getElementById('prof-name').value = data.name || '';
+            document.getElementById('prof-image').value = data.image_url || '';
+            document.getElementById('prof-bio').value = data.bio || '';
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('editor').style.display = 'block';
         }
-
-        // 2. Si on est connecté, on affiche le contenu
-        document.getElementById('admin-content').innerHTML = `
-            <div class="card">
-                <h3>Bienvenue, ${session.user.email}</h3>
-                <p>Vous êtes maintenant dans votre espace sécurisé.</p>
-                <p><strong>ID Profil :</strong> ${session.user.id}</p>
-            </div>
-            <div class="card">
-                <h4>Prochaine étape</h4>
-                <p>Nous allons lier cet ID à votre ligne dans la table "profiles" pour que vous puissiez modifier votre bio.</p>
-            </div>
-        `;
     }
 
-    // Gestion de la déconnexion
-    document.getElementById('logout-btn').addEventListener('click', async () => {
+    window.saveData = async () => {
+        const status = document.getElementById('status-msg');
+        status.innerText = "Mise à jour...";
+        
+        const updates = {
+            name: document.getElementById('prof-name').value,
+            image_url: document.getElementById('prof-image').value,
+            bio: document.getElementById('prof-bio').value,
+            updated_at: new Date()
+        };
+
+        const { error } = await supabase
+            .from('profiles')
+            .update(updates)
+            .eq('id', userSession.user.id);
+
+        if (error) {
+            status.innerText = "Erreur : " + error.message;
+            status.style.color = "red";
+        } else {
+            status.innerText = "✅ Site mis à jour avec succès !";
+            status.style.color = "green";
+        }
+    }
+
+    window.logout = async () => {
         await supabase.auth.signOut();
         window.location.href = 'login.html';
-    });
+    }
 
-    checkUser();
+    initAdmin();
 </script>
-
 </body>
 </html>
