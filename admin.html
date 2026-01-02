@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console d'Administration - SaaS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .admin-container { max-width: 800px; margin: 50px auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .nav-admin { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 1rem; margin-bottom: 2rem; }
+        .btn-logout { background: #ff4444; color: white; padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; }
+        .card { border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div class="nav-admin">
+        <h1>Mon Tableau de Bord</h1>
+        <button id="logout-btn" class="btn-logout">Déconnexion</button>
+    </div>
+
+    <div id="admin-content">
+        <p>Chargement de vos outils de gestion...</p>
+    </div>
+</div>
+
+<script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+    const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function checkUser() {
+        // 1. On vérifie si une session est active
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+            // Pas de session ? Retour au login
+            alert("Accès refusé. Veuillez vous connecter.");
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // 2. Si on est connecté, on affiche le contenu
+        document.getElementById('admin-content').innerHTML = `
+            <div class="card">
+                <h3>Bienvenue, ${session.user.email}</h3>
+                <p>Vous êtes maintenant dans votre espace sécurisé.</p>
+                <p><strong>ID Profil :</strong> ${session.user.id}</p>
+            </div>
+            <div class="card">
+                <h4>Prochaine étape</h4>
+                <p>Nous allons lier cet ID à votre ligne dans la table "profiles" pour que vous puissiez modifier votre bio.</p>
+            </div>
+        `;
+    }
+
+    // Gestion de la déconnexion
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        window.location.href = 'login.html';
+    });
+
+    checkUser();
+</script>
+
+</body>
+</html>
