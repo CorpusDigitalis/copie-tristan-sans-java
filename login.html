@@ -3,63 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion Admin - Corpus Digitalis</title>
+    <title>Connexion & Récupération - Corpus Digitalis</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .login-box { max-width: 400px; margin: 100px auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; }
         input { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         button { width: 100%; padding: 1rem; background: #1f1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 1rem; }
-        #message { margin-top: 1rem; color: #d32f2f; font-size: 0.9rem; }
+        #message { margin-top: 1rem; font-size: 0.9rem; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
 <div class="login-box">
-    <h1>Espace Admin</h1>
-    <p>Connectez-vous pour gérer votre site</p>
-    
-    <form id="login-form">
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Mot de passe" required>
-        <button type="submit">Se connecter</button>
-    </form>
+    <div id="login-section">
+        <h1>Espace Admin</h1>
+        <p>Connectez-vous pour gérer votre site</p>
+        <form id="login-form">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Mot de passe" required>
+            <button type="submit">Se connecter</button>
+        </form>
+    </div>
+
+    <div id="recovery-section" class="hidden">
+        <h1>Nouveau mot de passe</h1>
+        <p>Saisissez votre nouveau mot de passe ci-dessous</p>
+        <form id="recovery-form">
+            <input type="password" id="new-password" placeholder="Nouveau mot de passe" required minlength="6">
+            <button type="submit">Enregistrer le mot de passe</button>
+        </form>
+    </div>
     
     <div id="message"></div>
 </div>
 
 <script type="module">
-    // On utilise les mêmes clés que dans api.js
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
     const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const form = document.getElementById('login-form');
     const msg = document.getElementById('message');
+    const loginSection = document.getElementById('login-section');
+    const recoverySection = document.getElementById('recovery-section');
 
-    form.addEventListener('submit', async (e) => {
+    // 1. DÉTECTION DU MODE RÉCUPÉRATION
+    // Si l'URL contient #type=recovery, on change l'interface
+    if (window.location.hash.includes('type=recovery')) {
+        loginSection.classList.add('hidden');
+        recoverySection.classList.remove('hidden');
+    }
+
+    // 2. GESTION DE LA CONNEXION CLASSIQUE
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        msg.innerText = "Connexion en cours...";
-
+        msg.innerText = "Vérification...";
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        // Tentative de connexion via Supabase Auth
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password,
-        });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
         if (error) {
+            msg.style.color = "red";
             msg.innerText = "Erreur : " + error.message;
         } else {
-            msg.style.color = "green";
-            msg.innerText = "Succès ! Redirection...";
-            // On stocke le token et on redirige vers l'admin
             window.location.href = 'admin.html';
         }
     });
-</script>
 
+    // 3. GESTION DU CHANGEMENT DE MOT DE PASSE
+    document.getElementById('recovery-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newPassword = document.getElementById('new-password').value;
+        msg.style.color = "black";
+        msg.innerText = "Mise à jour en cours...";
+
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+        if (error) {
+            msg.style.color = "red";
+            msg.innerText = "Erreur : " + error.message;
+        } else {
+            msg.style.color = "green";
+            msg.innerText = "Mot de passe mis à jour ! Redirection vers l'admin...";
+            setTimeout(() => { window.location.href = 'admin.html'; }, 2000);
+        }
+    });
+</script>
 </body>
 </html>
