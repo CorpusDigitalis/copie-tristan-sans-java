@@ -3,36 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion & Récupération - Corpus Digitalis</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Administration - Corpus Digitalis</title>
     <style>
-        .login-box { max-width: 400px; margin: 100px auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; }
+        .login-box { max-width: 400px; margin: 80px auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; font-family: sans-serif; }
         input { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 1rem; background: #1f1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 1rem; }
-        #message { margin-top: 1rem; font-size: 0.9rem; }
-        .hidden { display: none; }
+        button { width: 100%; padding: 1rem; background: #1f1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 1rem; transition: 0.3s; }
+        button:hover { background: #444; }
+        #message { margin-top: 1rem; font-size: 0.9rem; padding: 10px; border-radius: 5px; }
+        .hidden { display: none !important; }
+        .link-btn { background: none; color: #555; border: none; text-decoration: underline; font-size: 0.8rem; cursor: pointer; margin-top: 10px; width: auto; padding: 0; }
     </style>
 </head>
 <body>
 
 <div class="login-box">
     <div id="login-section">
-        <h1>Espace Admin</h1>
-        <p>Connectez-vous pour gérer votre site</p>
+        <h1>Connexion</h1>
         <form id="login-form">
             <input type="email" id="email" placeholder="Email" required>
             <input type="password" id="password" placeholder="Mot de passe" required>
-            <button type="submit">Se connecter</button>
+            <button type="submit">Entrer dans l'admin</button>
         </form>
+        <button class="link-btn" onclick="showSection('reset-request-section')">Mot de passe oublié ?</button>
     </div>
 
     <div id="recovery-section" class="hidden">
         <h1>Nouveau mot de passe</h1>
-        <p>Saisissez votre nouveau mot de passe ci-dessous</p>
+        <p>Définissez votre secret pour accéder à votre espace.</p>
         <form id="recovery-form">
             <input type="password" id="new-password" placeholder="Nouveau mot de passe" required minlength="6">
-            <button type="submit">Enregistrer le mot de passe</button>
+            <button type="submit">Sauvegarder et Continuer</button>
         </form>
+    </div>
+
+    <div id="reset-request-section" class="hidden">
+        <h1>Réinitialiser</h1>
+        <p>Entrez votre mail pour recevoir un lien tout neuf.</p>
+        <form id="request-form">
+            <input type="email" id="request-email" placeholder="Votre email" required>
+            <button type="submit">Envoyer le lien par mail</button>
+        </form>
+        <button class="link-btn" onclick="showSection('login-section')">Retour à la connexion</button>
     </div>
     
     <div id="message"></div>
@@ -46,49 +57,63 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const msg = document.getElementById('message');
-    const loginSection = document.getElementById('login-section');
-    const recoverySection = document.getElementById('recovery-section');
+    const hash = window.location.hash;
 
-    // 1. DÉTECTION DU MODE RÉCUPÉRATION
-    // Si l'URL contient #type=recovery, on change l'interface
-    if (window.location.hash.includes('type=recovery')) {
-        loginSection.classList.add('hidden');
-        recoverySection.classList.remove('hidden');
+    // --- LOGIQUE DE DÉTECTION DES ERREURS ET DES TOKENS ---
+    window.onload = () => {
+        if (hash.includes('error_code=otp_expired')) {
+            showSection('reset-request-section');
+            msg.style.background = "#ffeeee";
+            msg.style.color = "#cc0000";
+            msg.innerText = "❌ Le lien a expiré. Veuillez en redemander un ci-dessous.";
+        } else if (hash.includes('access_token')) {
+            showSection('recovery-section');
+            msg.innerText = "✅ Clé de sécurité reconnue. Changez votre mot de passe.";
+        }
+    };
+
+    // --- NAVIGATION ENTRE SECTIONS ---
+    window.showSection = (sectionId) => {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('recovery-section').classList.add('hidden');
+        document.getElementById('reset-request-section').classList.add('hidden');
+        document.getElementById(sectionId).classList.remove('hidden');
+        msg.innerText = "";
     }
 
-    // 2. GESTION DE LA CONNEXION CLASSIQUE
+    // --- ACTION : CONNEXION ---
     document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        msg.innerText = "Vérification...";
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-        if (error) {
-            msg.style.color = "red";
-            msg.innerText = "Erreur : " + error.message;
-        } else {
-            window.location.href = 'admin.html';
-        }
+        const { error } = await supabase.auth.signInWithPassword({
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+        });
+        if (error) msg.innerText = "Erreur : " + error.message;
+        else window.location.href = 'admin.html';
     });
 
-    // 3. GESTION DU CHANGEMENT DE MOT DE PASSE
+    // --- ACTION : DEMANDER UN NOUVEAU LIEN ---
+    document.getElementById('request-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        msg.innerText = "Envoi du mail en cours...";
+        const email = document.getElementById('request-email').value;
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: 'https://corpusdigitalis.github.io/copie-tristan-sans-java/login.html',
+        });
+        if (error) msg.innerText = "Erreur : " + error.message;
+        else msg.innerText = "📧 Mail envoyé ! Vérifiez votre boîte (et les spams).";
+    });
+
+    // --- ACTION : ENREGISTRER LE NOUVEAU MDP ---
     document.getElementById('recovery-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const newPassword = document.getElementById('new-password').value;
-        msg.style.color = "black";
-        msg.innerText = "Mise à jour en cours...";
-
-        const { error } = await supabase.auth.updateUser({ password: newPassword });
-
-        if (error) {
-            msg.style.color = "red";
-            msg.innerText = "Erreur : " + error.message;
-        } else {
-            msg.style.color = "green";
-            msg.innerText = "Mot de passe mis à jour ! Redirection vers l'admin...";
-            setTimeout(() => { window.location.href = 'admin.html'; }, 2000);
+        const { error } = await supabase.auth.updateUser({
+            password: document.getElementById('new-password').value
+        });
+        if (error) msg.innerText = "Erreur : " + error.message;
+        else {
+            msg.innerText = "Mot de passe mis à jour ! Redirection...";
+            setTimeout(() => window.location.href = 'admin.html', 1500);
         }
     });
 </script>
