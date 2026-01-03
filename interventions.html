@@ -1,254 +1,187 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Interventions & Colloques</title>
-  <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Interventions & Colloques - Tristan Arbona</title>
+    <link href="https://fonts.googleapis.com/css2?family=Alata&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
- <style>
-/* ====== Layout local à la page Interventions ====== */
-header { position: relative; z-index: 11; }
+    <style>
+        /* ====== Style de Navigation Dynamique (Commun) ====== */
+        .dynamic-nav { display: flex; gap: 25px; list-style: none; padding: 0; margin: 0; }
+        .dynamic-nav a { text-decoration: none; color: inherit; font-weight: 500; }
+        header, footer { padding: 30px 5%; display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
 
-.top-fade-voile {
-  position: fixed; top: 0; left: 0; width: 100%;
-  height: var(--voile-height, 150px); 
-  background: linear-gradient(to bottom, #fefaf5 90%, rgba(254, 250, 245, 0) 100%);
-  z-index: 9; pointer-events: none; 
-}
-
-#titre-interventions { text-align: center; margin-top: 1rem; position: relative; z-index: 10; }
-#texte-intro-interventions { text-align: center; max-width: 760px; margin: 0.25rem auto 1.25rem auto; position: relative; z-index: 10; }
-
-/* -------- Zone FILTRES (sticky) -------- */
-:root { --header-offset: 0px; --voile-height: 150px; }
-#tools-box {
-  position: sticky; top: var(--header-offset); z-index: 10;
-  background: transparent; margin: 1.25rem 0 0.5rem 0; padding: 1rem 0; 
-  display: flex; align-items: center; justify-content: space-between; gap: 1.25rem;
-}
-#tools-left { flex: 1 1 50%; display: flex; align-items: center; justify-content: flex-start; }
-#search-keyword {
-  width: 100%; max-width: 360px; padding: 0.5rem 0.75rem;
-  border: 1px solid #ddd; border-radius: 8px; background: #fff;
-  font-family: 'Alata', sans-serif; letter-spacing: 0.02em;
-}
-#tools-right { flex: 1 1 50%; display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex-wrap: wrap; }
-#date-start, #date-end { padding: 0.5rem; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-family: 'Alata', sans-serif; }
-#btn-reset {
-  padding: 0.5rem 0.9rem; border: 1px solid #1f1f1f; border-radius: 8px;
-  background: #1f1f1f; color: #fff; cursor: pointer; font-family: 'Alata', sans-serif;
-}
-#btn-reset:hover { transform: scale(0.98); }
-
-/* -------- TIMELINE -------- */
-#timeline-wrapper { position: relative; margin-top: 5rem; margin-bottom: 4rem; }
-#timeline-line {
-  position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 4px;
-  background: linear-gradient(to bottom, rgba(31,31,31,0) 0px, rgba(31,31,31,1) 80px, rgba(31,31,31,1) calc(100% - 16px), rgba(31,31,31,0.85) 100%);
-  z-index: 1; 
-}
-.timeline-grid { display: grid; grid-template-columns: 1fr auto 1fr; column-gap: 2rem; row-gap: 2rem; align-items: center; position: relative; }
-.timeline-event { display: contents; } /* Important pour la grid */
-.timeline-dot { grid-column: 2; display: flex; align-items: center; justify-content: center; height: 100%; position: relative; min-height: 48px; z-index: 2; }
-.timeline-dot::after { content: ""; width: 10px; height: 10px; background: #1f1f1f; border-radius: 50%; display: block; }
-
-.event-left { grid-column: 1; display: flex; justify-content: flex-end; align-items: center; position: relative; z-index: 2; }
-.event-card { width: 380px; max-width: 100%; background: #ffffff; border: 1px solid #ddd; border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; }
-.event-date { font-weight: 700; margin: 0 0 .35rem 0; color: #222; }
-.event-lieu { margin: 0; color: #222; opacity: .95; }
-
-.event-right { grid-column: 3; align-self: stretch; position: relative; z-index: 2; }
-.event-type { font-size: 1.25rem; margin: 0 0 .35rem 0; color: #222; }
-.event-description { margin: 0 0 .35rem 0; color: #222; line-height: 1.6; }
-.event-link a { text-decoration: none; color: #0077cc; font-weight: 700; }
-.event-link a:hover { color: #005999; }
-
-#timeline-end-dot { position: absolute; left: 50%; bottom: -8px; transform: translateX(-50%); width: 10px; height: 10px; background: #1f1f1f; border-radius: 50%; z-index: 2; }
-mark { background: #fff59d; color: #222; padding: 0 .05em; border-radius: 2px; }
-
-/* Responsive */
-@media (max-width: 880px) {
-  #tools-box { flex-direction: column; align-items: stretch; gap: 1rem; }
-  #tools-left, #tools-right { justify-content: center; flex-direction: column; gap: 0.5rem; }
-  .timeline-grid { grid-template-columns: 1fr; }
-  #timeline-line { left: 16px; transform: none; }
-  .timeline-dot { grid-column: 1; }
-  .timeline-dot::after { margin-left: 16px; }
-  .event-left { grid-column: 1; justify-content: flex-start; }
-  .event-right { grid-column: 1; margin-top: .5rem; }
-  .event-card { width: 100%; }
-  #timeline-end-dot { left: 16px; transform: translateX(-50%); }
-}
-</style>
-
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-
-</head>
-<body style="outline: none;">
-
-  <div class="top-fade-voile" aria-hidden="true"></div>
-  <div id="header-placeholder"></div>
-
-  <div class="container">
-    <h1 id="titre-interventions">Interventions & Colloques</h1>
-    <p id="texte-intro-interventions" class="publications-text">
-      Présentation chronologique des interventions, colloques et communications. 
-      Filtrez par période ou par mots-clés.
-    </p>
-
-    <aside id="tools-box" aria-label="Outils de filtrage">
-      <div id="tools-left">
-        <input type="text" id="search-keyword" placeholder="Rechercher un mot-clé…" aria-label="Recherche par mots-clés" />
-      </div>
-      <div id="tools-right">
-        <input type="date" id="date-start" aria-label="Date de début" />
-        <input type="date" id="date-end" aria-label="Date de fin" />
-        <button id="btn-reset" type="button">Réinitialiser</button>
-      </div>
-    </aside>
-
-    <section id="timeline-wrapper" aria-label="Chronologie des interventions">
-      <div id="timeline-line" aria-hidden="true"></div>
-      
-      <div class="timeline-grid" id="timeline-grid">Chargement des données...</div>
-      
-      <div id="timeline-end-dot" aria-hidden="true"></div>
-    </section>
-  </div>
-
-  <div id="footer-placeholder"></div>
-
- <script type="module">
-  // 1. Importation du "Cerveau" Supabase
-  import { getSiteData } from './api.js';
-
-  // 2. Charger Header/Footer avec exécution des scripts modules
-  function loadHTML(id, url) {
-    return fetch(url)
-      .then(r => r.ok ? r.text() : '')
-      .then(html => { 
-        const el = document.getElementById(id);
-        el.innerHTML = html;
-        el.querySelectorAll('script').forEach(oldScript => {
-          const newScript = document.createElement('script');
-          Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-          newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-          oldScript.parentNode.replaceChild(newScript, oldScript);
-        });
-      });
-  }
-
-  function updateHeaderOffset() {
-    const header = document.querySelector('header');
-    const toolbar = document.getElementById('tools-box');
-    const h = header ? header.getBoundingClientRect().height : 0;
-    const th = toolbar ? toolbar.getBoundingClientRect().height : 0;
-    document.documentElement.style.setProperty('--header-offset', h + 'px');
-    document.documentElement.style.setProperty('--voile-height', (h + th) + 'px');
-  }
-
-  function formatDateFR(dateString) {
-    if(!dateString) return "";
-    const d = new Date(dateString);
-    return d.toLocaleDateString('fr-FR');
-  }
-
-  // 3. Script Principal : Charger Data Supabase + Générer Timeline
-  Promise.all([
-    loadHTML('header-placeholder','header.html'),
-    loadHTML('footer-placeholder','footer.html'),
-    getSiteData() // On récupère les données via api.js
-  ]).then(([_, __, prof]) => {
-    
-    if (!prof) {
-      document.getElementById('timeline-grid').innerHTML = "<p>Erreur : Profil non trouvé.</p>";
-      return;
-    }
-
-    // A. Mettre à jour l'offset header
-    setTimeout(() => { updateHeaderOffset(); window.addEventListener('resize', updateHeaderOffset); }, 100);
-
-    // B. Générer la Timeline
-    const container = document.getElementById('timeline-grid');
-    container.innerHTML = ""; 
-    
-    const interventions = prof.interventions || [];
-
-    // Trier par date (Le plus récent en haut)
-    interventions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    interventions.forEach((item) => {
-      // Attention : adaptation aux noms de colonnes Supabase (mots_cles et lien_url)
-      const keywords = `${item.mots_cles || ''} ${item.type || ''} ${item.lieu || ''} ${item.description || ''}`.toLowerCase();
-      
-      const html = `
-      <div class="timeline-event" data-date="${item.date}" data-keywords="${keywords}">
-        <div class="event-left">
-          <div class="event-card">
-            <p class="event-date">${formatDateFR(item.date)}</p>
-            <p class="event-lieu">${item.lieu || ''}</p>
-          </div>
-        </div>
-        <div class="timeline-dot"></div>
-        <div class="event-right">
-          <h1 class="event-type">${item.type || ''}</h1>
-          <p class="event-description">${item.description || ''}</p>
-          ${ item.lien_url ? `<p class="event-link"><a href="${item.lien_url}" target="_blank">Voir le document</a></p>` : '' }
-        </div>
-      </div>
-      `;
-      container.insertAdjacentHTML('beforeend', html);
-    });
-
-    // C. Activer les Filtres
-    setupFilters();
-
-  }).catch(err => {
-    console.error("Erreur critique:", err);
-    document.getElementById('timeline-grid').innerHTML = "<p style='text-align:center'>Erreur de chargement des données.</p>";
-  });
-
-  // 4. Logique de Filtrage (Identique à ton code actuel)
-  function setupFilters() {
-    const $search  = document.getElementById('search-keyword');
-    const $start   = document.getElementById('date-start');
-    const $end     = document.getElementById('date-end');
-    const $reset   = document.getElementById('btn-reset');
-    const highlightTargets = ['.event-type', '.event-description', '.event-lieu', '.event-date'];
-    
-    function normalize(str){ return (str||'').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu,''); }
-
-    function applyFilters(){
-      const events = document.querySelectorAll('.timeline-event');
-      const kw = normalize($search.value.trim());
-      const startDate = $start.value ? new Date($start.value) : null;
-      const endDate   = $end.value   ? new Date($end.value)   : null;
-
-      events.forEach(ev => {
-        const evDate = new Date(ev.dataset.date);
-        let visible = true;
-        if(startDate && evDate < startDate) visible = false;
-        if(endDate   && evDate > endDate)   visible = false;
-        if(visible && kw.length > 0){
-           const dataKw = normalize(ev.getAttribute('data-keywords'));
-           if(!dataKw.includes(kw)) visible = false;
+        /* ====== Layout Interventions ====== */
+        .top-fade-voile {
+            position: fixed; top: 0; left: 0; width: 100%;
+            height: var(--voile-height, 150px); 
+            background: linear-gradient(to bottom, #fefaf5 90%, rgba(254, 250, 245, 0) 100%);
+            z-index: 9; pointer-events: none; 
         }
-        ev.style.display = visible ? 'contents' : 'none';
-      });
-    }
 
-    [$search, $start, $end].forEach(el => {
-      el.addEventListener('input', applyFilters);
-      el.addEventListener('change', applyFilters);
-    });
+        #titre-interventions { text-align: center; margin-top: 2rem; position: relative; z-index: 10; font-size: 2.5rem; }
+        #texte-intro-interventions { text-align: center; max-width: 760px; margin: 0.5rem auto 2rem auto; position: relative; z-index: 10; color: #666; }
 
-    $reset.addEventListener('click', () => {
-      $search.value = ''; $start.value = ''; $end.value = '';
-      applyFilters();
-    });
-  }
-</script>
+        /* zone filtres sticky */
+        #tools-box {
+            position: sticky; top: 20px; z-index: 100;
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+            margin: 2rem auto; padding: 1.5rem; border-radius: 12px; border: 1px solid #eee;
+            display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+            max-width: 1000px;
+        }
+        #search-keyword { flex: 1; padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
+        #tools-right { display: flex; gap: 0.5rem; align-items: center; }
+        #btn-reset { padding: 0.8rem 1.2rem; background: #000; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+        /* TIMELINE */
+        #timeline-wrapper { position: relative; margin-top: 4rem; padding-bottom: 5rem; }
+        #timeline-line { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; background: #ddd; z-index: 1; }
+        .timeline-grid { display: grid; grid-template-columns: 1fr 50px 1fr; column-gap: 2rem; row-gap: 3rem; align-items: center; position: relative; z-index: 2; }
+        .timeline-event { display: contents; }
+        .timeline-dot { grid-column: 2; width: 12px; height: 12px; background: #000; border-radius: 50%; justify-self: center; border: 4px solid #fefaf5; }
+
+        .event-card { background: #fff; border: 1px solid #eee; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .event-date { font-weight: 700; color: #000; margin-bottom: 5px; }
+        .event-type { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
+        .event-link a { color: #0077cc; text-decoration: none; font-weight: 600; }
+
+        @media (max-width: 880px) {
+            #tools-box { flex-direction: column; top: 10px; }
+            .timeline-grid { grid-template-columns: 50px 1fr; }
+            #timeline-line { left: 25px; }
+            .timeline-dot { grid-column: 1; }
+            .event-left, .event-right { grid-column: 2; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-fade-voile" aria-hidden="true"></div>
+
+    <header>
+        <div class="logo" style="font-weight: 800;"><span class="site-name-display">CHARGEMENT...</span></div>
+        <nav><ul id="header-menu" class="dynamic-nav"></ul></nav>
+    </header>
+
+    <div class="container">
+        <h1 id="titre-interventions">Interventions & Colloques</h1>
+        <p id="texte-intro-interventions">
+            Explorez mes prises de parole et participations scientifiques.
+        </p>
+
+        <aside id="tools-box">
+            <input type="text" id="search-keyword" placeholder="Rechercher par mot-clé (lieu, sujet, type)..." />
+            <div id="tools-right">
+                <input type="date" id="date-start" />
+                <input type="date" id="date-end" />
+                <button id="btn-reset">Réinitialiser</button>
+            </div>
+        </aside>
+
+        <section id="timeline-wrapper">
+            <div id="timeline-line"></div>
+            <div class="timeline-grid" id="timeline-grid">Chargement de la chronologie...</div>
+        </section>
+    </div>
+
+    <footer>
+        <p>© <span id="current-year"></span> <span class="site-name-display"></span></p>
+        <nav><ul id="footer-menu" class="dynamic-nav"></ul></nav>
+    </footer>
+
+    <script type="module">
+        const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const slug = "tristan";
+
+        async function initInterventions() {
+            // 1. Récupération des données
+            const { data: prof, error } = await supabaseClient
+                .from('profiles')
+                .select('*, interventions(*)')
+                .eq('slug', slug)
+                .single();
+
+            if (error || !prof) return;
+
+            // 2. Mise à jour Identité/Menus
+            document.querySelectorAll('.site-name-display').forEach(el => el.innerText = prof.name);
+            document.getElementById('current-year').innerText = new Date().getFullYear();
+            renderMenu('header-menu', prof.header_menu);
+            renderMenu('footer-menu', prof.footer_menu);
+
+            // 3. Génération Timeline
+            const container = document.getElementById('timeline-grid');
+            container.innerHTML = "";
+            
+            const list = prof.interventions || [];
+            list.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            list.forEach((item, index) => {
+                const isEven = index % 2 === 0;
+                const keywords = `${item.lieu} ${item.type} ${item.description}`.toLowerCase();
+                
+                const html = `
+                    <div class="timeline-event" data-date="${item.date}" data-keywords="${keywords}">
+                        <div class="${isEven ? 'event-left' : 'event-right'}">
+                            <div class="event-card">
+                                <p class="event-date">${new Date(item.date).toLocaleDateString('fr-FR')}</p>
+                                <p style="color:#888; font-size:0.9rem; margin-bottom:10px;">${item.lieu || ''}</p>
+                                <h3 class="event-type">${item.type || ''}</h3>
+                                <p style="line-height:1.6;">${item.description || ''}</p>
+                                ${item.lien_url ? `<p class="event-link"><a href="${item.lien_url}" target="_blank">→ Consulter</a></p>` : ''}
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                        <div class="${isEven ? 'event-right' : 'event-left'}"></div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+
+            setupFilters();
+        }
+
+        function renderMenu(id, items) {
+            const list = document.getElementById(id);
+            if (items) list.innerHTML = items.map(i => `<li><a href="${i.link}">${i.text}</a></li>`).join('');
+        }
+
+        function setupFilters() {
+            const $search = document.getElementById('search-keyword');
+            const $start = document.getElementById('date-start');
+            const $end = document.getElementById('date-end');
+            const $reset = document.getElementById('btn-reset');
+
+            function apply() {
+                const kw = $search.value.toLowerCase();
+                const start = $start.value ? new Date($start.value) : null;
+                const end = $end.value ? new Date($end.value) : null;
+
+                document.querySelectorAll('.timeline-event').forEach(ev => {
+                    const evDate = new Date(ev.dataset.date);
+                    const evKw = ev.dataset.keywords;
+                    let visible = true;
+
+                    if (kw && !evKw.includes(kw)) visible = false;
+                    if (start && evDate < start) visible = false;
+                    if (end && evDate > end) visible = false;
+
+                    ev.style.display = visible ? 'contents' : 'none';
+                });
+            }
+
+            [$search, $start, $end].forEach(el => el.addEventListener('input', apply));
+            $reset.onclick = () => { $search.value = ""; $start.value = ""; $end.value = ""; apply(); };
+        }
+
+        initInterventions();
+    </script>
 </body>
 </html>
