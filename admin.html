@@ -9,78 +9,92 @@
     <style>
         :root { --bg: #f8f9fa; --card: #ffffff; --text: #1a1a1a; --accent: #000000; --border: #ececec; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        nav { width: 280px; background: var(--card); border-right: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; }
-        .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; margin-bottom: 40px; }
-        .nav-item { padding: 12px 15px; margin-bottom: 8px; cursor: pointer; border-radius: 8px; font-weight: 500; color: #666; display: flex; align-items: center; transition: 0.2s; }
+        
+        /* Sidebar */
+        nav { width: 260px; background: var(--card); border-right: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; }
+        .logo { font-weight: 800; font-size: 1.1rem; margin-bottom: 40px; letter-spacing: -0.5px; }
+        .nav-item { padding: 12px 15px; margin-bottom: 5px; cursor: pointer; border-radius: 8px; font-weight: 500; color: #666; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
         .nav-item:hover { background: #f0f0f0; color: var(--text); }
         .nav-item.active { background: var(--accent); color: white; }
-        main { flex: 1; padding: 50px; overflow-y: auto; position: relative; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); max-width: 800px; margin-bottom: 20px; }
-        label { display: block; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: #888; margin-top: 20px; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        .btn-primary { background: var(--accent); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        
+        /* Content */
+        main { flex: 1; padding: 40px; overflow-y: auto; position: relative; }
+        .module-header { margin-bottom: 30px; }
+        .module-header h2 { font-size: 1.8rem; margin: 0; font-weight: 700; }
+        
+        /* Forms */
+        .card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); max-width: 850px; margin-bottom: 20px; }
+        label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #999; margin-top: 15px; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; font-family: inherit; box-sizing: border-box; }
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-primary:hover { opacity: 0.8; }
+        
+        /* Utils */
         .hidden { display: none !important; }
-        #loader { position: fixed; inset: 0; background: white; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 600; }
-        .menu-row { display: flex; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 5px; }
-        #status-msg { position: fixed; bottom: 20px; right: 20px; padding: 15px; border-radius: 8px; color: white; z-index: 6000; }
+        #loader { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .menu-row { display: flex; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; align-items: center; }
+        #status-msg { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; font-weight: 600; font-size: 0.9rem; z-index: 10000; }
     </style>
 </head>
 <body>
 
-    <div id="loader">Initialisation de votre espace...</div>
+    <div id="loader">Chargement de votre console...</div>
     <div id="status-msg" class="hidden"></div>
 
     <nav>
         <div class="logo">CORPUS DIGITALIS</div>
-        <div class="nav-item active" onclick="switchModule('profil')">👤 Identité</div>
+        <div class="nav-item active" onclick="switchModule('profil')">👤 Profil & Bio</div>
         <div class="nav-item" onclick="switchModule('navigation')">🔗 Navigation</div>
         <div class="nav-item" onclick="switchModule('cours')">🎓 Espace Cours</div>
         <div class="nav-item" onclick="switchModule('rdv')">📅 Rendez-vous</div>
-        <div style="margin-top: auto; cursor: pointer; color: red;" onclick="handleLogout()">DÉCONNEXION</div>
+        <div class="nav-item" onclick="switchModule('apparence')">🎨 Apparence</div>
+        <div style="margin-top:auto; color:#ff4444; cursor:pointer; font-weight:600;" onclick="handleLogout()">🚪 Déconnexion</div>
     </nav>
 
     <main>
         <section id="mod-profil" class="module">
-            <h2>Identité</h2>
+            <div class="module-header"><h2>Profil & Identité</h2></div>
             <div class="card">
-                <label>Photo</label>
-                <img id="preview-img" style="width:80px; height:80px; border-radius:50%; object-fit:cover; display:block; margin-bottom:10px;">
-                <input type="file" id="upload-avatar" onchange="previewFile()">
-                <label>Nom</label>
+                <label>Photo de profil</label>
+                <div style="display:flex; gap:20px; align-items:center; margin-bottom:10px;">
+                    <img id="preview-img" style="width:70px; height:70px; border-radius:50%; object-fit:cover; background:#eee;">
+                    <input type="file" id="upload-avatar" accept="image/*" onchange="handleFileUpload('avatar')">
+                </div>
+                <label>Nom complet</label>
                 <input type="text" id="field-name">
-                <label>Bio</label>
+                <label>Bio courte</label>
                 <textarea id="field-bio"></textarea>
-                <button class="btn-primary" onclick="saveProfil()">Enregistrer le profil</button>
+                <button class="btn-primary" onclick="saveProfil()">Enregistrer les modifications</button>
             </div>
         </section>
 
         <section id="mod-navigation" class="module hidden">
-            <h2>Menus Navigation</h2>
+            <div class="module-header"><h2>Menus Navigation</h2></div>
             <div class="card">
                 <h3>Header</h3>
                 <div id="header-list"></div>
-                <button onclick="addMenuItem('header')">+ Ajouter</button>
-                <h3 style="margin-top:20px;">Footer</h3>
+                <button class="btn-primary" style="background:#f0f0f0; color:#000;" onclick="addMenuItem('header')">+ Ajouter</button>
+                <h3 style="margin-top:30px;">Footer</h3>
                 <div id="footer-list"></div>
-                <button onclick="addMenuItem('footer')">+ Ajouter</button>
-                <button class="btn-primary" onclick="saveNavigation()" style="display:block; margin-top:20px;">Sauvegarder les menus</button>
+                <button class="btn-primary" style="background:#f0f0f0; color:#000;" onclick="addMenuItem('footer')">+ Ajouter</button>
+                <button class="btn-primary" onclick="saveNavigation()" style="display:block; width:100%; margin-top:30px;">Sauvegarder les menus</button>
             </div>
         </section>
 
         <section id="mod-cours" class="module hidden">
-            <h2>Espace Cours</h2>
-            <div id="courses-list">Chargement des cours...</div>
-            <button class="btn-primary" onclick="createNewCourse()">+ Nouveau Cours</button>
+            <div class="module-header"><h2>Espace Cours</h2></div>
+            <div id="courses-list" style="margin-bottom:20px;"></div>
+            <button class="btn-primary" onclick="createNewCourse()">+ Créer un nouveau cours</button>
         </section>
 
         <section id="mod-rdv" class="module hidden">
-            <h2>Rendez-vous</h2>
+            <div class="module-header"><h2>Page Rendez-vous</h2></div>
             <div class="card">
-                <label>URL Calendly</label>
-                <input type="text" id="rdv-url">
-                <label>Texte du bouton</label>
-                <input type="text" id="rdv-text">
-                <button class="btn-primary" onclick="saveRDV()">Enregistrer RDV</button>
+                <label>Lien de réservation (Calendly, etc.)</label>
+                <input type="text" id="rdv-url" placeholder="https://calendly.com/votre-nom">
+                <label>Libellé du bouton</label>
+                <input type="text" id="rdv-text" placeholder="Réserver un créneau">
+                <button class="btn-primary" onclick="saveRDV()">Enregistrer</button>
             </div>
         </section>
     </main>
@@ -94,15 +108,10 @@
 
     let profileData = null;
 
+    // --- INITIALISATION ---
     async function init() {
-        console.log("Démarrage de l'initialisation...");
         const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session) {
-            console.log("Pas de session, redirection...");
-            window.location.href = 'login.html';
-            return;
-        }
+        if (!session) { window.location.href = 'login.html'; return; }
 
         const { data, error } = await supabase
             .from('profiles')
@@ -111,16 +120,13 @@
             .single();
 
         if (error) {
-            console.error("Erreur Supabase:", error);
+            document.getElementById('loader').innerHTML = `<p style="color:red; padding:20px; text-align:center;">Erreur : Profil introuvable. Avez-vous mis à jour l'ID dans Supabase ?<br><br>Votre ID : <b>${session.user.id}</b></p>`;
             return;
         }
 
         profileData = data;
         fillForms();
-        loadCoursesList();
-        
         document.getElementById('loader').classList.add('hidden');
-        console.log("Initialisation terminée !");
     }
 
     function fillForms() {
@@ -129,11 +135,12 @@
         document.getElementById('preview-img').src = profileData.image_url || '';
         document.getElementById('rdv-url').value = profileData.appointment_settings?.url || '';
         document.getElementById('rdv-text').value = profileData.appointment_settings?.text || '';
-        
         renderMenuItems('header', profileData.header_menu || []);
         renderMenuItems('footer', profileData.footer_menu || []);
+        renderCourses();
     }
 
+    // --- NAVIGATION ADMIN ---
     window.switchModule = (id) => {
         document.querySelectorAll('.module').forEach(m => m.classList.add('hidden'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -141,47 +148,58 @@
         event.currentTarget.classList.add('active');
     }
 
-    // --- GESTION DES MENUS ---
+    // --- GESTION DES MENUS (JSONB) ---
     window.renderMenuItems = (type, items) => {
         const container = document.getElementById(type + '-list');
         container.innerHTML = items.map((item, i) => `
             <div class="menu-row">
-                <input type="text" value="${item.text}" onchange="updateMenuData('${type}', ${i}, 'text', this.value)">
-                <input type="text" value="${item.link}" onchange="updateMenuData('${type}', ${i}, 'link', this.value)">
-                <button onclick="removeMenuItem('${type}', ${i})">❌</button>
+                <input type="text" value="${item.text}" onchange="updateMenuVal('${type}', ${i}, 'text', this.value)">
+                <input type="text" value="${item.link}" onchange="updateMenuVal('${type}', ${i}, 'link', this.value)">
+                <button onclick="removeMenu('${type}', ${i})" style="border:none; background:none; cursor:pointer;">❌</button>
             </div>`).join('');
     }
 
     window.addMenuItem = (type) => {
-        profileData[type + '_menu'] = [...(profileData[type + '_menu'] || []), {text: 'Nouveau', link: '#'}];
+        profileData[type + '_menu'] = [...(profileData[type + '_menu'] || []), {text: 'Lien', link: '#'}];
         renderMenuItems(type, profileData[type + '_menu']);
     }
 
-    window.removeMenuItem = (type, index) => {
-        profileData[type + '_menu'].splice(index, 1);
+    window.updateMenuVal = (type, i, key, val) => profileData[type + '_menu'][i][key] = val;
+
+    window.removeMenu = (type, i) => {
+        profileData[type + '_menu'].splice(i, 1);
         renderMenuItems(type, profileData[type + '_menu']);
     }
 
-    window.updateMenuData = (type, i, field, val) => {
-        profileData[type + '_menu'][i][field] = val;
-    }
+    // --- UPLOADS ---
+    window.handleFileUpload = async (type) => {
+        const file = document.getElementById('upload-avatar').files[0];
+        if (!file) return;
 
-    // --- GESTION DES COURS ---
-    window.loadCoursesList = () => {
-        const list = document.getElementById('courses-list');
-        const courses = profileData.courses || [];
-        if (courses.length === 0) {
-            list.innerHTML = "<p>Aucun cours pour le moment.</p>";
-            return;
+        showStatus("Envoi du fichier...", "#1a1a1a");
+        const path = `${profileData.id}/avatar-${Date.now()}.${file.name.split('.').pop()}`;
+        
+        const { error: upError } = await supabase.storage.from('avatars').upload(path, file);
+        if (!upError) {
+            const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+            await supabase.from('profiles').update({ image_url: data.publicUrl }).eq('id', profileData.id);
+            document.getElementById('preview-img').src = data.publicUrl;
+            showStatus("Succès !", "green");
         }
-        list.innerHTML = courses.map(c => `<div class="card"><strong>${c.title}</strong></div>`).join('');
+    }
+
+    // --- COURS ---
+    window.renderCourses = () => {
+        const list = document.getElementById('courses-list');
+        list.innerHTML = (profileData.courses || []).map(c => `<div class="card"><b>${c.title}</b></div>`).join('');
     }
 
     window.createNewCourse = async () => {
-        const title = prompt("Titre du nouveau cours ?");
-        if (!title) return;
-        const { error } = await supabase.from('courses').insert([{ prof_id: profileData.id, title: title }]);
-        if (!error) location.reload();
+        const t = prompt("Titre du cours ?");
+        if (t) {
+            await supabase.from('courses').insert([{ prof_id: profileData.id, title: t }]);
+            location.reload();
+        }
     }
 
     // --- SAUVEGARDES ---
@@ -190,7 +208,7 @@
             name: document.getElementById('field-name').value,
             bio: document.getElementById('field-bio').value
         }).eq('id', profileData.id);
-        alert(error ? "Erreur" : "Profil mis à jour !");
+        showStatus(error ? "Erreur" : "Profil sauvegardé !", error ? "red" : "green");
     }
 
     window.saveNavigation = async () => {
@@ -198,13 +216,23 @@
             header_menu: profileData.header_menu,
             footer_menu: profileData.footer_menu
         }).eq('id', profileData.id);
-        alert(error ? "Erreur" : "Menus mis à jour !");
+        showStatus(error ? "Erreur" : "Navigation sauvegardée !", error ? "red" : "green");
     }
 
-    window.handleLogout = async () => {
-        await supabase.auth.signOut();
-        window.location.href = 'login.html';
+    window.saveRDV = async () => {
+        const settings = { url: document.getElementById('rdv-url').value, text: document.getElementById('rdv-text').value };
+        const { error } = await supabase.from('profiles').update({ appointment_settings: settings }).eq('id', profileData.id);
+        showStatus(error ? "Erreur" : "RDV sauvegardé !", error ? "red" : "green");
     }
+
+    function showStatus(msg, color) {
+        const el = document.getElementById('status-msg');
+        el.innerText = msg; el.style.background = color;
+        el.classList.remove('hidden');
+        setTimeout(() => el.classList.add('hidden'), 3000);
+    }
+
+    window.handleLogout = async () => { await supabase.auth.signOut(); window.location.href = 'login.html'; }
 
     init();
 </script>
