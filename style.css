@@ -1,54 +1,47 @@
-/* --- VARIABLES & RESET --- */
-:root {
-    --bg-site: #fefaf5;
-    --text-dark: #1a1a1a;
-    --text-soft: #666666;
-    --border-color: #eeeeee;
-}
-
-*, *::before, *::after {
-    box-sizing: border-box;
-}
+/* --- RESET GLOBAL --- */
+* { box-sizing: border-box; }
 
 body {
-    font-family: 'Inter', 'Alata', sans-serif;
-    background: var(--bg-site);
-    color: var(--text-dark);
     margin: 0;
     padding: 0;
-    width: 100%;
+    font-family: 'Inter', 'Alata', sans-serif;
+    background-color: #fefaf5; /* Ton fond crème léger */
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    width: 100%;
 }
 
-/* --- HEADER PLEINE LARGEUR --- */
-header {
-    width: 100%;
-    background: #ffffff;
-    border-bottom: 1px solid var(--border-color);
-    padding: 20px 5%; /* Espacement latéral flexible */
+/* --- HEADER & FOOTER PLEINE LARGEUR --- */
+header, footer {
+    width: 100% !important; /* Force la pleine largeur */
+    background: #ffffff;    /* Fond blanc épuré */
+    padding: 20px 5%;       /* Respiration sur les côtés */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: sticky;
-    top: 0;
+    border-bottom: 1px solid #eeeeee;
     z-index: 1000;
 }
 
-.logo {
-    font-weight: 800;
-    font-size: 1rem;
-    letter-spacing: -0.5px;
-    text-transform: uppercase;
+footer {
+    border-bottom: none;
+    border-top: 1px solid #eeeeee;
+    margin-top: auto; /* Pousse le footer tout en bas */
 }
 
-/* NAVIGATION HORIZONTALE (Fixe le bug d'empilement) */
+/* --- LOGO & NAVIGATION --- */
+.logo {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    font-size: 1rem;
+}
+
 .dynamic-nav {
     display: flex;
-    flex-direction: row; /* Force l'alignement en ligne */
-    align-items: center;
-    gap: 30px; /* Espace entre les boutons */
+    flex-direction: row; /* Aligne les boutons horizontalement */
+    gap: 30px;           /* Espace entre les boutons */
     list-style: none;
     padding: 0;
     margin: 0;
@@ -56,54 +49,26 @@ header {
 
 .dynamic-nav li a {
     text-decoration: none;
-    color: var(--text-soft);
+    color: #666;
     font-size: 0.9rem;
     font-weight: 500;
-    transition: color 0.2s ease;
+    transition: 0.2s;
 }
 
-.dynamic-nav li a:hover {
-    color: #000000;
-}
+.dynamic-nav li a:hover { color: #000; }
 
-/* --- CONTENEUR CENTRAL --- */
+/* --- CONTENU CENTRAL --- */
 .container {
+    flex: 1; /* Prend tout l'espace restant entre header et footer */
     width: 100%;
-    max-width: 1000px; /* Largeur du texte, mais header/footer restent pleine largeur */
-    margin: 40px auto;
-    padding: 0 20px;
-    flex: 1; /* Pousse le footer en bas */
+    max-width: 1000px; /* Le texte reste lisible et centré */
+    margin: 0 auto;
+    padding: 60px 20px;
 }
 
-/* --- FOOTER ÉPURÉ --- */
-footer {
-    width: 100%;
-    background: #ffffff;
-    border-top: 1px solid var(--border-color);
-    padding: 30px 5%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
-}
-
-.small-text {
-    font-size: 0.8rem;
-    color: var(--text-soft);
-}
-
-/* --- RESPONSIVE (MOBILE) --- */
-@media (max-width: 768px) {
-    header, footer {
-        flex-direction: column;
-        gap: 15px;
-        padding: 20px;
-        text-align: center;
-    }
-
-    .dynamic-nav {
-        gap: 15px;
-        flex-wrap: wrap; /* Permet le passage à la ligne si trop de boutons sur mobile */
-        justify-content: center;
-    }
+/* Image de profil (Index) */
+#profil-img {
+    width: 250px;
+    border-radius: 12px;
+    object-fit: cover;
 }
