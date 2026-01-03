@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #f8f9fa; --card: #ffffff; --text: #1a1a1a; --accent: #000000; --border: #ececec; --danger: #ff4444; }
-        
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
         /* --- SIDEBAR NAVIGATION --- */
@@ -21,54 +20,40 @@
 
         /* --- MAIN LAYOUT (SPLIT VIEW) --- */
         .admin-layout { display: flex; flex: 1; overflow: hidden; }
-        
-        /* Left: Editor */
         .editor-side { flex: 1; padding: 40px; overflow-y: auto; border-right: 1px solid var(--border); }
-        .module-header { margin-bottom: 30px; }
+        .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .module-header h2 { font-size: 1.8rem; margin: 0; font-weight: 700; }
         
-        /* Right: Live Preview */
-        .preview-side { width: 420px; background: #333; display: flex; flex-direction: column; flex-shrink: 0; transition: transform 0.3s ease; }
-        .preview-toolbar { background: #222; color: #aaa; padding: 10px; font-size: 0.7rem; text-align: center; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        /* Live Preview Panel */
+        .preview-side { width: 420px; background: #333; display: flex; flex-direction: column; flex-shrink: 0; }
+        .preview-toolbar { background: #222; color: #aaa; padding: 10px; font-size: 0.7rem; text-align: center; font-weight: 600; text-transform: uppercase; }
         #site-preview { flex: 1; border: none; width: 100%; background: white; }
 
         /* --- CARDS & FORMS --- */
-        .card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 20px; max-width: 800px; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 20px; }
         label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #999; margin-top: 15px; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; font-family: inherit; box-sizing: border-box; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
         .btn-primary { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn-primary:hover { opacity: 0.8; }
         
-        /* --- UTILS --- */
+        /* Utils */
         .hidden { display: none !important; }
         #loader { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; font-weight: 600; }
         #status-msg { position: fixed; bottom: 20px; left: 20px; padding: 12px 20px; border-radius: 8px; color: white; z-index: 10000; font-size: 0.9rem; font-weight: 600; }
         .menu-row { display: flex; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; }
 
-        /* --- MOBILE PREVIEW BUTTON --- */
-        #mobile-preview-btn { display: none; position: fixed; bottom: 25px; right: 25px; width: 56px; height: 56px; background: var(--accent); color: white; border-radius: 50%; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 5000; cursor: pointer; font-size: 1.2rem; }
-
-        /* --- RESPONSIVE DESIGN --- */
-        @media (max-width: 1150px) { .preview-side { display: none; } #mobile-preview-btn { display: flex; } }
-        @media (max-width: 768px) {
-            body { flex-direction: column; overflow: auto; }
-            nav { width: 100%; height: auto; padding: 15px; flex-direction: row; border-right: none; border-bottom: 1px solid var(--border); position: sticky; top: 0; }
-            .logo { display: none; }
-            .nav-item { padding: 10px; font-size: 0.75rem; flex-direction: column; gap: 4px; flex: 1; justify-content: center; }
-            .editor-side { padding: 20px; }
-        }
+        @media (max-width: 1150px) { .preview-side { display: none; } }
     </style>
 </head>
 <body>
 
     <div id="loader">Chargement de votre console...</div>
     <div id="status-msg" class="hidden"></div>
-    <div id="mobile-preview-btn" onclick="toggleMobilePreview()">👁️</div>
 
     <nav>
         <div class="logo">CORPUS DIGITALIS</div>
         <div class="nav-item active" onclick="switchModule('profil')">👤 Profil</div>
         <div class="nav-item" onclick="switchModule('navigation')">🔗 Menus</div>
+        <div class="nav-item" onclick="switchModule('bibliotheque')">📚 Bibliothèque</div>
         <div class="nav-item" onclick="switchModule('cours')">🎓 Cours</div>
         <div class="nav-item" onclick="switchModule('rdv')">📅 RDV</div>
         <button class="logout-btn" onclick="handleLogout()">Quitter</button>
@@ -92,39 +77,33 @@
                 </div>
             </section>
 
-            <section id="mod-navigation" class="module hidden">
-                <div class="module-header"><h2>Navigation & Menus</h2></div>
-                <div class="card">
-                    <h3>Header (Haut)</h3>
-                    <div id="header-list"></div>
-                    <button class="btn-primary" style="background:#f0f0f0; color:#000;" onclick="addMenuItem('header')">+ Ajouter lien</button>
-                    <h3 style="margin-top:30px;">Footer (Bas)</h3>
-                    <div id="footer-list"></div>
-                    <button class="btn-primary" style="background:#f0f0f0; color:#000;" onclick="addMenuItem('footer')">+ Ajouter lien</button>
-                    <button class="btn-primary" onclick="saveNavigation()" style="display:block; width:100%; margin-top:30px;">Publier les menus</button>
+            <section id="mod-bibliotheque" class="module hidden">
+                <div class="module-header">
+                    <h2>Bibliothèque / Publications</h2>
+                    <button class="btn-primary" style="width:auto; margin:0;" onclick="addPublication()">+ Ajouter</button>
                 </div>
+                <div id="pubs-list"></div>
             </section>
 
+            <section id="mod-navigation" class="module hidden">
+                <div class="module-header"><h2>Menus Navigation</h2></div>
+                <div class="card">
+                    <label>Header</label>
+                    <div id="header-list"></div>
+                    <button class="btn-primary" style="background:#f0f0f0; color:#000;" onclick="addMenuItem('header')">+ Ajouter lien</button>
+                    <button class="btn-primary" onclick="saveNavigation()" style="width:100%; margin-top:30px;">Publier les menus</button>
+                </div>
+            </section>
+            
             <section id="mod-cours" class="module hidden">
                 <div class="module-header"><h2>Espace Cours</h2></div>
                 <div id="courses-list"></div>
                 <button class="btn-primary" onclick="createNewCourse()">+ Créer un cours</button>
             </section>
-
-            <section id="mod-rdv" class="module hidden">
-                <div class="module-header"><h2>Rendez-vous</h2></div>
-                <div class="card">
-                    <label>Lien Calendly / Booking</label>
-                    <input type="text" id="rdv-url" placeholder="https://calendly.com/...">
-                    <label>Texte du bouton</label>
-                    <input type="text" id="rdv-text" placeholder="Prendre rendez-vous">
-                    <button class="btn-primary" onclick="saveRDV()">Mettre à jour</button>
-                </div>
-            </section>
         </main>
 
-        <aside class="preview-side" id="preview-panel">
-            <div class="preview-toolbar">Aperçu mobile en direct</div>
+        <aside class="preview-side">
+            <div class="preview-toolbar">Aperçu en direct</div>
             <iframe id="site-preview" src="about:blank"></iframe>
         </aside>
     </div>
@@ -138,28 +117,16 @@
 
     let profileData = null;
 
-    // --- INITIALISATION ---
     async function init() {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
 
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*, courses(*)')
-            .eq('id', session.user.id)
-            .single();
-
-        if (error) {
-            document.getElementById('loader').innerHTML = `<div style="text-align:center; padding:20px;">
-                <p style="color:red; font-weight:700;">PROFIL NON TROUVÉ</p>
-                <p>Votre ID : ${session.user.id}</p>
-                <button onclick="location.reload()" class="btn-primary">Réessayer</button>
-            </div>`;
-            return;
-        }
+        const { data, error } = await supabase.from('profiles').select('*, courses(*), publications(*)').eq('id', session.user.id).single();
+        if (error) { document.getElementById('loader').innerText = "Erreur profil"; return; }
 
         profileData = data;
         fillForms();
+        loadPublications();
         refreshPreview();
         document.getElementById('loader').classList.add('hidden');
     }
@@ -168,32 +135,52 @@
         document.getElementById('field-name').value = profileData.name || '';
         document.getElementById('field-bio').value = profileData.bio || '';
         document.getElementById('preview-img').src = profileData.image_url || '';
-        document.getElementById('rdv-url').value = profileData.appointment_settings?.url || '';
-        document.getElementById('rdv-text').value = profileData.appointment_settings?.text || '';
         renderMenuItems('header', profileData.header_menu || []);
-        renderMenuItems('footer', profileData.footer_menu || []);
-        renderCourses();
     }
 
-    // --- LOGIQUE D'APERÇU ---
+    // --- GESTION PUBLICATIONS ---
+    window.loadPublications = () => {
+        const container = document.getElementById('pubs-list');
+        const pubs = profileData.publications || [];
+        container.innerHTML = pubs.map(p => `
+            <div class="card" style="margin-bottom:10px; display:flex; gap:10px; align-items:center;">
+                <div style="flex:1">
+                    <input type="text" value="${p.texte}" onchange="updatePub('${p.id}', 'texte', this.value)" placeholder="Référence bibliographique">
+                    <div style="display:flex; gap:10px; margin-top:5px;">
+                        <input type="text" value="${p.categorie}" onchange="updatePub('${p.id}', 'categorie', this.value)" placeholder="Catégorie">
+                        <input type="text" value="${p.lien || ''}" onchange="updatePub('${p.id}', 'lien', this.value)" placeholder="Lien PDF">
+                    </div>
+                </div>
+                <button onclick="deletePub('${p.id}')" style="background:none; border:none; cursor:pointer;">❌</button>
+            </div>
+        `).join('');
+    }
+
+    window.addPublication = async () => {
+        const { data } = await supabase.from('publications').insert([{ prof_id: profileData.id, texte: 'Nouvelle publication', categorie: 'Articles' }]).select();
+        profileData.publications.push(data[0]);
+        loadPublications();
+    }
+
+    window.updatePub = async (id, field, val) => {
+        const up = {}; up[field] = val;
+        await supabase.from('publications').update(up).eq('id', id);
+        showStatus("Modifié", "gray");
+    }
+
+    window.deletePub = async (id) => {
+        if(confirm("Supprimer ?")) {
+            await supabase.from('publications').delete().eq('id', id);
+            profileData.publications = profileData.publications.filter(p => p.id !== id);
+            loadPublications();
+        }
+    }
+
+    // --- LOGIQUE COMMUNE ---
     function refreshPreview() {
-        const iframe = document.getElementById('site-preview');
-        // Cache-busting avec timestamp
-        const url = `https://corpusdigitalis.github.io/copie-tristan-sans-java/index.html?prof=${profileData.slug}&t=${Date.now()}`;
-        iframe.src = url;
+        document.getElementById('site-preview').src = `https://corpusdigitalis.github.io/copie-tristan-sans-java/index.html?prof=${profileData.slug}&t=${Date.now()}`;
     }
 
-    window.toggleMobilePreview = () => {
-        const panel = document.getElementById('preview-panel');
-        const isVisible = panel.style.display === 'flex';
-        panel.style.display = isVisible ? 'none' : 'flex';
-        panel.style.position = isVisible ? 'static' : 'fixed';
-        panel.style.inset = isVisible ? 'auto' : '0';
-        panel.style.width = isVisible ? '420px' : '100%';
-        panel.style.zIndex = isVisible ? 'auto' : '4000';
-    }
-
-    // --- ACTIONS ---
     window.switchModule = (id) => {
         document.querySelectorAll('.module').forEach(m => m.classList.add('hidden'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -202,59 +189,16 @@
     }
 
     window.saveProfil = async () => {
-        showStatus("Sauvegarde...", "#333");
-        const { error } = await supabase.from('profiles').update({
-            name: document.getElementById('field-name').value,
-            bio: document.getElementById('field-bio').value
-        }).eq('id', profileData.id);
-        if (!error) { showStatus("Profil mis à jour !", "green"); refreshPreview(); }
-    }
-
-    window.saveNavigation = async () => {
-        const { error } = await supabase.from('profiles').update({
-            header_menu: profileData.header_menu,
-            footer_menu: profileData.footer_menu
-        }).eq('id', profileData.id);
-        if (!error) { showStatus("Menus publiés !", "green"); refreshPreview(); }
-    }
-
-    // --- GESTION MENUS ---
-    window.renderMenuItems = (type, items) => {
-        const container = document.getElementById(type + '-list');
-        container.innerHTML = items.map((item, i) => `
-            <div class="menu-row">
-                <input type="text" value="${item.text}" onchange="updateMenuVal('${type}', ${i}, 'text', this.value)">
-                <input type="text" value="${item.link}" onchange="updateMenuVal('${type}', ${i}, 'link', this.value)">
-                <button onclick="removeMenu('${type}', ${i})" style="border:none; cursor:pointer; background:none;">❌</button>
-            </div>`).join('');
-    }
-    window.updateMenuVal = (type, i, key, val) => profileData[type + '_menu'][i][key] = val;
-    window.addMenuItem = (type) => {
-        profileData[type + '_menu'] = [...(profileData[type + '_menu'] || []), {text: 'Nouveau', link: '#'}];
-        renderMenuItems(type, profileData[type + '_menu']);
-    }
-
-    // --- UPLOAD ---
-    window.handleFileUpload = async () => {
-        const file = document.getElementById('upload-avatar').files[0];
-        if (!file) return;
-        showStatus("Envoi image...", "black");
-        const path = `${profileData.id}/avatar-${Date.now()}.${file.name.split('.').pop()}`;
-        const { error } = await supabase.storage.from('avatars').upload(path, file);
-        if (!error) {
-            const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-            await supabase.from('profiles').update({ image_url: data.publicUrl }).eq('id', profileData.id);
-            document.getElementById('preview-img').src = data.publicUrl;
-            showStatus("Photo OK !", "green");
-            refreshPreview();
-        }
+        await supabase.from('profiles').update({ name: document.getElementById('field-name').value, bio: document.getElementById('field-bio').value }).eq('id', profileData.id);
+        showStatus("Profil enregistré", "green");
+        refreshPreview();
     }
 
     function showStatus(msg, color) {
         const el = document.getElementById('status-msg');
         el.innerText = msg; el.style.background = color;
         el.classList.remove('hidden');
-        setTimeout(() => el.classList.add('hidden'), 3000);
+        setTimeout(() => el.classList.add('hidden'), 2500);
     }
 
     window.handleLogout = async () => { await supabase.auth.signOut(); window.location.href = 'login.html'; }
