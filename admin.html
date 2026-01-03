@@ -16,32 +16,35 @@
         .nav-item { padding: 12px 15px; margin-bottom: 8px; cursor: pointer; border-radius: 8px; font-weight: 500; transition: 0.2s; color: #666; display: flex; align-items: center; }
         .nav-item:hover { background: #f0f0f0; color: var(--text); }
         .nav-item.active { background: var(--accent); color: white; }
-        .logout-btn { margin-top: auto; color: #ff4444; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+        .logout-btn { margin-top: auto; color: #ff4444; cursor: pointer; font-size: 0.9rem; font-weight: 600; border: none; background: none; text-align: left; padding: 0; }
 
         /* Main Content */
-        main { flex: 1; padding: 50px; overflow-y: auto; background: var(--bg); }
+        main { flex: 1; padding: 50px; overflow-y: auto; background: var(--bg); position: relative; }
         .module-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
         .module-header h2 { margin: 0; font-size: 2rem; font-weight: 700; }
         
         /* Cards & Forms */
-        .card { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); max-width: 800px; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); max-width: 800px; margin-bottom: 20px; }
         label { display: block; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: #888; margin-top: 20px; }
         input, textarea, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; box-sizing: border-box; font-family: inherit; }
-        .btn-primary { background: var(--accent); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 30px; width: 100%; transition: 0.3s; }
+        textarea { height: 100px; resize: vertical; }
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         .btn-primary:hover { opacity: 0.8; transform: translateY(-1px); }
 
-        /* Grid for Cards in Modules */
-        .grid-items { display: grid; gap: 15px; margin-top: 10px; }
+        /* Module Specifics */
+        .grid-items { display: grid; gap: 10px; margin-top: 10px; }
         .menu-row { display: flex; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; align-items: center; }
-        
-        /* Glassmorphism Loader */
-        #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 1000; font-weight: 600; }
         .hidden { display: none !important; }
+        #status-msg { position: fixed; bottom: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; color: white; font-weight: 600; z-index: 3000; }
+
+        /* Overlay for Course Editor */
+        #course-editor-overlay { position: fixed; inset: 0; background: white; z-index: 2000; padding: 50px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-    <div id="loader">Initialisation du SaaS...</div>
+    <div id="status-msg" class="hidden"></div>
+    <div id="loader" style="position:fixed; inset:0; background:white; z-index:4000; display:flex; align-items:center; justify-content:center;">Initialisation...</div>
 
     <nav>
         <div class="logo">CORPUS DIGITALIS</div>
@@ -52,17 +55,14 @@
         <div class="nav-item" onclick="switchModule('rdv')">📅 Rendez-vous</div>
         <div class="nav-item" onclick="switchModule('apparence')">🎨 Apparence</div>
         
-        <div class="logout-btn" onclick="handleLogout()">DÉCONNEXION</div>
+        <button class="logout-btn" onclick="handleLogout()">DÉCONNEXION</button>
     </nav>
 
     <main>
         <section id="mod-profil" class="module">
             <div class="module-header">
-                <div>
-                    <h2>Identité</h2>
-                    <p>Gérez votre image et votre présentation publique.</p>
-                </div>
-                <button class="btn-primary" style="width:auto; margin:0;" onclick="saveProfil()">Enregistrer</button>
+                <div><h2>Identité</h2><p>Gérez votre présentation publique.</p></div>
+                <button class="btn-primary" onclick="saveProfil()">Enregistrer</button>
             </div>
             <div class="card">
                 <label>Photo de profil</label>
@@ -71,33 +71,62 @@
                     <input type="file" id="upload-avatar" accept="image/*" onchange="previewFile('avatar')">
                 </div>
                 <label>Nom complet</label>
-                <input type="text" id="field-name" placeholder="Ex: Tristan Arbona">
+                <input type="text" id="field-name">
                 <label>Biographie</label>
-                <textarea id="field-bio" placeholder="Parlez de votre parcours..."></textarea>
+                <textarea id="field-bio"></textarea>
             </div>
         </section>
 
         <section id="mod-navigation" class="module hidden">
             <div class="module-header">
                 <h2>Menus Navigation</h2>
-                <button class="btn-primary" style="width:auto; margin:0;" onclick="saveNavigation()">Enregistrer les menus</button>
+                <button class="btn-primary" onclick="saveNavigation()">Enregistrer les menus</button>
             </div>
             <div class="card">
-                <h3>Header (Haut de page)</h3>
+                <h3>Header</h3>
                 <div id="header-list" class="grid-items"></div>
-                <button class="btn-primary" style="background:#eee; color:#000;" onclick="addMenuItem('header')">+ Ajouter un bouton</button>
-                
-                <h3 style="margin-top:40px;">Footer (Bas de page)</h3>
+                <button class="btn-primary" style="background:#eee; color:#000;" onclick="addMenuItem('header')">+ Ajouter au Header</button>
+                <h3 style="margin-top:40px;">Footer</h3>
                 <div id="footer-list" class="grid-items"></div>
-                <button class="btn-primary" style="background:#eee; color:#000;" onclick="addMenuItem('footer')">+ Ajouter un bouton</button>
+                <button class="btn-primary" style="background:#eee; color:#000;" onclick="addMenuItem('footer')">+ Ajouter au Footer</button>
             </div>
         </section>
 
         <section id="mod-cours" class="module hidden">
-            <div class="module-header"><h2>Espace Cours</h2></div>
-            <div class="card"><p>Le gestionnaire de chapitres (LMS) est en cours de liaison avec vos tables Supabase.</p></div>
+            <div class="module-header">
+                <h2>Espace Cours</h2>
+                <button class="btn-primary" onclick="createNewCourse()">+ Nouveau Cours</button>
+            </div>
+            <div id="courses-list"></div>
+        </section>
+
+        <section id="mod-rdv" class="module hidden">
+            <div class="module-header">
+                <h2>Rendez-vous</h2>
+                <button class="btn-primary" onclick="saveRDV()">Enregistrer</button>
+            </div>
+            <div class="card">
+                <label>Lien Calendly / Autre</label>
+                <input type="text" id="rdv-url" placeholder="https://calendly.com/votre-nom">
+                <label>Texte du bouton</label>
+                <input type="text" id="rdv-text" placeholder="Réserver un créneau">
+            </div>
         </section>
     </main>
+
+    <div id="course-editor-overlay" class="hidden">
+        <div style="max-width:800px; margin:0 auto;">
+            <button onclick="closeCourseEditor()">← Retour</button>
+            <h2 id="editor-title" style="margin-top:20px;">Modifier le cours</h2>
+            <div class="card">
+                <label>Titre</label><input type="text" id="edit-course-title">
+                <label>Contenu (Chapitres)</label>
+                <div id="chapters-container"></div>
+                <button class="btn-primary" style="background:#eee; color:#000;" onclick="addChapter()">+ Ajouter Chapitre</button>
+            </div>
+            <button class="btn-primary" onclick="saveFullCourse()">SAUVEGARDER TOUT LE COURS</button>
+        </div>
+    </div>
 
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -107,35 +136,37 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let profileData = null;
+    let currentCourse = null;
 
-    // 1. Initialisation & Sécurité
     async function init() {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
 
         const { data, error } = await supabase
             .from('profiles')
-            .select('*, publications(*), interventions(*), courses(*)')
+            .select('*, courses(*)')
             .eq('id', session.user.id)
             .single();
 
-        if (error) { console.error(error); return; }
+        if (error) { showStatus("Erreur de chargement", "red"); return; }
         profileData = data;
         fillForms();
+        loadCoursesList();
         document.getElementById('loader').classList.add('hidden');
     }
 
-    // 2. Remplissage des formulaires
     function fillForms() {
         document.getElementById('field-name').value = profileData.name || '';
         document.getElementById('field-bio').value = profileData.bio || '';
         document.getElementById('preview-img').src = profileData.image_url || '';
+        document.getElementById('rdv-url').value = profileData.appointment_settings?.url || '';
+        document.getElementById('rdv-text').value = profileData.appointment_settings?.text || '';
         
         renderMenuItems('header', profileData.header_menu || []);
         renderMenuItems('footer', profileData.footer_menu || []);
     }
 
-    // 3. Gestion de la Navigation interne
+    // Navigation Modulaire
     window.switchModule = (modId) => {
         document.querySelectorAll('.module').forEach(m => m.classList.add('hidden'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -143,28 +174,49 @@
         event.currentTarget.classList.add('active');
     }
 
-    // 4. Gestion des Menus (JSONB)
+    // Gestion de l'Avatar (Upload)
+    window.previewFile = async () => {
+        const file = document.getElementById('upload-avatar').files[0];
+        if (!file) return;
+
+        showStatus("Upload en cours...", "black");
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${profileData.id}/avatar.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+        
+        if (!uploadError) {
+            const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+            await supabase.from('profiles').update({ image_url: data.publicUrl }).eq('id', profileData.id);
+            document.getElementById('preview-img').src = data.publicUrl;
+            showStatus("Photo mise à jour !", "green");
+        }
+    }
+
+    // Menus JSONB
     window.renderMenuItems = (type, items) => {
         const container = document.getElementById(type + '-list');
-        container.innerHTML = '';
-        items.forEach((item, index) => {
-            container.innerHTML += `
-                <div class="menu-row">
-                    <input type="text" value="${item.text}" placeholder="Texte" onchange="updateMenu('${type}', ${index}, 'text', this.value)">
-                    <input type="text" value="${item.link}" placeholder="Lien (ex: #cours)" onchange="updateMenu('${type}', ${index}, 'link', this.value)">
-                    <button onclick="removeMenuItem('${type}', ${index})" style="background:none; border:none; cursor:pointer;">❌</button>
-                </div>`;
-        });
+        container.innerHTML = items.map((item, i) => `
+            <div class="menu-row">
+                <input type="text" value="${item.text}" onchange="updateMenu('${type}', ${i}, 'text', this.value)">
+                <input type="text" value="${item.link}" onchange="updateMenu('${type}', ${i}, 'link', this.value)">
+                <button onclick="removeMenuItem('${type}', ${i})">❌</button>
+            </div>`).join('');
     }
 
+    window.updateMenu = (type, i, field, val) => profileData[type + '_menu'][i][field] = val;
     window.addMenuItem = (type) => {
-        const key = type + '_menu';
-        profileData[key] = [...(profileData[key] || []), { text: 'Nouveau', link: '#' }];
-        renderMenuItems(type, profileData[key]);
+        profileData[type + '_menu'] = [...(profileData[type + '_menu'] || []), { text: 'Nouveau', link: '#' }];
+        renderMenuItems(type, profileData[type + '_menu']);
     }
 
-    window.updateMenu = (type, index, field, value) => {
-        profileData[type + '_menu'][index][field] = value;
+    // Sauvegardes
+    window.saveProfil = async () => {
+        const { error } = await supabase.from('profiles').update({
+            name: document.getElementById('field-name').value,
+            bio: document.getElementById('field-bio').value
+        }).eq('id', profileData.id);
+        showStatus(error ? "Erreur" : "Profil enregistré !", error ? "red" : "green");
     }
 
     window.saveNavigation = async () => {
@@ -172,64 +224,20 @@
             header_menu: profileData.header_menu,
             footer_menu: profileData.footer_menu
         }).eq('id', profileData.id);
-        alert(error ? "Erreur" : "Menus mis à jour !");
+        showStatus(error ? "Erreur" : "Navigation enregistrée !", error ? "red" : "green");
     }
 
-    window.saveProfil = async () => {
-        const { error } = await supabase.from('profiles').update({
-            name: document.getElementById('field-name').value,
-            bio: document.getElementById('field-bio').value
-        }).eq('id', profileData.id);
-        alert(error ? "Erreur" : "Profil mis à jour !");
+    // Utilitaires UI
+    function showStatus(txt, color) {
+        const s = document.getElementById('status-msg');
+        s.innerText = txt; s.style.background = color;
+        s.classList.remove('hidden');
+        setTimeout(() => s.classList.add('hidden'), 3000);
     }
 
-    window.handleLogout = async () => {
-        await supabase.auth.signOut();
-        window.location.href = 'login.html';
-    }
+    window.handleLogout = async () => { await supabase.auth.signOut(); window.location.href = 'login.html'; }
 
     init();
-    // Fonction pour prévisualiser et uploader le fichier
-window.previewFile = async (type) => {
-    const fileInput = document.getElementById('upload-avatar');
-    const file = fileInput.files[0];
-    const preview = document.getElementById('preview-img');
-    const status = document.getElementById('status-msg');
-
-    if (!file) return;
-
-    // 1. Prévisualisation immédiate locale
-    const reader = new FileReader();
-    reader.onload = (e) => preview.src = e.target.result;
-    reader.readAsDataURL(file);
-
-    status.innerText = "Téléchargement de l'image...";
-
-    // 2. Upload vers Supabase Storage
-    // On nomme le fichier avec l'ID du prof pour éviter les doublons
-    const fileExt = file.name.split('.').pop();
-    const filePath = `${profileData.id}/avatar.${fileExt}`;
-
-    const { data, error } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true });
-
-    if (error) {
-        status.innerText = "Erreur upload : " + error.message;
-        status.style.color = "red";
-    } else {
-        // 3. Récupérer l'URL publique et l'enregistrer dans le profil
-        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-        const publicUrl = urlData.publicUrl;
-
-        await supabase.from('profiles')
-            .update({ image_url: publicUrl })
-            .eq('id', profileData.id);
-
-        status.innerText = "✅ Photo mise à jour !";
-        status.style.color = "green";
-    }
-}
 </script>
 </body>
 </html>
