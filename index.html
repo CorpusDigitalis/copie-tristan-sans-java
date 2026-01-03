@@ -1,90 +1,149 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tristan Arbona</title>
-  <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    /* Important : permet de respecter les sauts de ligne (paragraphes) de votre texte JSON */
-    #profil-desc {
-      white-space: pre-line;
-    }
-  </style>
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tristan Arbona</title>
+    <link href="https://fonts.googleapis.com/css2?family=Alata&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Respect des sauts de ligne de la bio saisie en admin */
+        #profil-desc { white-space: pre-line; }
+        
+        /* Styles pour la navigation dynamique */
+        .dynamic-nav { display: flex; gap: 25px; list-style: none; padding: 0; margin: 0; }
+        .dynamic-nav a { text-decoration: none; color: inherit; font-weight: 500; transition: opacity 0.2s; }
+        .dynamic-nav a:hover { opacity: 0.6; }
+        
+        header, footer { 
+            padding: 30px 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            max-width: 1200px; 
+            margin: 0 auto;
+        }
+
+        #profil-img {
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            max-width: 300px;
+            border-radius: 8px;
+        }
+
+        .rdv-btn-container { margin-top: 30px; }
+        
+        /* Style responsive simple */
+        @media (max-width: 768px) {
+            header, footer { flex-direction: column; gap: 20px; text-align: center; }
+            .dynamic-nav { justify-content: center; font-size: 0.9rem; }
+        }
+    </style>
 </head>
 
 <body>
 
-  <div id="header-placeholder"></div>
+    <header>
+        <div class="logo" style="font-weight: 800; letter-spacing: -1px;">
+            <span class="site-name-display">CHARGEMENT...</span>
+        </div>
+        <nav>
+            <ul id="header-menu" class="dynamic-nav">
+                </ul>
+        </nav>
+    </header>
 
-  <div class="container">
-    <div class="main-content">
-      <img id="profil-img" src="portrait.jpg" alt="Portrait" />
-      
-      <div class="description">
-        <h1 id="profil-titre">Chargement...</h1>
-        <p id="profil-desc"></p>
-      </div>
+    <div class="container">
+        <main class="main-content">
+            <img id="profil-img" src="" alt="Portrait" />
+            
+            <div class="description">
+                <h1 id="profil-titre">Chargement...</h1>
+                <p id="profil-desc"></p>
+                
+                <div id="rdv-container" class="rdv-btn-container"></div>
+            </div>
+        </main>
     </div>
-  </div>
 
-  <div id="footer-placeholder"></div>
+    <footer>
+        <p>© <span id="current-year"></span> <span class="site-name-display"></span></p>
+        <nav>
+            <ul id="footer-menu" class="dynamic-nav">
+                </ul>
+        </nav>
+    </footer>
 
-  <script>
-    // 1. Fonction pour charger le Header et le Footer avec exécution des scripts
-    function loadHTML(id, url) {
-      fetch(url)
-        .then(response => {
-          if (!response.ok) throw new Error('Erreur de chargement de ' + url);
-          return response.text();
-        })
-        .then(data => {
-          const element = document.getElementById(id);
-          element.innerHTML = data;
+    <script type="module">
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-          // Force l'exécution des scripts (nécessaire pour le menu dynamique)
-          const scripts = element.querySelectorAll('script');
-          scripts.forEach(oldScript => {
-            const newScript = document.createElement('script');
-            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-            oldScript.parentNode.replaceChild(newScript, oldScript);
-          });
-        })
-        .catch(error => console.error('Erreur:', error));
-    }
+        // Détection du profil (via ?prof=nom ou par défaut 'tristan')
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('prof') || 'tristan';
 
-    // 2. Appel du chargement des fichiers (assure-toi que les noms sont exacts sur GitHub)
-    loadHTML('header-placeholder', 'header.html');
-    loadHTML('footer-placeholder', 'footer.html');
-  </script>
+        async function loadSiteContent() {
+            // Récupération des données du profil
+            const { data: prof, error } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('slug', slug)
+                .single();
 
-  <script type="module">
-    import { getSiteData } from './api.js';
+            if (error || !prof) {
+                console.error("Erreur de récupération:", error);
+                document.getElementById('profil-titre').innerText = "Profil non trouvé";
+                return;
+            }
 
-    getSiteData().then(prof => {
-      if (prof) {
-        // Mise à jour du Titre (ex: "Bienvenue")
-        if (prof.display_name) {
-          document.getElementById('profil-titre').innerText = prof.display_name;
+            // 1. Mise à jour de l'identité
+            document.title = prof.name;
+            document.querySelectorAll('.site-name-display').forEach(el => el.innerText = prof.name.toUpperCase());
+            document.getElementById('profil-titre').innerText = prof.name;
+            document.getElementById('profil-desc').innerHTML = (prof.bio || "").replace(/\n/g, '<br>');
+            document.getElementById('current-year').innerText = new Date().getFullYear();
+
+            // 2. Gestion de l'image de profil
+            const img = document.getElementById('profil-img');
+            if (prof.image_url) {
+                img.src = prof.image_url;
+                img.onload = () => img.style.opacity = 1;
+            }
+
+            // 3. Génération des menus Header et Footer
+            renderMenu('header-menu', prof.header_menu);
+            renderMenu('footer-menu', prof.footer_menu);
+
+            // 4. Affichage du bouton RDV
+            if (prof.appointment_settings && prof.appointment_settings.url) {
+                const rdvContainer = document.getElementById('rdv-container');
+                const btn = document.createElement('a');
+                btn.href = prof.appointment_settings.url;
+                btn.innerText = prof.appointment_settings.text || "Prendre rendez-vous";
+                btn.target = "_blank";
+                btn.className = "btn-rdv"; // Assure-toi que cette classe est dans ton style.css
+                rdvContainer.appendChild(btn);
+            }
         }
 
-        // Mise à jour de la Biographie (on gère les sauts de ligne)
-        if (prof.bio) {
-          document.getElementById('profil-desc').innerHTML = prof.bio.replace(/\n/g, '<br>');
+        // Fonction utilitaire pour construire les menus JSON
+        function renderMenu(elementId, menuItems) {
+            const list = document.getElementById(elementId);
+            list.innerHTML = '';
+            if (menuItems && Array.isArray(menuItems)) {
+                menuItems.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<a href="${item.link}">${item.text}</a>`;
+                    list.appendChild(li);
+                });
+            }
         }
 
-        // Mise à jour de l'Image de profil
-        if (prof.avatar_url) {
-          document.getElementById('profil-img').src = prof.avatar_url;
-        }
-      } else {
-        console.error("Aucun profil trouvé pour ce slug.");
-      }
-    }).catch(err => console.error("Erreur de récupération du profil:", err));
-  </script>
-  
+        // Lancement
+        loadSiteContent();
+    </script>
 </body>
 </html>
