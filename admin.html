@@ -10,30 +10,36 @@
         :root { --bg: #f8f9fa; --card: #ffffff; --text: #1a1a1a; --accent: #000000; --border: #ececec; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Sidebar */
-        nav { width: 260px; background: var(--card); border-right: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; }
+        /* Sidebar Navigation */
+        nav { width: 250px; background: var(--card); border-right: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; flex-shrink: 0; }
         .logo { font-weight: 800; font-size: 1.1rem; margin-bottom: 40px; letter-spacing: -0.5px; }
         .nav-item { padding: 12px 15px; margin-bottom: 5px; cursor: pointer; border-radius: 8px; font-weight: 500; color: #666; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
         .nav-item:hover { background: #f0f0f0; color: var(--text); }
         .nav-item.active { background: var(--accent); color: white; }
+
+        /* Split Screen Layout */
+        .admin-layout { display: flex; flex: 1; overflow: hidden; }
         
-        /* Content */
-        main { flex: 1; padding: 40px; overflow-y: auto; position: relative; }
+        /* Editor Side (Left) */
+        .editor-side { flex: 1; padding: 40px; overflow-y: auto; border-right: 1px solid var(--border); }
         .module-header { margin-bottom: 30px; }
         .module-header h2 { font-size: 1.8rem; margin: 0; font-weight: 700; }
         
+        /* Preview Side (Right) */
+        .preview-side { width: 450px; background: #e0e0e0; display: flex; flex-direction: column; flex-shrink: 0; }
+        .preview-header { background: #333; color: white; padding: 10px; font-size: 0.75rem; text-align: center; font-weight: 600; }
+        iframe { flex: 1; border: none; width: 100%; }
+
         /* Forms */
-        .card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); max-width: 850px; margin-bottom: 20px; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 20px; }
         label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #999; margin-top: 15px; }
         input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; font-family: inherit; box-sizing: border-box; }
         .btn-primary { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         .btn-primary:hover { opacity: 0.8; }
         
-        /* Utils */
         .hidden { display: none !important; }
-        #loader { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .menu-row { display: flex; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; align-items: center; }
-        #status-msg { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; font-weight: 600; font-size: 0.9rem; z-index: 10000; }
+        #loader { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        #status-msg { position: fixed; bottom: 20px; left: 20px; padding: 12px 20px; border-radius: 8px; color: white; z-index: 10000; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -43,61 +49,47 @@
 
     <nav>
         <div class="logo">CORPUS DIGITALIS</div>
-        <div class="nav-item active" onclick="switchModule('profil')">👤 Profil & Bio</div>
+        <div class="nav-item active" onclick="switchModule('profil')">👤 Profil</div>
         <div class="nav-item" onclick="switchModule('navigation')">🔗 Navigation</div>
-        <div class="nav-item" onclick="switchModule('cours')">🎓 Espace Cours</div>
-        <div class="nav-item" onclick="switchModule('rdv')">📅 Rendez-vous</div>
-        <div class="nav-item" onclick="switchModule('apparence')">🎨 Apparence</div>
+        <div class="nav-item" onclick="switchModule('cours')">🎓 Cours</div>
+        <div class="nav-item" onclick="switchModule('rdv')">📅 RDV</div>
         <div style="margin-top:auto; color:#ff4444; cursor:pointer; font-weight:600;" onclick="handleLogout()">🚪 Déconnexion</div>
     </nav>
 
-    <main>
-        <section id="mod-profil" class="module">
-            <div class="module-header"><h2>Profil & Identité</h2></div>
-            <div class="card">
-                <label>Photo de profil</label>
-                <div style="display:flex; gap:20px; align-items:center; margin-bottom:10px;">
-                    <img id="preview-img" style="width:70px; height:70px; border-radius:50%; object-fit:cover; background:#eee;">
-                    <input type="file" id="upload-avatar" accept="image/*" onchange="handleFileUpload('avatar')">
+    <div class="admin-layout">
+        <main class="editor-side">
+            <section id="mod-profil" class="module">
+                <div class="module-header"><h2>Identité</h2></div>
+                <div class="card">
+                    <label>Photo de profil</label>
+                    <div style="display:flex; gap:20px; align-items:center; margin-bottom:10px;">
+                        <img id="preview-img" style="width:70px; height:70px; border-radius:50%; object-fit:cover; background:#eee;">
+                        <input type="file" id="upload-avatar" accept="image/*" onchange="handleFileUpload()">
+                    </div>
+                    <label>Nom complet</label>
+                    <input type="text" id="field-name">
+                    <label>Biographie</label>
+                    <textarea id="field-bio"></textarea>
+                    <button class="btn-primary" onclick="saveProfil()">Enregistrer et Voir</button>
                 </div>
-                <label>Nom complet</label>
-                <input type="text" id="field-name">
-                <label>Bio courte</label>
-                <textarea id="field-bio"></textarea>
-                <button class="btn-primary" onclick="saveProfil()">Enregistrer les modifications</button>
-            </div>
-        </section>
+            </section>
 
-        <section id="mod-navigation" class="module hidden">
-            <div class="module-header"><h2>Menus Navigation</h2></div>
-            <div class="card">
-                <h3>Header</h3>
-                <div id="header-list"></div>
-                <button class="btn-primary" style="background:#f0f0f0; color:#000;" onclick="addMenuItem('header')">+ Ajouter</button>
-                <h3 style="margin-top:30px;">Footer</h3>
-                <div id="footer-list"></div>
-                <button class="btn-primary" style="background:#f0f0f0; color:#000;" onclick="addMenuItem('footer')">+ Ajouter</button>
-                <button class="btn-primary" onclick="saveNavigation()" style="display:block; width:100%; margin-top:30px;">Sauvegarder les menus</button>
-            </div>
-        </section>
+            <section id="mod-navigation" class="module hidden">
+                <div class="module-header"><h2>Menus</h2></div>
+                <div class="card">
+                    <h3>Header</h3>
+                    <div id="header-list" style="display:grid; gap:10px;"></div>
+                    <button class="btn-primary" style="background:#f0f0f0; color:#000;" onclick="addMenuItem('header')">+ Ajouter</button>
+                    <button class="btn-primary" onclick="saveNavigation()" style="display:block; width:100%; margin-top:20px;">Sauvegarder les menus</button>
+                </div>
+            </section>
+        </main>
 
-        <section id="mod-cours" class="module hidden">
-            <div class="module-header"><h2>Espace Cours</h2></div>
-            <div id="courses-list" style="margin-bottom:20px;"></div>
-            <button class="btn-primary" onclick="createNewCourse()">+ Créer un nouveau cours</button>
-        </section>
-
-        <section id="mod-rdv" class="module hidden">
-            <div class="module-header"><h2>Page Rendez-vous</h2></div>
-            <div class="card">
-                <label>Lien de réservation (Calendly, etc.)</label>
-                <input type="text" id="rdv-url" placeholder="https://calendly.com/votre-nom">
-                <label>Libellé du bouton</label>
-                <input type="text" id="rdv-text" placeholder="Réserver un créneau">
-                <button class="btn-primary" onclick="saveRDV()">Enregistrer</button>
-            </div>
-        </section>
-    </main>
+        <aside class="preview-side">
+            <div class="preview-header">📱 APERÇU EN DIRECT (MOBILE)</div>
+            <iframe id="site-preview" src="about:blank"></iframe>
+        </aside>
+    </div>
 
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -108,24 +100,24 @@
 
     let profileData = null;
 
-    // --- INITIALISATION ---
     async function init() {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
 
         const { data, error } = await supabase
             .from('profiles')
-            .select('*, courses(*)')
+            .select('*')
             .eq('id', session.user.id)
             .single();
 
         if (error) {
-            document.getElementById('loader').innerHTML = `<p style="color:red; padding:20px; text-align:center;">Erreur : Profil introuvable. Avez-vous mis à jour l'ID dans Supabase ?<br><br>Votre ID : <b>${session.user.id}</b></p>`;
+            document.getElementById('loader').innerHTML = `<p style="color:red;">Erreur : Profil introuvable. ID : ${session.user.id}</p>`;
             return;
         }
 
         profileData = data;
         fillForms();
+        refreshPreview();
         document.getElementById('loader').classList.add('hidden');
     }
 
@@ -133,96 +125,35 @@
         document.getElementById('field-name').value = profileData.name || '';
         document.getElementById('field-bio').value = profileData.bio || '';
         document.getElementById('preview-img').src = profileData.image_url || '';
-        document.getElementById('rdv-url').value = profileData.appointment_settings?.url || '';
-        document.getElementById('rdv-text').value = profileData.appointment_settings?.text || '';
         renderMenuItems('header', profileData.header_menu || []);
-        renderMenuItems('footer', profileData.footer_menu || []);
-        renderCourses();
     }
 
-    // --- NAVIGATION ADMIN ---
+    // Rafraîchir l'Iframe
+    function refreshPreview() {
+        const iframe = document.getElementById('site-preview');
+        // On force le rafraîchissement avec un paramètre aléatoire pour éviter le cache
+        const publicUrl = `https://corpusdigitalis.github.io/copie-tristan-sans-java/index.html?prof=${profileData.slug}&t=${Date.now()}`;
+        iframe.src = publicUrl;
+    }
+
+    window.saveProfil = async () => {
+        showStatus("Enregistrement...", "#333");
+        const { error } = await supabase.from('profiles').update({
+            name: document.getElementById('field-name').value,
+            bio: document.getElementById('field-bio').value
+        }).eq('id', profileData.id);
+        
+        if (!error) {
+            showStatus("Succès !", "green");
+            refreshPreview(); // On rafraîchit l'aperçu pour voir le changement
+        }
+    }
+
     window.switchModule = (id) => {
         document.querySelectorAll('.module').forEach(m => m.classList.add('hidden'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         document.getElementById('mod-' + id).classList.remove('hidden');
         event.currentTarget.classList.add('active');
-    }
-
-    // --- GESTION DES MENUS (JSONB) ---
-    window.renderMenuItems = (type, items) => {
-        const container = document.getElementById(type + '-list');
-        container.innerHTML = items.map((item, i) => `
-            <div class="menu-row">
-                <input type="text" value="${item.text}" onchange="updateMenuVal('${type}', ${i}, 'text', this.value)">
-                <input type="text" value="${item.link}" onchange="updateMenuVal('${type}', ${i}, 'link', this.value)">
-                <button onclick="removeMenu('${type}', ${i})" style="border:none; background:none; cursor:pointer;">❌</button>
-            </div>`).join('');
-    }
-
-    window.addMenuItem = (type) => {
-        profileData[type + '_menu'] = [...(profileData[type + '_menu'] || []), {text: 'Lien', link: '#'}];
-        renderMenuItems(type, profileData[type + '_menu']);
-    }
-
-    window.updateMenuVal = (type, i, key, val) => profileData[type + '_menu'][i][key] = val;
-
-    window.removeMenu = (type, i) => {
-        profileData[type + '_menu'].splice(i, 1);
-        renderMenuItems(type, profileData[type + '_menu']);
-    }
-
-    // --- UPLOADS ---
-    window.handleFileUpload = async (type) => {
-        const file = document.getElementById('upload-avatar').files[0];
-        if (!file) return;
-
-        showStatus("Envoi du fichier...", "#1a1a1a");
-        const path = `${profileData.id}/avatar-${Date.now()}.${file.name.split('.').pop()}`;
-        
-        const { error: upError } = await supabase.storage.from('avatars').upload(path, file);
-        if (!upError) {
-            const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-            await supabase.from('profiles').update({ image_url: data.publicUrl }).eq('id', profileData.id);
-            document.getElementById('preview-img').src = data.publicUrl;
-            showStatus("Succès !", "green");
-        }
-    }
-
-    // --- COURS ---
-    window.renderCourses = () => {
-        const list = document.getElementById('courses-list');
-        list.innerHTML = (profileData.courses || []).map(c => `<div class="card"><b>${c.title}</b></div>`).join('');
-    }
-
-    window.createNewCourse = async () => {
-        const t = prompt("Titre du cours ?");
-        if (t) {
-            await supabase.from('courses').insert([{ prof_id: profileData.id, title: t }]);
-            location.reload();
-        }
-    }
-
-    // --- SAUVEGARDES ---
-    window.saveProfil = async () => {
-        const { error } = await supabase.from('profiles').update({
-            name: document.getElementById('field-name').value,
-            bio: document.getElementById('field-bio').value
-        }).eq('id', profileData.id);
-        showStatus(error ? "Erreur" : "Profil sauvegardé !", error ? "red" : "green");
-    }
-
-    window.saveNavigation = async () => {
-        const { error } = await supabase.from('profiles').update({
-            header_menu: profileData.header_menu,
-            footer_menu: profileData.footer_menu
-        }).eq('id', profileData.id);
-        showStatus(error ? "Erreur" : "Navigation sauvegardée !", error ? "red" : "green");
-    }
-
-    window.saveRDV = async () => {
-        const settings = { url: document.getElementById('rdv-url').value, text: document.getElementById('rdv-text').value };
-        const { error } = await supabase.from('profiles').update({ appointment_settings: settings }).eq('id', profileData.id);
-        showStatus(error ? "Erreur" : "RDV sauvegardé !", error ? "red" : "green");
     }
 
     function showStatus(msg, color) {
