@@ -1,209 +1,150 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Console Admin - Corpus Digitalis</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Publications - Tristan Arbona</title>
+    <link href="https://fonts.googleapis.com/css2?family=Alata&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f8f9fa; --card: #ffffff; --text: #1a1a1a; --accent: #000000; --border: #ececec; --danger: #ff4444; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        /* Styles de Navigation Dynamique (Cohérence Site) */
+        .dynamic-nav { display: flex; gap: 25px; list-style: none; padding: 0; margin: 0; }
+        .dynamic-nav a { text-decoration: none; color: inherit; font-weight: 500; }
+        header, footer { padding: 30px 5%; display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
 
-        /* --- SIDEBAR NAVIGATION --- */
-        nav { width: 260px; background: var(--card); border-right: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 1000; }
-        .logo { font-weight: 800; font-size: 1.1rem; margin-bottom: 40px; letter-spacing: -0.5px; }
-        .nav-item { padding: 12px 15px; margin-bottom: 5px; cursor: pointer; border-radius: 8px; font-weight: 500; color: #666; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
-        .nav-item:hover { background: #f0f0f0; color: var(--text); }
-        .nav-item.active { background: var(--accent); color: white; }
-        .logout-btn { margin-top: auto; color: var(--danger); font-weight: 600; cursor: pointer; border: none; background: none; text-align: left; padding: 10px; }
-
-        /* --- MAIN LAYOUT (SPLIT VIEW) --- */
-        .admin-layout { display: flex; flex: 1; overflow: hidden; }
-        .editor-side { flex: 1; padding: 40px; overflow-y: auto; border-right: 1px solid var(--border); }
-        .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .module-header h2 { font-size: 1.8rem; margin: 0; font-weight: 700; }
+        .container { max-width: 900px; margin: 3rem auto; padding: 0 1rem; }
+        h1 { text-align: center; margin-bottom: 1rem; font-size: 2.5rem; font-weight: 700; }
+        .intro-text { text-align: center; margin-bottom: 3rem; color: #666; }
         
-        /* Live Preview Panel */
-        .preview-side { width: 420px; background: #333; display: flex; flex-direction: column; flex-shrink: 0; }
-        .preview-toolbar { background: #222; color: #aaa; padding: 10px; font-size: 0.7rem; text-align: center; font-weight: 600; text-transform: uppercase; }
-        #site-preview { flex: 1; border: none; width: 100%; background: white; }
+        /* Style des catégories */
+        .categorie-title {
+            font-size: 1.2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
 
-        /* --- CARDS & FORMS --- */
-        .card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 20px; }
-        label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #999; margin-top: 15px; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
-        .btn-primary { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        
-        /* Utils */
-        .hidden { display: none !important; }
-        #loader { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; font-weight: 600; }
-        #status-msg { position: fixed; bottom: 20px; left: 20px; padding: 12px 20px; border-radius: 8px; color: white; z-index: 10000; font-size: 0.9rem; font-weight: 600; }
-        .menu-row { display: flex; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; }
+        .publication-item {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            margin-bottom: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid #f5f5f5;
+            transition: transform 0.2s;
+        }
+        .publication-item:hover { transform: translateY(-2px); }
+        .publication-item span { flex: 1; min-width: 250px; color: #1a1a1a; line-height: 1.5; font-weight: 500; }
+        .publication-item a { text-decoration: none; color: #000; font-weight: 700; margin-left: 1.5rem; padding: 8px 16px; border: 1px solid #eee; border-radius: 6px; font-size: 0.9rem; transition: 0.2s; }
+        .publication-item a:hover { background: #000; color: #fff; border-color: #000; }
 
-        @media (max-width: 1150px) { .preview-side { display: none; } }
+        .empty-msg { text-align: center; color: #888; font-style: italic; margin-top: 4rem; }
     </style>
 </head>
 <body>
 
-    <div id="loader">Chargement de votre console...</div>
-    <div id="status-msg" class="hidden"></div>
+    <header>
+        <div class="logo" style="font-weight: 800;"><span class="site-name-display">CHARGEMENT...</span></div>
+        <nav><ul id="header-menu" class="dynamic-nav"></ul></nav>
+    </header>
 
-    <nav>
-        <div class="logo">CORPUS DIGITALIS</div>
-        <div class="nav-item active" onclick="switchModule('profil')">👤 Profil</div>
-        <div class="nav-item" onclick="switchModule('navigation')">🔗 Menus</div>
-        <div class="nav-item" onclick="switchModule('bibliotheque')">📚 Bibliothèque</div>
-        <div class="nav-item" onclick="switchModule('cours')">🎓 Cours</div>
-        <div class="nav-item" onclick="switchModule('rdv')">📅 RDV</div>
-        <button class="logout-btn" onclick="handleLogout()">Quitter</button>
-    </nav>
-
-    <div class="admin-layout">
-        <main class="editor-side">
-            <section id="mod-profil" class="module">
-                <div class="module-header"><h2>Identité</h2></div>
-                <div class="card">
-                    <label>Photo de profil</label>
-                    <div style="display:flex; gap:20px; align-items:center; margin-bottom:10px;">
-                        <img id="preview-img" style="width:75px; height:75px; border-radius:50%; object-fit:cover; background:#eee;">
-                        <input type="file" id="upload-avatar" accept="image/*" onchange="handleFileUpload()">
-                    </div>
-                    <label>Nom complet</label>
-                    <input type="text" id="field-name">
-                    <label>Biographie</label>
-                    <textarea id="field-bio"></textarea>
-                    <button class="btn-primary" onclick="saveProfil()">Enregistrer les infos</button>
-                </div>
-            </section>
-
-            <section id="mod-bibliotheque" class="module hidden">
-                <div class="module-header">
-                    <h2>Bibliothèque / Publications</h2>
-                    <button class="btn-primary" style="width:auto; margin:0;" onclick="addPublication()">+ Ajouter</button>
-                </div>
-                <div id="pubs-list"></div>
-            </section>
-
-            <section id="mod-navigation" class="module hidden">
-                <div class="module-header"><h2>Menus Navigation</h2></div>
-                <div class="card">
-                    <label>Header</label>
-                    <div id="header-list"></div>
-                    <button class="btn-primary" style="background:#f0f0f0; color:#000;" onclick="addMenuItem('header')">+ Ajouter lien</button>
-                    <button class="btn-primary" onclick="saveNavigation()" style="width:100%; margin-top:30px;">Publier les menus</button>
-                </div>
-            </section>
-            
-            <section id="mod-cours" class="module hidden">
-                <div class="module-header"><h2>Espace Cours</h2></div>
-                <div id="courses-list"></div>
-                <button class="btn-primary" onclick="createNewCourse()">+ Créer un cours</button>
-            </section>
-        </main>
-
-        <aside class="preview-side">
-            <div class="preview-toolbar">Aperçu en direct</div>
-            <iframe id="site-preview" src="about:blank"></iframe>
-        </aside>
+    <div class="container">
+        <h1 id="titre-publications">Publications</h1>
+        <p class="intro-text">Voici une sélection de mes travaux et articles publiés.</p>
+        
+        <div id="publications-container">
+            <p class="empty-msg">Chargement des travaux en cours...</p>
+        </div>
     </div>
 
-<script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+    <footer>
+        <p>© <span id="current-year"></span> <span class="site-name-display"></span></p>
+        <nav><ul id="footer-menu" class="dynamic-nav"></ul></nav>
+    </footer>
 
+<script type="module">
+    // Configuration Supabase
     const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let profileData = null;
+    const slug = "tristan";
 
-    async function init() {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) { window.location.href = 'login.html'; return; }
+    async function initPublications() {
+        // 1. Récupération des données Profil + Publications
+        const { data: prof, error } = await supabaseClient
+            .from('profiles')
+            .select('*, publications(*)')
+            .eq('slug', slug)
+            .single();
 
-        const { data, error } = await supabase.from('profiles').select('*, courses(*), publications(*)').eq('id', session.user.id).single();
-        if (error) { document.getElementById('loader').innerText = "Erreur profil"; return; }
+        if (error || !prof) {
+            document.getElementById('publications-container').innerHTML = "<p class='empty-msg'>Erreur de chargement.</p>";
+            return;
+        }
 
-        profileData = data;
-        fillForms();
-        loadPublications();
-        refreshPreview();
-        document.getElementById('loader').classList.add('hidden');
-    }
+        // 2. Mise à jour Identité/Menus
+        document.querySelectorAll('.site-name-display').forEach(el => el.innerText = prof.name);
+        document.getElementById('current-year').innerText = new Date().getFullYear();
+        renderMenu('header-menu', prof.header_menu);
+        renderMenu('footer-menu', prof.footer_menu);
 
-    function fillForms() {
-        document.getElementById('field-name').value = profileData.name || '';
-        document.getElementById('field-bio').value = profileData.bio || '';
-        document.getElementById('preview-img').src = profileData.image_url || '';
-        renderMenuItems('header', profileData.header_menu || []);
-    }
+        // 3. Traitement des publications par catégories
+        const container = document.getElementById('publications-container');
+        const publications = prof.publications || [];
 
-    // --- GESTION PUBLICATIONS ---
-    window.loadPublications = () => {
-        const container = document.getElementById('pubs-list');
-        const pubs = profileData.publications || [];
-        container.innerHTML = pubs.map(p => `
-            <div class="card" style="margin-bottom:10px; display:flex; gap:10px; align-items:center;">
-                <div style="flex:1">
-                    <input type="text" value="${p.texte}" onchange="updatePub('${p.id}', 'texte', this.value)" placeholder="Référence bibliographique">
-                    <div style="display:flex; gap:10px; margin-top:5px;">
-                        <input type="text" value="${p.categorie}" onchange="updatePub('${p.id}', 'categorie', this.value)" placeholder="Catégorie">
-                        <input type="text" value="${p.lien || ''}" onchange="updatePub('${p.id}', 'lien', this.value)" placeholder="Lien PDF">
-                    </div>
-                </div>
-                <button onclick="deletePub('${p.id}')" style="background:none; border:none; cursor:pointer;">❌</button>
-            </div>
-        `).join('');
-    }
+        if (publications.length === 0) {
+            container.innerHTML = "<p class='empty-msg'>Aucune publication répertoriée pour le moment.</p>";
+            return;
+        }
 
-    window.addPublication = async () => {
-        const { data } = await supabase.from('publications').insert([{ prof_id: profileData.id, texte: 'Nouvelle publication', categorie: 'Articles' }]).select();
-        profileData.publications.push(data[0]);
-        loadPublications();
-    }
+        // Groupement par catégorie
+        const groupes = publications.reduce((acc, pub) => {
+            const cat = pub.categorie || "Autres";
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(pub);
+            return acc;
+        }, {});
 
-    window.updatePub = async (id, field, val) => {
-        const up = {}; up[field] = val;
-        await supabase.from('publications').update(up).eq('id', id);
-        showStatus("Modifié", "gray");
-    }
+        container.innerHTML = ""; // Vider le loader
 
-    window.deletePub = async (id) => {
-        if(confirm("Supprimer ?")) {
-            await supabase.from('publications').delete().eq('id', id);
-            profileData.publications = profileData.publications.filter(p => p.id !== id);
-            loadPublications();
+        // Rendu HTML
+        for (const [categorie, items] of Object.entries(groupes)) {
+            const titreCat = document.createElement('h2');
+            titreCat.className = 'categorie-title';
+            titreCat.textContent = categorie;
+            container.appendChild(titreCat);
+
+            items.forEach(pub => {
+                const div = document.createElement('div');
+                div.className = 'publication-item';
+                const label = pub.texte_lien || "Consulter";
+                div.innerHTML = `
+                    <span>${pub.texte}</span>
+                    <a href="${pub.lien || '#'}" target="_blank">${label}</a>
+                `;
+                container.appendChild(div);
+            });
         }
     }
 
-    // --- LOGIQUE COMMUNE ---
-    function refreshPreview() {
-        document.getElementById('site-preview').src = `https://corpusdigitalis.github.io/copie-tristan-sans-java/index.html?prof=${profileData.slug}&t=${Date.now()}`;
+    function renderMenu(id, items) {
+        const list = document.getElementById(id);
+        if (items) list.innerHTML = items.map(i => `<li><a href="${i.link}">${i.text}</a></li>`).join('');
     }
 
-    window.switchModule = (id) => {
-        document.querySelectorAll('.module').forEach(m => m.classList.add('hidden'));
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        document.getElementById('mod-' + id).classList.remove('hidden');
-        event.currentTarget.classList.add('active');
-    }
-
-    window.saveProfil = async () => {
-        await supabase.from('profiles').update({ name: document.getElementById('field-name').value, bio: document.getElementById('field-bio').value }).eq('id', profileData.id);
-        showStatus("Profil enregistré", "green");
-        refreshPreview();
-    }
-
-    function showStatus(msg, color) {
-        const el = document.getElementById('status-msg');
-        el.innerText = msg; el.style.background = color;
-        el.classList.remove('hidden');
-        setTimeout(() => el.classList.add('hidden'), 2500);
-    }
-
-    window.handleLogout = async () => { await supabase.auth.signOut(); window.location.href = 'login.html'; }
-
-    init();
+    initPublications();
 </script>
+    
 </body>
 </html>
