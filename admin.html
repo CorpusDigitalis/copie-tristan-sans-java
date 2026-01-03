@@ -4,47 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Console Admin - Corpus Digitalis</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #fdfdfd; --text: #1a1a1a; --border: #e0e0e0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .admin-wrapper { max-width: 900px; margin: 40px auto; }
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--text); padding-bottom: 20px; margin-bottom: 40px; }
-        .card { background: white; border: 1px solid var(--border); padding: 30px; border-radius: 4px; margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem; margin-bottom: 20px; box-sizing: border-box; }
-        textarea { height: 120px; resize: vertical; }
-        .btn-save { background: #1a1a1a; color: white; border: none; padding: 15px 30px; cursor: pointer; font-weight: bold; border-radius: 4px; transition: opacity 0.2s; }
-        .btn-save:hover { opacity: 0.8; }
-        #status-msg { margin-top: 20px; font-weight: bold; }
-        .logout { background: none; border: 1px solid #ff4444; color: #ff4444; padding: 8px 15px; cursor: pointer; border-radius: 4px; }
+        :root { --bg: #f8f9fa; --card: #ffffff; --text: #1a1a1a; --accent: #000000; --border: #ececec; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar Navigation */
+        nav { width: 280px; background: var(--card); border-right: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; }
+        .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; margin-bottom: 40px; }
+        .nav-item { padding: 12px 15px; margin-bottom: 8px; cursor: pointer; border-radius: 8px; font-weight: 500; transition: 0.2s; color: #666; display: flex; align-items: center; }
+        .nav-item:hover { background: #f0f0f0; color: var(--text); }
+        .nav-item.active { background: var(--accent); color: white; }
+        .logout-btn { margin-top: auto; color: #ff4444; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+
+        /* Main Content */
+        main { flex: 1; padding: 50px; overflow-y: auto; background: var(--bg); }
+        .module-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
+        .module-header h2 { margin: 0; font-size: 2rem; font-weight: 700; }
+        
+        /* Cards & Forms */
+        .card { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); max-width: 800px; }
+        label { display: block; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: #888; margin-top: 20px; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; box-sizing: border-box; font-family: inherit; }
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 30px; width: 100%; transition: 0.3s; }
+        .btn-primary:hover { opacity: 0.8; transform: translateY(-1px); }
+
+        /* Grid for Cards in Modules */
+        .grid-items { display: grid; gap: 15px; margin-top: 10px; }
+        .menu-row { display: flex; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 8px; align-items: center; }
+        
+        /* Glassmorphism Loader */
+        #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 1000; font-weight: 600; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div class="admin-wrapper">
-    <header>
-        <h1>CONSOLE ÉDITION</h1>
-        <button onclick="logout()" class="logout">DÉCONNEXION</button>
-    </header>
+    <div id="loader">Initialisation du SaaS...</div>
 
-    <div id="loader">Chargement de vos données...</div>
+    <nav>
+        <div class="logo">CORPUS DIGITALIS</div>
+        <div class="nav-item active" onclick="switchModule('profil')">👤 Identité</div>
+        <div class="nav-item" onclick="switchModule('navigation')">🔗 Navigation</div>
+        <div class="nav-item" onclick="switchModule('travaux')">📚 Bibliothèque</div>
+        <div class="nav-item" onclick="switchModule('cours')">🎓 Espace Cours</div>
+        <div class="nav-item" onclick="switchModule('rdv')">📅 Rendez-vous</div>
+        <div class="nav-item" onclick="switchModule('apparence')">🎨 Apparence</div>
+        
+        <div class="logout-btn" onclick="handleLogout()">DÉCONNEXION</div>
+    </nav>
 
-    <div id="editor" class="hidden" style="display:none;">
-        <div class="card">
-            <label>Nom complet</label>
-            <input type="text" id="prof-name">
+    <main>
+        <section id="mod-profil" class="module">
+            <div class="module-header">
+                <div>
+                    <h2>Identité</h2>
+                    <p>Gérez votre image et votre présentation publique.</p>
+                </div>
+                <button class="btn-primary" style="width:auto; margin:0;" onclick="saveProfil()">Enregistrer</button>
+            </div>
+            <div class="card">
+                <label>Photo de profil</label>
+                <div style="display:flex; gap:20px; align-items:center;">
+                    <img id="preview-img" src="" style="width:80px; height:80px; border-radius:50%; object-fit:cover; background:#eee;">
+                    <input type="file" id="upload-avatar" accept="image/*" onchange="previewFile('avatar')">
+                </div>
+                <label>Nom complet</label>
+                <input type="text" id="field-name" placeholder="Ex: Tristan Arbona">
+                <label>Biographie</label>
+                <textarea id="field-bio" placeholder="Parlez de votre parcours..."></textarea>
+            </div>
+        </section>
 
-            <label>Image de profil (URL)</label>
-            <input type="text" id="prof-image">
+        <section id="mod-navigation" class="module hidden">
+            <div class="module-header">
+                <h2>Menus Navigation</h2>
+                <button class="btn-primary" style="width:auto; margin:0;" onclick="saveNavigation()">Enregistrer les menus</button>
+            </div>
+            <div class="card">
+                <h3>Header (Haut de page)</h3>
+                <div id="header-list" class="grid-items"></div>
+                <button class="btn-primary" style="background:#eee; color:#000;" onclick="addMenuItem('header')">+ Ajouter un bouton</button>
+                
+                <h3 style="margin-top:40px;">Footer (Bas de page)</h3>
+                <div id="footer-list" class="grid-items"></div>
+                <button class="btn-primary" style="background:#eee; color:#000;" onclick="addMenuItem('footer')">+ Ajouter un bouton</button>
+            </div>
+        </section>
 
-            <label>Bio / Description</label>
-            <textarea id="prof-bio"></textarea>
-
-            <button class="btn-save" onclick="saveData()">ENREGISTRER LES MODIFICATIONS</button>
-            <div id="status-msg"></div>
-        </div>
-    </div>
-</div>
+        <section id="mod-cours" class="module hidden">
+            <div class="module-header"><h2>Espace Cours</h2></div>
+            <div class="card"><p>Le gestionnaire de chapitres (LMS) est en cours de liaison avec vos tables Supabase.</p></div>
+        </section>
+    </main>
 
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -53,60 +106,89 @@
     const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let userSession = null;
+    let profileData = null;
 
-    async function initAdmin() {
+    // 1. Initialisation & Sécurité
+    async function init() {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
-        userSession = session;
 
-        // Charger les données actuelles depuis la table profiles
         const { data, error } = await supabase
             .from('profiles')
-            .select('*')
+            .select('*, publications(*), interventions(*), courses(*)')
             .eq('id', session.user.id)
             .single();
 
-        if (data) {
-            document.getElementById('prof-name').value = data.name || '';
-            document.getElementById('prof-image').value = data.image_url || '';
-            document.getElementById('prof-bio').value = data.bio || '';
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('editor').style.display = 'block';
-        }
+        if (error) { console.error(error); return; }
+        profileData = data;
+        fillForms();
+        document.getElementById('loader').classList.add('hidden');
     }
 
-    window.saveData = async () => {
-        const status = document.getElementById('status-msg');
-        status.innerText = "Mise à jour...";
+    // 2. Remplissage des formulaires
+    function fillForms() {
+        document.getElementById('field-name').value = profileData.name || '';
+        document.getElementById('field-bio').value = profileData.bio || '';
+        document.getElementById('preview-img').src = profileData.image_url || '';
         
-        const updates = {
-            name: document.getElementById('prof-name').value,
-            image_url: document.getElementById('prof-image').value,
-            bio: document.getElementById('prof-bio').value,
-            updated_at: new Date()
-        };
-
-        const { error } = await supabase
-            .from('profiles')
-            .update(updates)
-            .eq('id', userSession.user.id);
-
-        if (error) {
-            status.innerText = "Erreur : " + error.message;
-            status.style.color = "red";
-        } else {
-            status.innerText = "✅ Site mis à jour avec succès !";
-            status.style.color = "green";
-        }
+        renderMenuItems('header', profileData.header_menu || []);
+        renderMenuItems('footer', profileData.footer_menu || []);
     }
 
-    window.logout = async () => {
+    // 3. Gestion de la Navigation interne
+    window.switchModule = (modId) => {
+        document.querySelectorAll('.module').forEach(m => m.classList.add('hidden'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById('mod-' + modId).classList.remove('hidden');
+        event.currentTarget.classList.add('active');
+    }
+
+    // 4. Gestion des Menus (JSONB)
+    window.renderMenuItems = (type, items) => {
+        const container = document.getElementById(type + '-list');
+        container.innerHTML = '';
+        items.forEach((item, index) => {
+            container.innerHTML += `
+                <div class="menu-row">
+                    <input type="text" value="${item.text}" placeholder="Texte" onchange="updateMenu('${type}', ${index}, 'text', this.value)">
+                    <input type="text" value="${item.link}" placeholder="Lien (ex: #cours)" onchange="updateMenu('${type}', ${index}, 'link', this.value)">
+                    <button onclick="removeMenuItem('${type}', ${index})" style="background:none; border:none; cursor:pointer;">❌</button>
+                </div>`;
+        });
+    }
+
+    window.addMenuItem = (type) => {
+        const key = type + '_menu';
+        profileData[key] = [...(profileData[key] || []), { text: 'Nouveau', link: '#' }];
+        renderMenuItems(type, profileData[key]);
+    }
+
+    window.updateMenu = (type, index, field, value) => {
+        profileData[type + '_menu'][index][field] = value;
+    }
+
+    window.saveNavigation = async () => {
+        const { error } = await supabase.from('profiles').update({
+            header_menu: profileData.header_menu,
+            footer_menu: profileData.footer_menu
+        }).eq('id', profileData.id);
+        alert(error ? "Erreur" : "Menus mis à jour !");
+    }
+
+    window.saveProfil = async () => {
+        const { error } = await supabase.from('profiles').update({
+            name: document.getElementById('field-name').value,
+            bio: document.getElementById('field-bio').value
+        }).eq('id', profileData.id);
+        alert(error ? "Erreur" : "Profil mis à jour !");
+    }
+
+    window.handleLogout = async () => {
         await supabase.auth.signOut();
         window.location.href = 'login.html';
     }
 
-    initAdmin();
+    init();
 </script>
 </body>
 </html>
