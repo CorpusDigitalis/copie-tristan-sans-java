@@ -1,139 +1,150 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Publications</title>
-  <link href="https://fonts.googleapis.com/css2?family=Alata&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    .container {
-      max-width: 900px;
-      margin: 3rem auto;
-      padding: 0 1rem;
-    }
-    h1 { text-align: center; margin-bottom: 1rem; font-size: 2rem; }
-    .intro-text { text-align: center; margin-bottom: 3rem; }
-    
-    /* Style des catégories */
-    .categorie-title {
-      font-size: 1.5rem;
-      margin-top: 2.5rem;
-      margin-bottom: 1rem;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 0.5rem;
-      color: #1f1f1f;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Publications - Tristan Arbona</title>
+    <link href="https://fonts.googleapis.com/css2?family=Alata&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Styles de Navigation Dynamique (Cohérence Site) */
+        .dynamic-nav { display: flex; gap: 25px; list-style: none; padding: 0; margin: 0; }
+        .dynamic-nav a { text-decoration: none; color: inherit; font-weight: 500; }
+        header, footer { padding: 30px 5%; display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
 
-    .publication-item {
-      background-color: #ffffff;
-      border-radius: 12px;
-      padding: 1.2rem 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      margin-bottom: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .publication-item span { flex: 1; min-width: 200px; color: #1f1f1f; }
-    .publication-item a { text-decoration: none; color: #0077cc; font-weight: bold; margin-left: 1rem; }
-    .publication-item a:hover { color: #005999; }
-  </style>
+        .container { max-width: 900px; margin: 3rem auto; padding: 0 1rem; }
+        h1 { text-align: center; margin-bottom: 1rem; font-size: 2.5rem; font-weight: 700; }
+        .intro-text { text-align: center; margin-bottom: 3rem; color: #666; }
+        
+        /* Style des catégories */
+        .categorie-title {
+            font-size: 1.2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
+
+        .publication-item {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            margin-bottom: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid #f5f5f5;
+            transition: transform 0.2s;
+        }
+        .publication-item:hover { transform: translateY(-2px); }
+        .publication-item span { flex: 1; min-width: 250px; color: #1a1a1a; line-height: 1.5; font-weight: 500; }
+        .publication-item a { text-decoration: none; color: #000; font-weight: 700; margin-left: 1.5rem; padding: 8px 16px; border: 1px solid #eee; border-radius: 6px; font-size: 0.9rem; transition: 0.2s; }
+        .publication-item a:hover { background: #000; color: #fff; border-color: #000; }
+
+        .empty-msg { text-align: center; color: #888; font-style: italic; margin-top: 4rem; }
+    </style>
 </head>
-<body style="outline: none;">
+<body>
 
-  <div id="header-placeholder"></div>
+    <header>
+        <div class="logo" style="font-weight: 800;"><span class="site-name-display">CHARGEMENT...</span></div>
+        <nav><ul id="header-menu" class="dynamic-nav"></ul></nav>
+    </header>
 
-  <div class="container">
-    <h1 id="titre-publications">Publications</h1>
-    <p class="intro-text">Voici une sélection de mes travaux publiés.</p>
-    
-    <div id="publications-container"></div>
-  </div>
+    <div class="container">
+        <h1 id="titre-publications">Publications</h1>
+        <p class="intro-text">Voici une sélection de mes travaux et articles publiés.</p>
+        
+        <div id="publications-container">
+            <p class="empty-msg">Chargement des travaux en cours...</p>
+        </div>
+    </div>
 
-  <div id="footer-placeholder"></div>
+    <footer>
+        <p>© <span id="current-year"></span> <span class="site-name-display"></span></p>
+        <nav><ul id="footer-menu" class="dynamic-nav"></ul></nav>
+    </footer>
 
 <script type="module">
-  // On importe la connexion
-  import { getSiteData } from './api.js';
-  console.log("1. Script chargé et api.js importé"); // TEST 1
+    // Configuration Supabase
+    const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // Fonction de chargement
-  function loadHTML(id, url) {
-    console.log("2. Tentative de chargement de :", url); // TEST 2
-    fetch(url)
-      .then(r => {
-        if (!r.ok) throw new Error("Fichier introuvable : " + url);
-        return r.text();
-      })
-      .then(html => {
-        document.getElementById(id).innerHTML = html;
-        console.log("3. Succès :", url, "injecté"); // TEST 3
-        
-        // Relance les scripts pour le menu
-        const el = document.getElementById(id);
-        el.querySelectorAll('script').forEach(oldScript => {
-          const newScript = document.createElement('script');
-          Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-          newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-          oldScript.parentNode.replaceChild(newScript, oldScript);
-        });
-      })
-      .catch(err => console.error("ERREUR CHARGEMENT HTML :", err));
-  }
+    const slug = "tristan";
 
-  // Lancement du chargement
-  loadHTML('header-placeholder', 'header.html');
-  loadHTML('footer-placeholder', 'footer.html');
+    async function initPublications() {
+        // 1. Récupération des données Profil + Publications
+        const { data: prof, error } = await supabaseClient
+            .from('profiles')
+            .select('*, publications(*)')
+            .eq('slug', slug)
+            .single();
 
-  // Récupération des données Supabase
-  getSiteData().then(prof => {
-    console.log("4. Données reçues de Supabase :", prof); // TEST 4 (CRUCIAL)
+        if (error || !prof) {
+            document.getElementById('publications-container').innerHTML = "<p class='empty-msg'>Erreur de chargement.</p>";
+            return;
+        }
 
-    if (!prof) {
-      console.error("5. AUCUN PROFIL TROUVÉ. Vérifie le SLUG.");
-      return;
+        // 2. Mise à jour Identité/Menus
+        document.querySelectorAll('.site-name-display').forEach(el => el.innerText = prof.name);
+        document.getElementById('current-year').innerText = new Date().getFullYear();
+        renderMenu('header-menu', prof.header_menu);
+        renderMenu('footer-menu', prof.footer_menu);
+
+        // 3. Traitement des publications par catégories
+        const container = document.getElementById('publications-container');
+        const publications = prof.publications || [];
+
+        if (publications.length === 0) {
+            container.innerHTML = "<p class='empty-msg'>Aucune publication répertoriée pour le moment.</p>";
+            return;
+        }
+
+        // Groupement par catégorie
+        const groupes = publications.reduce((acc, pub) => {
+            const cat = pub.categorie || "Autres";
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(pub);
+            return acc;
+        }, {});
+
+        container.innerHTML = ""; // Vider le loader
+
+        // Rendu HTML
+        for (const [categorie, items] of Object.entries(groupes)) {
+            const titreCat = document.createElement('h2');
+            titreCat.className = 'categorie-title';
+            titreCat.textContent = categorie;
+            container.appendChild(titreCat);
+
+            items.forEach(pub => {
+                const div = document.createElement('div');
+                div.className = 'publication-item';
+                const label = pub.texte_lien || "Consulter";
+                div.innerHTML = `
+                    <span>${pub.texte}</span>
+                    <a href="${pub.lien || '#'}" target="_blank">${label}</a>
+                `;
+                container.appendChild(div);
+            });
+        }
     }
 
-    const container = document.getElementById('publications-container');
-    const publications = prof.publications || [];
-    console.log("6. Nombre de publications trouvées :", publications.length);
-
-    if (publications.length === 0) {
-      container.innerHTML = "<p>Aucune publication trouvée. Vérifie le prof_id dans Supabase.</p>";
-      return;
+    function renderMenu(id, items) {
+        const list = document.getElementById(id);
+        if (items) list.innerHTML = items.map(i => `<li><a href="${i.link}">${i.text}</a></li>`).join('');
     }
 
-    // (Reste de ta logique de tri par catégorie...)
-    const groupes = {};
-    publications.forEach(pub => {
-      const cat = pub.categorie || "Autres";
-      if (!groupes[cat]) groupes[cat] = [];
-      groupes[cat].push(pub);
-    });
-
-    container.innerHTML = "";
-    for (const [categorie, items] of Object.entries(groupes)) {
-      const titreCat = document.createElement('h2');
-      titreCat.className = 'categorie-title';
-      titreCat.textContent = categorie;
-      container.appendChild(titreCat);
-
-      items.forEach(pub => {
-        const div = document.createElement('div');
-        div.className = 'publication-item';
-        // Utilise texteLien comme défini dans ton config.yml
-        const btnLabel = pub.texteLien || pub.texte_lien || "Voir";
-        div.innerHTML = `
-          <span>${pub.texte}</span>
-          <a href="${pub.lien || '#'}" target="_blank">${btnLabel}</a>
-        `;
-        container.appendChild(div);
-      });
-    }
-  }).catch(err => console.error("ERREUR SUPABASE :", err));
+    initPublications();
 </script>
-  
+    
 </body>
 </html>
