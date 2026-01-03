@@ -189,6 +189,47 @@
     }
 
     init();
+    // Fonction pour prévisualiser et uploader le fichier
+window.previewFile = async (type) => {
+    const fileInput = document.getElementById('upload-avatar');
+    const file = fileInput.files[0];
+    const preview = document.getElementById('preview-img');
+    const status = document.getElementById('status-msg');
+
+    if (!file) return;
+
+    // 1. Prévisualisation immédiate locale
+    const reader = new FileReader();
+    reader.onload = (e) => preview.src = e.target.result;
+    reader.readAsDataURL(file);
+
+    status.innerText = "Téléchargement de l'image...";
+
+    // 2. Upload vers Supabase Storage
+    // On nomme le fichier avec l'ID du prof pour éviter les doublons
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${profileData.id}/avatar.${fileExt}`;
+
+    const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+    if (error) {
+        status.innerText = "Erreur upload : " + error.message;
+        status.style.color = "red";
+    } else {
+        // 3. Récupérer l'URL publique et l'enregistrer dans le profil
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        const publicUrl = urlData.publicUrl;
+
+        await supabase.from('profiles')
+            .update({ image_url: publicUrl })
+            .eq('id', profileData.id);
+
+        status.innerText = "✅ Photo mise à jour !";
+        status.style.color = "green";
+    }
+}
 </script>
 </body>
 </html>
