@@ -8,23 +8,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #000000; --bg: #f9f9f9; --border: #e0e0e0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        
+        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
         .onboarding-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 450px; }
         .step { display: none; }
         .step.active { display: block; }
-        
         h1 { font-weight: 800; font-size: 1.5rem; margin-bottom: 10px; }
         p { color: #666; font-size: 0.9rem; margin-bottom: 25px; }
-        
-        label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #999; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; font-family: inherit; box-sizing: border-box; }
-        
-        .btn-primary { background: var(--accent); color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #999; margin-top: 15px; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; box-sizing: border-box; }
+        .btn-primary { background: var(--accent); color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 25px; }
         .btn-primary:disabled { background: #ccc; }
-        
-        .file-status { font-size: 0.8rem; color: #2ecc71; margin-top: -15px; margin-bottom: 15px; display: none; }
-        #loading-overlay { display: none; text-align: center; }
+        #loading-msg { margin-top: 15px; font-size: 0.8rem; color: #666; text-align: center; display: none; }
     </style>
 </head>
 <body>
@@ -32,8 +26,8 @@
 <div class="onboarding-card">
     <div id="step-1" class="step active">
         <h1>Bienvenue.</h1>
-        <p>Commencez par créer vos identifiants sécurisés.</p>
-        <label>Email professionnel</label>
+        <p>Créez vos identifiants sécurisés.</p>
+        <label>Email</label>
         <input type="email" id="reg-email" placeholder="email@exemple.com">
         <label>Mot de passe</label>
         <input type="password" id="reg-password" placeholder="••••••••">
@@ -41,36 +35,38 @@
     </div>
 
     <div id="step-2" class="step">
-        <h1>Configurez votre site.</h1>
-        <p>Ces informations seront utilisées pour pré-construire votre page.</p>
+        <h1>Votre identité.</h1>
+        <p>Ces infos rempliront votre page d'accueil.</p>
         
-        <label>Nom complet / Titre du site</label>
+        <label>Nom complet</label>
         <input type="text" id="conf-name" placeholder="Prénom Nom">
         
-        <label>URL souhaitée (Slug)</label>
-        <input type="text" id="conf-slug" placeholder="nom-famille">
+        <label>Adresse personnalisée (URL)</label>
+        <input type="text" id="conf-slug" placeholder="ex: tristan-arbona">
         
-        <label>Votre biographie</label>
-        <textarea id="conf-bio" placeholder="Chercheur en..."></textarea>
-        
-        <label>Photo de profil (.jpg, .png)</label>
+        <label>Lien LinkedIn</label>
+        <input type="url" id="conf-linkedin" placeholder="https://linkedin.com/in/...">
+
+        <label>Lien Google Scholar</label>
+        <input type="url" id="conf-scholar" placeholder="https://scholar.google.com/...">
+
+        <label>Photo de profil</label>
         <input type="file" id="up-avatar" accept="image/*">
-        
-        <label>Publications (PDF, Word...)</label>
-        <input type="file" id="up-docs" multiple>
+
+        <label>Votre CV (PDF)</label>
+        <input type="file" id="up-cv" accept=".pdf">
         
         <button class="btn-primary" id="btn-final" onclick="submitOnboarding()">Finaliser mon site</button>
-        <div id="loading-msg" style="margin-top:10px; font-size:0.8rem; color:blue; display:none;">Traitement des fichiers en cours...</div>
+        <div id="loading-msg">Envoi des données et fichiers en cours...</div>
     </div>
 
     <div id="step-3" class="step">
-        <h1 style="color: #2ecc71;">C'est presque prêt !</h1>
-        <p>Vos informations ont été transmises avec succès.</p>
+        <h1 style="color: #2ecc71;">C'est envoyé !</h1>
+        <p>Votre profil a été créé avec succès.</p>
         <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; border: 1px solid #dcfce7; font-size: 0.9rem;">
             <strong>Prochaine étape :</strong><br>
-            Notre équipe vérifie vos documents. Votre site sera activé sous 24h dès réception de votre paiement.
+            Nous préparons votre espace. Votre site sera activé sous 24h après validation de votre paiement.
         </div>
-        <br>
         <button class="btn-primary" onclick="window.location.href='index.html'">Retour à l'accueil</button>
     </div>
 </div>
@@ -79,25 +75,21 @@
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
     const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
+    const SUPABASE_KEY = 'votre_cle_publique'; // Remplace par ta clé réelle
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let userId = null;
 
-    // --- ÉTAPE 1 : SIGNUP ---
     window.handleSignup = async () => {
         const email = document.getElementById('reg-email').value;
         const password = document.getElementById('reg-password').value;
-        
         const { data, error } = await supabase.auth.signUp({ email, password });
-        
-        if (error) { alert("Erreur : " + error.message); return; }
-        
+        if (error) { alert(error.message); return; }
         userId = data.user.id;
-        showStep(2);
+        document.getElementById('step-1').classList.remove('active');
+        document.getElementById('step-2').classList.add('active');
     }
 
-    // --- ÉTAPE 2 : UPLOAD & PROFIL ---
     window.submitOnboarding = async () => {
         const btn = document.getElementById('btn-final');
         const loader = document.getElementById('loading-msg');
@@ -107,59 +99,52 @@
         try {
             const name = document.getElementById('conf-name').value;
             const slug = document.getElementById('conf-slug').value;
-            const bio = document.getElementById('conf-bio').value;
+            const linkedin = document.getElementById('conf-linkedin').value;
+            const scholar = document.getElementById('conf-scholar').value;
             const avatarFile = document.getElementById('up-avatar').files[0];
-            const docFiles = document.getElementById('up-docs').files;
+            const cvFile = document.getElementById('up-cv').files[0];
 
             let imageUrl = null;
+            let cvUrl = null;
 
-            // 1. Upload Photo de Profil
+            // 1. Upload Photo
             if (avatarFile) {
                 const path = `${userId}/avatar-${Date.now()}.${avatarFile.name.split('.').pop()}`;
                 await supabase.storage.from('avatars').upload(path, avatarFile);
-                const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-                imageUrl = data.publicUrl;
+                imageUrl = supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl;
             }
 
-            // 2. Création du Profil (is_active est false par défaut)
-            await supabase.from('profiles').insert([{
+            // 2. Upload CV
+            if (cvFile) {
+                const path = `${userId}/cv-${Date.now()}.pdf`;
+                await supabase.storage.from('documents').upload(path, cvFile);
+                cvUrl = supabase.storage.from('documents').getPublicUrl(path).data.publicUrl;
+            }
+
+            // 3. Création du profil
+            const { error: profErr } = await supabase.from('profiles').insert([{
                 id: userId,
-                name,
-                slug,
-                bio,
-                image_url: imageUrl
+                name: name,
+                slug: slug,
+                linkedin_url: linkedin,
+                scholar_url: scholar,
+                image_url: imageUrl,
+                cv_url: cvUrl,
+                is_active: false
             }]);
 
-            // 3. Upload des Documents Multiple
-            for (let file of docFiles) {
-                const docPath = `${userId}/pub-${Date.now()}-${file.name}`;
-                const { error: upErr } = await supabase.storage.from('documents').upload(docPath, file);
-                
-                if (!upErr) {
-                    const { data } = supabase.storage.from('documents').getPublicUrl(docPath);
-                    await supabase.from('publications').insert({
-                        prof_id: userId,
-                        texte: file.name,
-                        lien: data.publicUrl
-                    });
-                }
-            }
+            if (profErr) throw profErr;
+            
+            document.getElementById('step-2').classList.remove('active');
+            document.getElementById('step-3').classList.add('active');
 
-            showStep(3);
         } catch (err) {
-            console.error(err);
-            alert("Une erreur est survenue lors de l'envoi.");
+            alert("Erreur : " + err.message);
         } finally {
             btn.disabled = false;
             loader.style.display = "none";
         }
     }
-
-    function showStep(n) {
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-        document.getElementById('step-' + n).classList.add('active');
-    }
 </script>
-
 </body>
 </html>
