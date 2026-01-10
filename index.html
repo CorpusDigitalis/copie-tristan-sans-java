@@ -85,49 +85,55 @@
         const urlParams = new URLSearchParams(window.location.search);
         const slug = urlParams.get('prof') || 'tristan';
 
-        async function loadSiteContent() {
-            // Récupération des données du profil
-            const { data: prof, error } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('slug', slug)
-                .single();
+       async function loadSiteContent() {
+    // Récupération des données du profil
+    const { data: prof, error } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('slug', slug)
+        .single();
 
-            if (error || !prof) {
-                console.error("Erreur de récupération:", error);
-                document.getElementById('profil-titre').innerText = "Profil non trouvé";
-                return;
-            }
+    // SÉCURITÉ : Si la ligne n'existe pas ou s'il y a une erreur 406
+    if (error || !prof) {
+        console.error("Profil non trouvé dans Supabase:", error);
+        document.getElementById('profil-titre').innerText = "Profil en cours de configuration";
+        document.querySelectorAll('.site-name-display').forEach(el => el.innerText = "MON SITE");
+        return; // On arrête la fonction ici pour éviter le crash
+    }
 
-            // 1. Mise à jour de l'identité
-            document.title = prof.name;
-            document.querySelectorAll('.site-name-display').forEach(el => el.innerText = prof.name.toUpperCase());
-            document.getElementById('profil-titre').innerText = prof.name;
-            document.getElementById('profil-desc').innerHTML = (prof.bio || "").replace(/\n/g, '<br>');
-            document.getElementById('current-year').innerText = new Date().getFullYear();
+    // 1. Mise à jour de l'identité (avec protections contre le "null")
+    const safeName = prof.name || "Identité à remplir";
+    
+    document.title = safeName;
+    
+    // On transforme en majuscules SEULEMENT si safeName n'est pas vide
+    document.querySelectorAll('.site-name-display').forEach(el => {
+        el.innerText = safeName.toUpperCase();
+    });
 
-            // 2. Gestion de l'image de profil
-            const img = document.getElementById('profil-img');
-            if (prof.image_url) {
-                img.src = prof.image_url;
-                img.onload = () => img.style.opacity = 1;
-            }
+    document.getElementById('profil-titre').innerText = safeName;
+    document.getElementById('profil-desc').innerHTML = (prof.bio || "Votre biographie apparaîtra ici après modification dans l'admin.").replace(/\n/g, '<br>');
+    document.getElementById('current-year').innerText = new Date().getFullYear();
 
-            // 3. Génération des menus Header et Footer
-            renderMenu('header-menu', prof.header_menu);
-            renderMenu('footer-menu', prof.footer_menu);
+    // 2. Image de profil
+    const img = document.getElementById('profil-img');
+    if (prof.image_url) {
+        img.src = prof.image_url;
+        img.style.opacity = 1;
+    }
 
-            // 4. Affichage du bouton RDV
-            if (prof.appointment_settings && prof.appointment_settings.url) {
-                const rdvContainer = document.getElementById('rdv-container');
-                const btn = document.createElement('a');
-                btn.href = prof.appointment_settings.url;
-                btn.innerText = prof.appointment_settings.text || "Prendre rendez-vous";
-                btn.target = "_blank";
-                btn.className = "btn-rdv"; // Assure-toi que cette classe est dans ton style.css
-                rdvContainer.appendChild(btn);
-            }
-        }
+    // 3. Menus Header & Footer
+    renderMenu('header-menu', prof.header_menu);
+    renderMenu('footer-menu', prof.footer_menu);
+
+    // 4. Bouton RDV
+    if (prof.appointment_settings?.url) {
+        const container = document.getElementById('rdv-container');
+        container.innerHTML = `<a href="${prof.appointment_settings.url}" class="rdv-button" target="_blank">
+            ${prof.appointment_settings.text || 'Prendre RDV'}
+        </a>`;
+    }
+}
 
         // Fonction utilitaire pour construire les menus JSON
         function renderMenu(elementId, menuItems) {
