@@ -22,15 +22,13 @@
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- 1. SIDEBAR (Navigation) --- */
+        /* SIDEBAR */
         nav { width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; padding: 24px; z-index: 50; }
-        
         .logo { font-weight: 800; font-size: 0.9rem; letter-spacing: -0.5px; margin-bottom: 40px; color: var(--accent); display: flex; align-items: center; gap: 10px; }
         .logo span { background: var(--accent); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
 
         .nav-group { margin-bottom: 20px; }
         .nav-title { font-size: 0.7rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; margin-bottom: 10px; padding-left: 10px; }
-        
         .nav-item { padding: 10px 12px; margin-bottom: 4px; cursor: pointer; border-radius: 6px; font-size: 0.9rem; font-weight: 500; color: var(--text-light); transition: 0.2s; display: flex; align-items: center; gap: 10px; }
         .nav-item:hover { background: #f9fafb; color: var(--text); }
         .nav-item.active { background: var(--bg); color: var(--accent); font-weight: 600; }
@@ -39,7 +37,7 @@
         .user-mini { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
         .logout-btn { color: var(--danger); font-size: 0.8rem; font-weight: 500; cursor: pointer; background: none; border: none; padding: 0; }
 
-        /* --- 2. MAIN EDITOR --- */
+        /* EDITOR */
         .admin-layout { display: flex; flex: 1; overflow: hidden; }
         .editor-side { flex: 1; padding: 40px; overflow-y: auto; max-width: 900px; margin: 0 auto; }
         
@@ -47,34 +45,36 @@
         h2 { font-size: 1.5rem; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
         p.subtitle { color: var(--text-light); font-size: 0.9rem; margin-top: 5px; }
 
-        /* Cartes & Formulaires */
         .card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .full-width { grid-column: span 2; }
         
         label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: var(--text-light); letter-spacing: 0.5px; }
-        input, textarea, select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.9rem; transition: 0.2s; box-sizing: border-box; }
-        input:focus, textarea:focus { outline: none; border-color: var(--accent); ring: 2px solid rgba(0,0,0,0.05); }
+        input, textarea, select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.9rem; transition: 0.2s; box-sizing: border-box; background: #fff; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); ring: 2px solid rgba(0,0,0,0.05); }
 
         .btn-primary { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .btn-secondary { background: white; border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.85rem; }
+        .btn-secondary { background: white; border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
+        .btn-secondary:hover { background: #f9fafb; }
 
-        /* Liste Publications */
-        .pub-item { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; background: #fafafa; display: flex; gap: 15px; align-items: flex-start; transition: 0.2s; }
-        .pub-item:hover { border-color: #ccc; background: white; }
-        .delete-btn { color: var(--danger); opacity: 0.6; cursor: pointer; border: none; background: none; }
-        .delete-btn:hover { opacity: 1; }
+        /* Style Spécifique Publications */
+        .pub-card { border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 15px; background: #fafafa; position: relative; transition: 0.2s; }
+        .pub-card:hover { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-color: #d1d5db; }
+        .delete-pub { position: absolute; top: 15px; right: 15px; color: var(--danger); background: none; border: none; cursor: pointer; opacity: 0.5; transition: 0.2s; }
+        .delete-pub:hover { opacity: 1; transform: scale(1.1); }
+        
+        .file-upload-wrapper { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+        .file-status { font-size: 0.8rem; font-weight: 600; color: var(--success); display: none; }
 
-        /* --- 3. LIVE PREVIEW (IPHONE MODE) --- */
+        /* PREVIEW */
         .preview-side { width: 400px; background: white; border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; padding: 20px; background: #f8f9fa; align-items: center; justify-content: center; }
         .phone-mockup { width: 320px; height: 650px; background: black; border-radius: 40px; padding: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); position: relative; }
         .phone-screen { width: 100%; height: 100%; background: white; border-radius: 30px; overflow: hidden; position: relative; }
         iframe { width: 100%; height: 100%; border: none; }
         .preview-label { margin-bottom: 15px; font-size: 0.8rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Helpers */
         .hidden { display: none !important; }
         #toast { position: fixed; bottom: 30px; left: 300px; background: var(--accent); color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.9rem; font-weight: 500; opacity: 0; transition: 0.3s; transform: translateY(10px); z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; }
         #toast.visible { opacity: 1; transform: translateY(0); }
@@ -95,7 +95,7 @@
                 <i data-lucide="user"></i> Profil & Identité
             </div>
             <div class="nav-item" onclick="switchTab('biblio', this)">
-                <i data-lucide="library"></i> Bibliothèque
+                <i data-lucide="book-open"></i> Publications & Recherches
             </div>
             <div class="nav-item" onclick="switchTab('cours', this)">
                 <i data-lucide="graduation-cap"></i> Cours
@@ -158,16 +158,15 @@
             <section id="mod-biblio" class="module hidden">
                 <div class="header-flex">
                     <div>
-                        <h2>Bibliothèque</h2>
-                        <p class="subtitle">Vos articles, livres et publications.</p>
+                        <h2>Publications & Recherches</h2>
+                        <p class="subtitle">Articles, Ouvrages, Colloques et Interventions.</p>
                     </div>
                     <button class="btn-primary" onclick="addPublication()">
                         <i data-lucide="plus"></i> Nouvelle entrée
                     </button>
                 </div>
                 
-                <div id="pubs-container">
-                    </div>
+                <div id="pubs-container"></div>
             </section>
 
             <section id="mod-perso" class="module hidden">
@@ -195,7 +194,9 @@
                             <label>Votre CV (PDF)</label>
                             <div style="display:flex; gap:10px;">
                                 <input type="file" id="up-cv" accept=".pdf" onchange="uploadFile('cv')">
-                                <a id="link-cv" href="#" target="_blank" class="btn-secondary hidden">Voir le CV actuel</a>
+                                <a id="link-cv" href="#" target="_blank" class="btn-secondary hidden">
+                                    <i data-lucide="file-text"></i> Voir le CV
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -233,7 +234,6 @@
                 <div class="card">
                     <label>Lien de réservation (Calendly, Doctolib...)</label>
                     <input type="url" id="rdv-url" placeholder="https://calendly.com/votre-nom">
-                    
                     <label style="margin-top:15px;">Texte du bouton</label>
                     <input type="text" id="rdv-text" placeholder="Ex: Prendre Rendez-vous">
                 </div>
@@ -264,16 +264,27 @@
 
     let profileData = null;
 
+    // LISTE DES CATÉGORIES POUR LE MENU DÉROULANT
+    const CATEGORIES = [
+        "Article scientifique",
+        "Ouvrage / Livre",
+        "Chapitre d'ouvrage",
+        "Communication / Colloque",
+        "Thèse / Mémoire",
+        "Rapport de recherche",
+        "Vulgarisation / Presse",
+        "Intervention média",
+        "Autre"
+    ];
+
     // --- INITIALISATION ---
     async function init() {
         lucide.createIcons();
         
-        // 1. Vérif session
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
 
-        // 2. Chargement Profil Complet
-        // MODIFICATION ICI : On a enlevé 'courses(*)' pour éviter l'erreur si la table manque
+        // On charge tout, y compris les descriptions et URL fichiers
         const { data, error } = await supabase
             .from('profiles')
             .select('*, publications(*)') 
@@ -281,22 +292,19 @@
             .single();
 
         if (error) { 
-            console.error("Détails erreur Supabase:", error);
-            alert("Erreur technique : " + error.message + " (Code: " + error.code + ")"); 
+            console.error(error);
+            alert("Erreur de connexion. Vérifiez la console."); 
             return; 
         }
         
         profileData = data;
         
-        // 3. Remplissage des champs
         fillIdentity();
         renderPublications();
         fillPerso();
         renderMenus();
-        // renderCourses(); // Désactivé temporairement tant que la table n'existe pas
+        renderCourses();
         fillRDV();
-        
-        // 4. Lancement Preview
         refreshPreview();
     }
 
@@ -315,53 +323,125 @@
         await updateProfile(updates);
     }
 
-    // --- 2. BIBLIOTHÈQUE (PUBLICATIONS) ---
+    // --- 2. PUBLICATIONS (VERSION AVANCÉE) ---
     function renderPublications() {
         const container = document.getElementById('pubs-container');
         const pubs = profileData.publications || [];
         
+        // Trier par date de création (les plus récents en haut si on veut, ici on laisse tel quel)
+        // pubs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
         if (pubs.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding:40px; color:#999;">Aucune publication pour le moment.</div>`;
+            container.innerHTML = `
+                <div style="text-align:center; padding:50px; border:2px dashed #eee; border-radius:10px; color:#aaa;">
+                    <i data-lucide="book-open" style="width:40px; height:40px; margin-bottom:10px; opacity:0.5;"></i><br>
+                    Aucun travail ajouté.<br>Commencez par "Nouvelle entrée".
+                </div>`;
+            lucide.createIcons();
             return;
         }
 
         container.innerHTML = pubs.map(p => `
-            <div class="pub-item">
-                <div style="flex:1;">
-                    <div class="form-grid" style="margin-bottom:10px;">
-                        <input type="text" value="${p.texte}" placeholder="Titre / Référence" onchange="updatePub('${p.id}', 'texte', this.value)">
-                        <input type="text" value="${p.categorie}" placeholder="Catégorie (Article, Livre...)" onchange="updatePub('${p.id}', 'categorie', this.value)">
+            <div class="pub-card">
+                <button class="delete-pub" onclick="deletePub('${p.id}')" title="Supprimer"><i data-lucide="trash-2"></i></button>
+                
+                <div class="form-grid">
+                    <div>
+                        <label>Titre du travail</label>
+                        <input type="text" value="${p.texte}" placeholder="Titre complet..." onchange="updatePub('${p.id}', 'texte', this.value)" style="font-weight:600;">
+                        
+                        <label style="margin-top:10px;">Catégorie</label>
+                        <select onchange="updatePub('${p.id}', 'categorie', this.value)">
+                            ${CATEGORIES.map(cat => `<option value="${cat}" ${p.categorie === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+                        </select>
+
+                        <label style="margin-top:10px;">Lien Externe (DOI, Éditeur...)</label>
+                        <input type="text" value="${p.lien || ''}" placeholder="https://..." onchange="updatePub('${p.id}', 'lien', this.value)">
                     </div>
-                    <input type="text" value="${p.lien || ''}" placeholder="Lien vers le document (http...)" onchange="updatePub('${p.id}', 'lien', this.value)" style="font-size:0.85rem; color:#666;">
+
+                    <div>
+                        <label>Description / Résumé (Optionnel)</label>
+                        <textarea style="height:115px;" placeholder="Bref résumé, date, lieu..." onchange="updatePub('${p.id}', 'description', this.value)">${p.description || ''}</textarea>
+                        
+                        <label style="margin-top:10px;">Fichier Joint (PDF)</label>
+                        <div class="file-upload-wrapper">
+                            ${p.fichier_url ? 
+                                `<a href="${p.fichier_url}" target="_blank" class="btn-secondary" style="font-size:0.8rem;"><i data-lucide="file-check"></i> Voir PDF</a>` : 
+                                `<span style="font-size:0.8rem; color:#aaa;">Aucun fichier</span>`
+                            }
+                            <input type="file" id="file-${p.id}" accept=".pdf" style="width:auto; font-size:0.8rem;" onchange="uploadPubFile('${p.id}')">
+                            <span id="status-${p.id}" class="file-status">OK</span>
+                        </div>
+                    </div>
                 </div>
-                <button class="delete-btn" onclick="deletePub('${p.id}')"><i data-lucide="trash-2"></i></button>
             </div>
         `).join('');
         lucide.createIcons();
     }
 
     window.addPublication = async () => {
+        // Création avec des valeurs par défaut
         const { data, error } = await supabase.from('publications')
-            .insert([{ prof_id: profileData.id, texte: 'Nouvelle publication', categorie: 'Articles' }])
+            .insert([{ 
+                prof_id: profileData.id, 
+                texte: 'Nouveau travail', 
+                categorie: 'Article scientifique',
+                description: '' 
+            }])
             .select();
         
         if (!error) {
             profileData.publications.push(data[0]);
             renderPublications();
-            showToast("Publication créée");
+            showToast("Nouvelle fiche créée");
+        } else {
+            alert("Erreur création : " + error.message);
         }
     }
 
     window.updatePub = async (id, field, val) => {
         await supabase.from('publications').update({ [field]: val }).eq('id', id);
-        // Mise à jour locale
         const p = profileData.publications.find(x => x.id === id);
         if(p) p[field] = val;
         refreshPreview();
     }
 
+    // UPLOAD SPÉCIFIQUE POUR UNE PUBLICATION
+    window.uploadPubFile = async (pubId) => {
+        const fileInput = document.getElementById(`file-${pubId}`);
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const statusSpan = document.getElementById(`status-${pubId}`);
+        statusSpan.style.display = 'inline';
+        statusSpan.innerText = 'Envoi...';
+        statusSpan.style.color = '#orange';
+
+        const path = `${profileData.id}/pubs/${pubId}-${Date.now()}.pdf`;
+        
+        const { error } = await supabase.storage.from('documents').upload(path, file);
+        
+        if (!error) {
+            const { data } = supabase.storage.from('documents').getPublicUrl(path);
+            await supabase.from('publications').update({ fichier_url: data.publicUrl }).eq('id', pubId);
+            
+            // Mise à jour locale
+            const p = profileData.publications.find(x => x.id === pubId);
+            if(p) p.fichier_url = data.publicUrl;
+            
+            statusSpan.innerText = 'Reçu !';
+            statusSpan.style.color = 'var(--success)';
+            setTimeout(() => renderPublications(), 1000); // Rafraichir pour afficher le bouton "Voir PDF"
+            refreshPreview();
+        } else {
+            alert("Erreur upload : " + error.message);
+            statusSpan.innerText = 'Erreur';
+            statusSpan.style.color = 'red';
+        }
+    }
+
     window.deletePub = async (id) => {
-        if(!confirm("Supprimer définitivement ?")) return;
+        if(!confirm("Supprimer ce travail ?")) return;
         await supabase.from('publications').delete().eq('id', id);
         profileData.publications = profileData.publications.filter(p => p.id !== id);
         renderPublications();
@@ -372,7 +452,6 @@
     function fillPerso() {
         document.getElementById('field-linkedin').value = profileData.linkedin_url || '';
         document.getElementById('field-scholar').value = profileData.scholar_url || '';
-        
         const cvLink = document.getElementById('link-cv');
         if (profileData.cv_url) {
             cvLink.href = profileData.cv_url;
@@ -384,12 +463,11 @@
         ['header', 'footer'].forEach(type => {
             const list = document.getElementById(type + '-list');
             const items = profileData[type + '_menu'] || [];
-            
             list.innerHTML = items.map((item, i) => `
                 <div style="display:flex; gap:10px; margin-bottom:8px;">
                     <input type="text" value="${item.text}" placeholder="Titre" onchange="updateMenuItem('${type}', ${i}, 'text', this.value)" style="flex:1">
                     <input type="text" value="${item.link}" placeholder="Lien (#...)" onchange="updateMenuItem('${type}', ${i}, 'link', this.value)" style="flex:1">
-                    <button class="delete-btn" onclick="removeMenuItem('${type}', ${i})">×</button>
+                    <button class="delete-btn" onclick="removeMenuItem('${type}', ${i})" style="color:#aaa;">×</button>
                 </div>
             `).join('');
         });
@@ -404,48 +482,32 @@
         };
         await updateProfile(updates);
     }
-
-    // --- 4. GESTION MENU (Interne) ---
     window.updateMenuItem = (type, index, key, val) => {
         if (!profileData[type + '_menu']) profileData[type + '_menu'] = [];
         profileData[type + '_menu'][index][key] = val;
     }
-    
     window.addMenuItem = (type) => {
         if (!profileData[type + '_menu']) profileData[type + '_menu'] = [];
         profileData[type + '_menu'].push({ text: 'Nouveau lien', link: '#' });
         renderMenus();
     }
-
     window.removeMenuItem = (type, index) => {
         profileData[type + '_menu'].splice(index, 1);
         renderMenus();
     }
 
-    // --- 5. COURS & RDV ---
+    // --- 4. COURS & RDV ---
     function renderCourses() {
-        // Placeholder simple si pas de cours
         const list = document.getElementById('courses-list');
-        list.innerHTML = `<div style="text-align:center; color:#999; padding:20px;">Module cours bientôt disponible</div>`;
+        list.innerHTML = `<div style="text-align:center; color:#999; padding:20px; border:1px dashed #ddd; border-radius:8px;">Module en cours de développement</div>`;
     }
-    
-    window.createCourse = async () => {
-        alert("Ce module sera activé prochainement.");
-        /*
-        const t = prompt("Titre du cours ?");
-        if(t) {
-            await supabase.from('courses').insert([{ prof_id: profileData.id, title: t }]);
-            location.reload(); 
-        }
-        */
-    }
+    window.createCourse = async () => { alert("Bientôt disponible !"); }
 
     function fillRDV() {
         const s = profileData.appointment_settings || {};
         document.getElementById('rdv-url').value = s.url || '';
         document.getElementById('rdv-text').value = s.text || '';
     }
-
     window.saveRDV = async () => {
         const settings = {
             url: document.getElementById('rdv-url').value,
@@ -468,14 +530,11 @@
         const fileInput = document.getElementById(type === 'avatar' ? 'up-avatar' : 'up-cv');
         const file = fileInput.files[0];
         if (!file) return;
-
         showToast("Envoi en cours...");
         const bucket = type === 'avatar' ? 'avatars' : 'documents';
         const ext = file.name.split('.').pop();
         const path = `${profileData.id}/${type}-${Date.now()}.${ext}`;
-
         const { error } = await supabase.storage.from(bucket).upload(path, file);
-        
         if (!error) {
             const { data } = supabase.storage.from(bucket).getPublicUrl(path);
             const updates = {};
@@ -497,25 +556,21 @@
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         el.classList.add('active');
     }
-
     function refreshPreview() {
-        const url = `index.html?prof=${profileData.slug}&t=${Date.now()}`; // Ajout timestamp pour forcer refresh
+        const url = `index.html?prof=${profileData.slug}&t=${Date.now()}`;
         document.getElementById('site-preview').src = url;
     }
-
     function showToast(msg) {
         const t = document.getElementById('toast');
         document.getElementById('toast-msg').innerText = msg;
         t.classList.add('visible');
         setTimeout(() => t.classList.remove('visible'), 3000);
     }
-
     window.handleLogout = async () => {
         await supabase.auth.signOut();
         window.location.href = 'login.html';
     }
 
-    // Start
     init();
 </script>
 </body>
