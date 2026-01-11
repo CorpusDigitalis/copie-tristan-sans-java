@@ -3,119 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administration - Corpus Digitalis</title>
+    <title>Connexion - Corpus Digitalis</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
     <style>
-        .login-box { max-width: 400px; margin: 80px auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; font-family: sans-serif; }
-        input { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 1rem; background: #1f1f1f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 1rem; transition: 0.3s; }
-        button:hover { background: #444; }
-        #message { margin-top: 1rem; font-size: 0.9rem; padding: 10px; border-radius: 5px; }
+        :root { --accent: #000000; --bg: #f3f4f6; --text: #1f2937; --border: #e5e7eb; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; color: var(--text); }
+        
+        .login-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); width: 100%; max-width: 380px; text-align: center; }
+        
+        .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; margin-bottom: 30px; display: inline-block; }
+        
+        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; margin-top: 0; letter-spacing: -0.5px; }
+        p.subtitle { color: #6b7280; font-size: 0.9rem; margin-bottom: 25px; margin-top: 0; }
+        
+        input { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; font-family: inherit; font-size: 0.95rem; transition: 0.2s; background: #f9fafb; }
+        input:focus { border-color: var(--accent); outline: none; background: white; }
+        
+        .btn-primary { background: var(--accent); color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .link-btn { background: none; border: none; color: #6b7280; font-size: 0.85rem; cursor: pointer; margin-top: 15px; text-decoration: underline; }
+        .link-btn:hover { color: var(--accent); }
+
         .hidden { display: none !important; }
-        .link-btn { background: none; color: #555; border: none; text-decoration: underline; font-size: 0.8rem; cursor: pointer; margin-top: 10px; width: auto; padding: 0; }
+        
+        .alert { padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 20px; text-align: left; display: none; }
+        .alert.error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .alert.success { background: #d1fae5; color: #047857; border: 1px solid #a7f3d0; }
     </style>
 </head>
 <body>
 
-<div class="login-box">
-    <div id="login-section">
-        <h1>Connexion</h1>
-        <form id="login-form">
-            <input type="email" id="email" placeholder="Email" required>
+<div class="login-card">
+    <div class="logo">CORPUS DIGITALIS</div>
+
+    <div id="alert-box" class="alert"></div>
+
+    <div id="section-login">
+        <h1>Bon retour.</h1>
+        <p class="subtitle">Connectez-vous à votre espace.</p>
+        
+        <form id="form-login">
+            <input type="email" id="email" placeholder="email@universite.fr" required>
             <input type="password" id="password" placeholder="Mot de passe" required>
-            <button type="submit">Entrer dans l'admin</button>
+            <button type="submit" class="btn-primary" id="btn-login">Se connecter</button>
         </form>
-        <button class="link-btn" onclick="showSection('reset-request-section')">Mot de passe oublié ?</button>
+        
+        <button class="link-btn" onclick="switchSection('reset-request')">Mot de passe oublié ?</button>
     </div>
 
-    <div id="recovery-section" class="hidden">
-        <h1>Nouveau mot de passe</h1>
-        <p>Définissez votre secret pour accéder à votre espace.</p>
-        <form id="recovery-form">
-            <input type="password" id="new-password" placeholder="Nouveau mot de passe" required minlength="6">
-            <button type="submit">Sauvegarder et Continuer</button>
+    <div id="section-reset-request" class="hidden">
+        <h1>Récupération.</h1>
+        <p class="subtitle">Recevez un lien par email.</p>
+        
+        <form id="form-reset-request">
+            <input type="email" id="reset-email" placeholder="Votre email" required>
+            <button type="submit" class="btn-primary">Envoyer le lien</button>
         </form>
+        
+        <button class="link-btn" onclick="switchSection('login')">Retour à la connexion</button>
     </div>
 
-    <div id="reset-request-section" class="hidden">
-        <h1>Réinitialiser</h1>
-        <p>Entrez votre mail pour recevoir un lien tout neuf.</p>
-        <form id="request-form">
-            <input type="email" id="request-email" placeholder="Votre email" required>
-            <button type="submit">Envoyer le lien par mail</button>
+    <div id="section-new-password" class="hidden">
+        <h1>Sécurité.</h1>
+        <p class="subtitle">Définissez votre nouveau mot de passe.</p>
+        
+        <form id="form-new-password">
+            <input type="password" id="new-password" placeholder="Nouveau mot de passe (min 6 car.)" required minlength="6">
+            <button type="submit" class="btn-primary">Sauvegarder</button>
         </form>
-        <button class="link-btn" onclick="showSection('login-section')">Retour à la connexion</button>
     </div>
-    
-    <div id="message"></div>
 </div>
 
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
+    // ⚠️ METS TA VRAIE CLÉ 'ANON' ICI (Celle qui commence par eyJ...)
     const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_MS-dVMY2bgi4ljM4tDTIdg_t4YKb80o';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlY2d2ZmN1eHNvbmtobHljdHJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MTY5OTAsImV4cCI6MjA4MjM5Mjk5MH0.NrEoz7TiMDShWJ1pb2jTHgnItJgSSh1SFb5Q2X7zsjE'; 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const msg = document.getElementById('message');
-    const hash = window.location.hash;
-
-    // --- LOGIQUE DE DÉTECTION DES ERREURS ET DES TOKENS ---
+    // --- GESTION DU ROUTAGE (Hash URL) ---
     window.onload = () => {
-        if (hash.includes('error_code=otp_expired')) {
-            showSection('reset-request-section');
-            msg.style.background = "#ffeeee";
-            msg.style.color = "#cc0000";
-            msg.innerText = "❌ Le lien a expiré. Veuillez en redemander un ci-dessous.";
-        } else if (hash.includes('access_token')) {
-            showSection('recovery-section');
-            msg.innerText = "✅ Clé de sécurité reconnue. Changez votre mot de passe.";
+        const hash = window.location.hash;
+        if (hash.includes('type=recovery') || hash.includes('access_token')) {
+            switchSection('new-password');
+            showAlert("🔓 Vous pouvez changer votre mot de passe.", "success");
         }
     };
 
-    // --- NAVIGATION ENTRE SECTIONS ---
-    window.showSection = (sectionId) => {
-        document.getElementById('login-section').classList.add('hidden');
-        document.getElementById('recovery-section').classList.add('hidden');
-        document.getElementById('reset-request-section').classList.add('hidden');
-        document.getElementById(sectionId).classList.remove('hidden');
-        msg.innerText = "";
-    }
-
-    // --- ACTION : CONNEXION ---
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
+    // --- 1. CONNEXION ---
+    document.getElementById('form-login').addEventListener('submit', async (e) => {
         e.preventDefault();
+        setLoading(true, 'btn-login');
+        
         const { error } = await supabase.auth.signInWithPassword({
             email: document.getElementById('email').value,
             password: document.getElementById('password').value
         });
-        if (error) msg.innerText = "Erreur : " + error.message;
-        else window.location.href = 'admin.html';
+
+        if (error) {
+            showAlert("Identifiants incorrects.", "error");
+            setLoading(false, 'btn-login', 'Se connecter');
+        } else {
+            window.location.href = 'admin.html';
+        }
     });
 
-    // --- ACTION : DEMANDER UN NOUVEAU LIEN ---
-    document.getElementById('request-form').addEventListener('submit', async (e) => {
+    // --- 2. DEMANDE DE RESET ---
+    document.getElementById('form-reset-request').addEventListener('submit', async (e) => {
         e.preventDefault();
-        msg.innerText = "Envoi du mail en cours...";
-        const email = document.getElementById('request-email').value;
+        const email = document.getElementById('reset-email').value;
+        
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: 'https://corpusdigitalis.github.io/copie-tristan-sans-java/login.html',
+            redirectTo: window.location.origin + '/login.html', // Redirection intelligente
         });
-        if (error) msg.innerText = "Erreur : " + error.message;
-        else msg.innerText = "📧 Mail envoyé ! Vérifiez votre boîte (et les spams).";
+
+        if (error) showAlert(error.message, "error");
+        else {
+            showAlert("📧 Email envoyé ! Vérifiez vos spams.", "success");
+            document.getElementById('form-reset-request').reset();
+        }
     });
 
-    // --- ACTION : ENREGISTRER LE NOUVEAU MDP ---
-    document.getElementById('recovery-form').addEventListener('submit', async (e) => {
+    // --- 3. SAUVEGARDE NOUVEAU MDP ---
+    document.getElementById('form-new-password').addEventListener('submit', async (e) => {
         e.preventDefault();
         const { error } = await supabase.auth.updateUser({
             password: document.getElementById('new-password').value
         });
-        if (error) msg.innerText = "Erreur : " + error.message;
+
+        if (error) showAlert("Erreur : " + error.message, "error");
         else {
-            msg.innerText = "Mot de passe mis à jour ! Redirection...";
+            showAlert("✅ Mot de passe changé ! Redirection...", "success");
             setTimeout(() => window.location.href = 'admin.html', 1500);
         }
     });
+
+    // --- UTILITAIRES ---
+    window.switchSection = (id) => {
+        ['login', 'reset-request', 'new-password'].forEach(s => {
+            document.getElementById('section-' + s).classList.add('hidden');
+        });
+        document.getElementById('section-' + id).classList.remove('hidden');
+        document.getElementById('alert-box').style.display = 'none';
+    }
+
+    function showAlert(msg, type) {
+        const el = document.getElementById('alert-box');
+        el.innerText = msg;
+        el.className = `alert ${type}`;
+        el.style.display = 'block';
+    }
+
+    function setLoading(isLoading, btnId, text = '') {
+        const btn = document.getElementById(btnId);
+        if (isLoading) {
+            btn.disabled = true;
+            btn.innerText = "Chargement...";
+        } else {
+            btn.disabled = false;
+            btn.innerText = text;
+        }
+    }
 </script>
 </body>
 </html>
