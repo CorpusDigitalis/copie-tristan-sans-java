@@ -259,7 +259,7 @@
 
     // --- CONFIGURATION ---
     const SUPABASE_URL = 'https://recgvfcuxsonkhlyctrw.supabase.co'; 
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlY2d2ZmN1eHNvbmtobHljdHJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MTY5OTAsImV4cCI6MjA4MjM5Mjk5MH0.NrEoz7TiMDShWJ1pb2jTHgnItJgSSh1SFb5Q2X7zsjE'; // REMPLACE PAR TA CLÉ !
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlY2d2ZmN1eHNvbmtobHljdHJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4MTY5OTAsImV4cCI6MjA4MjM5Mjk5MH0.NrEoz7TiMDShWJ1pb2jTHgnItJgSSh1SFb5Q2X7zsjE'; 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let profileData = null;
@@ -273,13 +273,18 @@
         if (!session) { window.location.href = 'login.html'; return; }
 
         // 2. Chargement Profil Complet
+        // MODIFICATION ICI : On a enlevé 'courses(*)' pour éviter l'erreur si la table manque
         const { data, error } = await supabase
             .from('profiles')
-            .select('*, courses(*), publications(*)')
+            .select('*, publications(*)') 
             .eq('id', session.user.id)
             .single();
 
-        if (error) { alert("Erreur chargement profil"); return; }
+        if (error) { 
+            console.error("Détails erreur Supabase:", error);
+            alert("Erreur technique : " + error.message + " (Code: " + error.code + ")"); 
+            return; 
+        }
         
         profileData = data;
         
@@ -288,7 +293,7 @@
         renderPublications();
         fillPerso();
         renderMenus();
-        renderCourses();
+        // renderCourses(); // Désactivé temporairement tant que la table n'existe pas
         fillRDV();
         
         // 4. Lancement Preview
@@ -419,16 +424,20 @@
 
     // --- 5. COURS & RDV ---
     function renderCourses() {
-        document.getElementById('courses-list').innerHTML = (profileData.courses || [])
-            .map(c => `<div class="card"><b>${c.title}</b></div>`).join('');
+        // Placeholder simple si pas de cours
+        const list = document.getElementById('courses-list');
+        list.innerHTML = `<div style="text-align:center; color:#999; padding:20px;">Module cours bientôt disponible</div>`;
     }
     
     window.createCourse = async () => {
+        alert("Ce module sera activé prochainement.");
+        /*
         const t = prompt("Titre du cours ?");
         if(t) {
             await supabase.from('courses').insert([{ prof_id: profileData.id, title: t }]);
             location.reload(); 
         }
+        */
     }
 
     function fillRDV() {
@@ -448,7 +457,7 @@
     // --- UTILS ---
     async function updateProfile(updates) {
         const { error } = await supabase.from('profiles').update(updates).eq('id', profileData.id);
-        if (error) alert("Erreur sauvegarde");
+        if (error) alert("Erreur sauvegarde : " + error.message);
         else {
             showToast("Sauvegardé avec succès");
             refreshPreview();
