@@ -245,15 +245,15 @@
     // CATÉGORIES PRO
     const PUB_CATEGORIES = ["Articles", "Ouvrages", "Chapitres", "Conférences", "Thèses", "Rapports", "Presse", "Divers"];
 
- // --- INITIALISATION ---
+    // --- INITIALISATION ---
     async function init() {
         lucide.createIcons();
-        console.log("🚀 Démarrage Admin - VERSION DE TEST 2.0"); // PREUVE QUE LE CODE EST À JOUR
+        console.log("🚀 Démarrage Admin - VERSION DE TEST 2.1 (Fix Double Fetch)");
 
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
 
-        // Récupération brute
+        // Récupération UNIQUE et ROBUSTE (J'ai fusionné les deux blocs en un seul)
         const { data, error } = await supabase
             .from('profiles')
             .select('*, publications(*), courses(*), interventions(*)') 
@@ -261,49 +261,11 @@
 
         if (error) { 
             console.error("❌ ERREUR SUPABASE :", error);
-            alert("Erreur technique : " + error.message); 
+            if (error.code !== 'PGRST116') alert("Erreur technique : " + error.message); 
             return; 
         }
         
         // Gestion souple (Objet ou Liste)
-        if (Array.isArray(data)) {
-            profileData = data.length > 0 ? data[0] : null;
-        } else {
-            profileData = data;
-        }
-
-        // --- LE MOUCHARD : C'EST ICI QU'ON VA VOIR LA VÉRITÉ ---
-        console.log("🔍 DONNÉES REÇUES DE LA BASE :", profileData);
-        
-        if (!profileData) {
-            alert("Profil introuvable (Data is null)");
-            return;
-        }
-
-        fillIdentity();
-        renderPublications();
-        renderCourses();
-        renderInterventions();
-        fillPerso();
-        renderMenus();
-        fillRDV();
-        refreshPreview();
-    }
-
-      // 2. Chargement Profil Complet (Version Robuste)
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*, publications(*), courses(*), interventions(*)') 
-            .eq('id', session.user.id); // On enlève .single() pour éviter le crash
-
-        if (error) { 
-            console.error(error);
-            // On ignore l'erreur si c'est juste un format de JSON, sinon on alerte
-            if (error.code !== 'PGRST116') alert("Erreur connexion : " + error.message); 
-            return; 
-        }
-        
-        // Sécurité : Si on reçoit une liste, on prend le premier élément
         if (Array.isArray(data)) {
             if (data.length === 0) {
                 alert("Aucun profil trouvé. Avez-vous bien complété l'inscription ?");
@@ -314,14 +276,14 @@
             profileData = data;
         }
 
-        if (error) { console.error(error); alert("Erreur connexion : " + error.message); return; }
-        
-        profileData = data;
+        // --- MOUCHARD ---
+        console.log("🔍 DONNÉES REÇUES :", profileData);
         
         // Tri des données
         if(profileData.interventions) profileData.interventions.sort((a,b) => new Date(b.event_date) - new Date(a.event_date));
         if(profileData.courses) profileData.courses.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 
+        // Remplissage
         fillIdentity();
         renderPublications();
         renderCourses();
@@ -419,7 +381,6 @@
             </div>`).join('');
         lucide.createIcons();
         
-        // Petit hack pour changer l'input selon le type (Fichier ou Lien)
         profileData.courses.forEach(c => {
             const select = document.getElementById(`sec-type-${c.id}`);
             const area = document.getElementById(`sec-input-area-${c.id}`);
