@@ -245,11 +245,50 @@
     // CATÉGORIES PRO
     const PUB_CATEGORIES = ["Articles", "Ouvrages", "Chapitres", "Conférences", "Thèses", "Rapports", "Presse", "Divers"];
 
-    // INIT
+ // --- INITIALISATION ---
     async function init() {
         lucide.createIcons();
+        console.log("🚀 Démarrage Admin - VERSION DE TEST 2.0"); // PREUVE QUE LE CODE EST À JOUR
+
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
+
+        // Récupération brute
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*, publications(*), courses(*), interventions(*)') 
+            .eq('id', session.user.id);
+
+        if (error) { 
+            console.error("❌ ERREUR SUPABASE :", error);
+            alert("Erreur technique : " + error.message); 
+            return; 
+        }
+        
+        // Gestion souple (Objet ou Liste)
+        if (Array.isArray(data)) {
+            profileData = data.length > 0 ? data[0] : null;
+        } else {
+            profileData = data;
+        }
+
+        // --- LE MOUCHARD : C'EST ICI QU'ON VA VOIR LA VÉRITÉ ---
+        console.log("🔍 DONNÉES REÇUES DE LA BASE :", profileData);
+        
+        if (!profileData) {
+            alert("Profil introuvable (Data is null)");
+            return;
+        }
+
+        fillIdentity();
+        renderPublications();
+        renderCourses();
+        renderInterventions();
+        fillPerso();
+        renderMenus();
+        fillRDV();
+        refreshPreview();
+    }
 
       // 2. Chargement Profil Complet (Version Robuste)
         const { data, error } = await supabase
