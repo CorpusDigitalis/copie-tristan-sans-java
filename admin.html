@@ -251,12 +251,29 @@
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
 
-        // Chargement complet : Profil + Publications + Cours + Interventions
+      // 2. Chargement Profil Complet (Version Robuste)
         const { data, error } = await supabase
             .from('profiles')
             .select('*, publications(*), courses(*), interventions(*)') 
-            .eq('id', session.user.id)
-            .single();
+            .eq('id', session.user.id); // On enlève .single() pour éviter le crash
+
+        if (error) { 
+            console.error(error);
+            // On ignore l'erreur si c'est juste un format de JSON, sinon on alerte
+            if (error.code !== 'PGRST116') alert("Erreur connexion : " + error.message); 
+            return; 
+        }
+        
+        // Sécurité : Si on reçoit une liste, on prend le premier élément
+        if (Array.isArray(data)) {
+            if (data.length === 0) {
+                alert("Aucun profil trouvé. Avez-vous bien complété l'inscription ?");
+                return;
+            }
+            profileData = data[0];
+        } else {
+            profileData = data;
+        }
 
         if (error) { console.error(error); alert("Erreur connexion : " + error.message); return; }
         
